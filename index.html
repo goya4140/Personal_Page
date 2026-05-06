@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>王邻皓 - 个人主页</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ========== 导航栏 ========== -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <span class="nav-logo">WLH</span>
+      <ul class="nav-links">
+        <li><a href="#about"   class="nav-link">关于我</a></li>
+        <li><a href="#projects" class="nav-link">项目</a></li>
+        <li><a href="#contact"  class="nav-link">联系方式</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ========== 关于我 ========== -->
+  <section id="about" class="section fade-target">
+    <div class="about-wrap">
+
+      <!-- 头像 -->
+      <div class="avatar-box">
+        <img
+          src="images/wanglinhao.jpg"
+          alt="王邻皓头像"
+          id="avatar"
+          onerror="this.style.display='none'; document.getElementById('avatar-fallback').style.display='flex';"
+        />
+        <!-- 头像加载失败时的占位符 -->
+        <div id="avatar-fallback" class="avatar-fallback">WLH</div>
+      </div>
+
+      <!-- 文字信息 -->
+      <div class="about-text">
+        <h1 class="name">王邻皓</h1>
+        <!-- 打字机效果容器 -->
+        <p class="subtitle">
+          <span id="typing-output"></span><span class="cursor">|</span>
+        </p>
+        <p class="bio">
+          我是吉林大学计算机科学专业的大二学生，专注于奖励模型与&nbsp;RLHF&nbsp;研究，
+          同时推进多智能体 ToM 推理框架 MACM 的设计，并以框架优先、高执行力的方式
+          在科研、课业与 AI 产品开发之间并行探索。
+        </p>
+        <div class="tags" id="tags-container">
+          <!-- 由 JS 动态渲染标签 -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== 项目经历 ========== -->
+  <section id="projects" class="section fade-target">
+    <h2 class="section-title">项目经历</h2>
+    <!-- 项目卡片由 JS 动态渲染 -->
+    <div class="projects-grid" id="projects-grid"></div>
+  </section>
+
+  <!-- ========== 联系方式 ========== -->
+  <section id="contact" class="section fade-target">
+    <h2 class="section-title">联系方式</h2>
+
+    <div class="contact-wrap">
+
+      <!-- 联系信息 -->
+      <div class="contact-info">
+        <div class="contact-item">
+          <span class="contact-icon">✉</span>
+          <a href="mailto:wanglinhao4140@gmail.com">wanglinhao4140@gmail.com</a>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">🎓</span>
+          <span>吉林大学 · 计算机科学与技术</span>
+        </div>
+      </div>
+
+      <!-- 留言表单（数据存入 localStorage） -->
+      <form class="message-form" id="message-form">
+        <h3 class="form-title">给我留言</h3>
+        <input  id="f-name"    type="text"  placeholder="您的姓名"  required />
+        <input  id="f-email"   type="email" placeholder="您的邮箱（选填）" />
+        <textarea id="f-content" placeholder="留言内容" required></textarea>
+        <button type="submit" class="btn-submit">发 送</button>
+        <p class="form-hint" id="form-hint"></p>
+      </form>
+
+    </div>
+
+    <!-- 历史留言展示（从 localStorage 读取） -->
+    <div class="messages-board">
+      <h3 class="board-title">留言板 <span id="msg-count"></span></h3>
+      <div id="messages-list"></div>
+    </div>
+
+  </section>
+
+  <!-- ========== 页脚 ========== -->
+  <footer class="footer">
+    <p>&copy; 2026 王邻皓 · Jilin University CS</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

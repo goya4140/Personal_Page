@@ -1,0 +1,480 @@
+/* ============================================================
+   全局变量 & Reset
+   ============================================================ */
+:root {
+  --bg:        #f7f8fc;
+  --surface:   #ffffff;
+  --border:    #e4e7ef;
+  --text:      #1a1d2e;
+  --muted:     #6b7280;
+  --accent:    #2563eb;
+  --accent-lt: #eff6ff;
+  --radius:    12px;
+  --shadow:    0 4px 24px rgba(0, 0, 0, 0.07);
+  --nav-h:     64px;
+  --trans:     0.3s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ============================================================
+   导航栏
+   ============================================================ */
+#navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+  /* 初始状态：透明，向上偏移 */
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity 0.5s ease, transform 0.5s ease, box-shadow var(--trans);
+}
+
+/* 滚动后 JS 添加 .scrolled 增加阴影 */
+#navbar.scrolled { box-shadow: var(--shadow); }
+
+/* JS 添加 .nav-visible 触发进场动画 */
+#navbar.nav-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.nav-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 36px;
+}
+
+.nav-link {
+  color: var(--text);
+  font-size: 0.95rem;
+  position: relative;
+  transition: color var(--trans);
+}
+
+/* 下划线悬停动画 */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: var(--accent);
+  transition: width var(--trans);
+}
+.nav-link:hover { color: var(--accent); text-decoration: none; }
+.nav-link:hover::after { width: 100%; }
+.nav-link.active { color: var(--accent); }
+.nav-link.active::after { width: 100%; }
+
+/* ============================================================
+   通用 Section
+   ============================================================ */
+.section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 120px 32px 80px;
+}
+
+/* 第一个 section 补偿导航栏高度 */
+#about { padding-top: calc(var(--nav-h) + 80px); }
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 48px;
+  position: relative;
+  display: inline-block;
+}
+
+/* 标题左侧装饰线 */
+.section-title::before {
+  content: "";
+  position: absolute;
+  left: -16px; top: 6px;
+  width: 4px;
+  height: calc(100% - 12px);
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   滚动淡入动画（JS 控制 .visible）
+   ============================================================ */
+.fade-target {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-target.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   关于我
+   ============================================================ */
+.about-wrap {
+  display: flex;
+  gap: 64px;
+  align-items: center;
+}
+
+/* 头像 */
+.avatar-box {
+  flex-shrink: 0;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow);
+  /* 进场旋转动画 */
+  animation: avatarIn 0.8s ease forwards;
+}
+
+@keyframes avatarIn {
+  from { opacity: 0; transform: scale(0.8) rotate(-6deg); }
+  to   { opacity: 1; transform: scale(1)   rotate(0deg); }
+}
+
+.avatar-box img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 头像占位符 */
+.avatar-fallback {
+  display: none;
+  width: 100%; height: 100%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  align-items: center;
+  justify-content: center;
+}
+
+.name {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+/* 打字机效果文字 */
+.subtitle {
+  font-size: 1.05rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+  min-height: 1.6em;
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 0.75s step-end infinite;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.bio {
+  font-size: 1rem;
+  color: var(--text);
+  max-width: 540px;
+  margin-bottom: 24px;
+}
+
+/* 标签组 */
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.tag {
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  background: var(--accent-lt);
+  color: var(--accent);
+  border: 1px solid #bfdbfe;
+  /* 每个标签依次弹入 */
+  animation: tagPop 0.4s ease backwards;
+}
+
+@keyframes tagPop {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   项目卡片
+   ============================================================ */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.project-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--trans), box-shadow var(--trans);
+  /* 依次淡入 */
+  opacity: 0;
+  animation: cardIn 0.5s ease forwards;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 顶部色条 */
+.project-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--trans);
+}
+.project-card:hover::before { transform: scaleX(1); }
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.12);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.card-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.card-tag {
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ============================================================
+   联系方式
+   ============================================================ */
+.contact-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 56px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.contact-icon {
+  font-size: 1.3rem;
+  width: 36px;
+  text-align: center;
+}
+
+/* 留言表单 */
+.message-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.form-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.message-form input,
+.message-form textarea {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color var(--trans), box-shadow var(--trans);
+  outline: none;
+}
+
+.message-form input:focus,
+.message-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.message-form textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 11px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: background var(--trans), transform 0.1s;
+}
+.btn-submit:hover  { background: #1d4ed8; }
+.btn-submit:active { transform: scale(0.98); }
+
+.form-hint {
+  font-size: 0.82rem;
+  margin-top: 10px;
+  min-height: 1.4em;
+  color: var(--accent);
+}
+
+/* 留言板 */
+.messages-board {
+  border-top: 1px solid var(--border);
+  padding-top: 40px;
+}
+
+.board-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+#msg-count {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.message-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  animation: cardIn 0.4s ease backwards;
+}
+
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.message-author {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.message-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.message-body {
+  font-size: 0.9rem;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.empty-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   页脚
+   ============================================================ */
+.footer {
+  text-align: center;
+  padding: 32px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   全局滚动进度条（顶部细线）
+   ============================================================ */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  width: 0%;
+  z-index: 200;
+  transition: width 0.1s linear;
+}
