@@ -1,16 +1,17 @@
 /* ============================================================
    main.js — 个人主页动态逻辑
    技术要点：
-     1. 打字机效果          — setTimeout 递归模拟逐字输出
-     2. 标签动态渲染        — JS 操作 DOM 生成标签节点
-     3. 项目卡片动态渲染    — 数据驱动，JS 遍历数组构建 DOM
-     4. 滚动淡入动画        — Intersection Observer API
-     5. 导航栏高亮          — Intersection Observer 监听各 section
-     6. localStorage 留言板 — 读写本地"数据库"，持久化留言数据
-     7. 页面滚动进度条      — scroll 事件实时计算百分比
+     1. 打字机效果        — setTimeout 递归模拟逐字输出
+     2. 标签动态渲染      — JS 操作 DOM 生成标签节点
+     3. 论文卡片渲染      — 数据驱动，JS 遍历数组构建横向卡片 DOM
+     4. 项目卡片渲染      — 同上，构建带封面图的竖向卡片 DOM
+     5. 联系方式渲染      — 同上，构建图标卡片 DOM
+     6. 滚动淡入动画      — Intersection Observer API 监听可见性
+     7. 导航栏高亮        — Intersection Observer 监听各 section
+     8. 页面滚动进度条    — scroll 事件实时计算百分比
    ============================================================ */
 
-/* ── 1. 页面数据（集中管理，便于维护） ── */
+/* ── 1. 页面数据 ── */
 
 const TYPING_TEXT = "吉林大学 · CS大二 · RLHF & 多智能体研究";
 
@@ -20,146 +21,299 @@ const TAGS = [
 ];
 
 /**
- * 项目数据数组
- * 每个对象对应一张卡片，JS 会遍历它动态生成 DOM
- * 占位项目：可随时替换为真实项目信息
+ * 论文数据数组
+ * links 数组中每项为 { label, url }，JS 会渲染为跳转按钮
+ * img 指向本地封面图路径，图片缺失时显示渐变占位背景
+ */
+const PUBLICATIONS = [
+  {
+    title:    "MACM: Multi-Agent Collaborative Reasoning with Theory of Mind",
+    venue:    "Under Review",
+    year:     "2025",
+    abstract: "We present MACM, a novel multi-agent framework that incorporates Theory of Mind (ToM) reasoning to enable agents to model the beliefs, intentions, and knowledge states of other agents. Evaluated on complex social reasoning benchmarks, MACM demonstrates significant improvements over single-agent and naive multi-agent baselines, highlighting the importance of belief modeling in collaborative inference tasks.",
+    img:      "images/pub_macm.jpg",
+    links:    [
+      { label: "ArXiv", url: "#" },
+      { label: "Code",  url: "#" }
+    ]
+  },
+  {
+    title:    "Towards Scalable Reward Modeling for RLHF: A Preference Aggregation Perspective",
+    venue:    "Under Review",
+    year:     "2025",
+    abstract: "Reward models are central to the success of Reinforcement Learning from Human Feedback (RLHF), yet their scalability and calibration remain open challenges. This paper proposes a preference aggregation framework that improves reward model robustness by ensemble-based preference fusion, achieving better alignment performance across diverse human feedback distributions while mitigating reward hacking.",
+    img:      "images/pub_rlhf.jpg",
+    links:    [
+      { label: "ArXiv", url: "#" }
+    ]
+  }
+];
+
+/**
+ * 工程项目数据数组
+ * 仅包含 AI 产品、工程实践类项目（非科研论文）
+ * img 指向本地封面图路径
  */
 const PROJECTS = [
   {
-    title: "MACM — 多智能体 ToM 推理框架",
-    desc:  "面向心智理论（Theory of Mind）推理的多智能体协作框架，探索智能体在复杂社会场景中的信念建模与推断能力。",
-    tags:  ["Multi-Agent", "ToM", "Python"],
-    link:  "#"
+    title: "智研 · AI 科研助手",
+    desc:  "面向高校科研人员的 AI 辅助写作与文献管理产品。集成大语言模型实现论文摘要生成、相关文献推荐与实验笔记整理，显著降低科研信息处理成本。",
+    img:   "images/proj_aiassist.jpg",
+    tags:  ["LLM", "RAG", "Python", "FastAPI"],
+    url:   "#"
   },
   {
-    title: "奖励模型研究",
-    desc:  "聚焦 RLHF 流程中的奖励模型设计与偏好学习，研究其对大语言模型对齐效果的影响。",
-    tags:  ["RLHF", "Reward Model", "LLM"],
-    link:  "#"
+    title: "RLHF 训练可视化平台",
+    desc:  "端到端的 RLHF 流程管理与监控平台，支持奖励模型训练曲线实时可视化、偏好数据标注工作流管理，以及多轮 PPO 微调任务的调度与追踪。",
+    img:   "images/proj_rlhf.jpg",
+    tags:  ["RLHF", "React", "Python", "WebSocket"],
+    url:   "#"
   },
   {
-    title: "项目占位 · 待更新",
-    desc:  "更多项目正在进行中，敬请期待。",
-    tags:  ["WIP"],
-    link:  "#"
+    title: "多智能体对话沙盒",
+    desc:  "基于 MACM 框架的交互式多智能体对话演示系统。用户可实时配置智能体角色与 ToM 信念层级，观察智能体在社会推理任务中的协作过程与推断轨迹。",
+    img:   "images/proj_sandbox.jpg",
+    tags:  ["Multi-Agent", "ToM", "Vue3", "Python"],
+    url:   "#"
   }
+];
+
+/**
+ * 联系方式数据数组
+ * icon 使用 emoji，label 为小标题，value 为显示文字，url 可选
+ */
+const CONTACTS = [
+  { icon: "✉️",  label: "Email",      value: "wanglinhao4140@gmail.com", url: "mailto:wanglinhao4140@gmail.com" },
+  { icon: "🎓",  label: "Institution", value: "吉林大学 · 计算机科学与技术学院" },
+  { icon: "🔬",  label: "Research",   value: "RLHF · 奖励模型 · 多智能体推理" },
+  { icon: "💻",  label: "GitHub",     value: "github.com/goya4140",  url: "https://github.com/goya4140" }
 ];
 
 /* ── 2. 工具函数 ── */
 
-/** 创建带文本内容的 DOM 元素 */
+/** 创建带 className 和文本内容的 DOM 元素 */
 function createElement(tag, className, text) {
   const el = document.createElement(tag);
   if (className) el.className = className;
-  if (text)      el.textContent = text;
+  if (text !== undefined && text !== null) el.textContent = text;
   return el;
 }
 
-/** 格式化时间戳为 "YYYY-MM-DD HH:mm" */
-function formatDate(ts) {
-  const d = new Date(ts);
-  const pad = n => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} `
-       + `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+/**
+ * 生成 SVG 渐变占位图的 data URI
+ * 当图片文件缺失时作为 img.src 的回退值，避免显示浏览器默认破图图标
+ */
+function svgPlaceholder(bg1, bg2) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220">
+    <defs>
+      <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="${bg1}"/>
+        <stop offset="100%" stop-color="${bg2}"/>
+      </linearGradient>
+    </defs>
+    <rect width="400" height="220" fill="url(#g)"/>
+  </svg>`;
+  return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 
 /* ── 3. 打字机效果 ── */
 
 /**
- * 将 text 逐字输出到 #typing-output 元素
- * 使用 setTimeout 递归调用模拟打字节奏
+ * 将 text 逐字追加到 container 的 textContent
+ * 使用 setTimeout 递归，每 speed 毫秒输出一个字符
  */
 function typeWriter(text, container, speed = 60) {
-  let index = 0;
+  let i = 0;
   function type() {
-    if (index < text.length) {
-      container.textContent += text[index];
-      index++;
+    if (i < text.length) {
+      container.textContent += text[i++];
       setTimeout(type, speed);
     }
   }
-  // 延迟 600ms 再开始，等页面动画稳定后再打字
   setTimeout(type, 600);
 }
 
-/* ── 4. 标签动态渲染 ── */
+/* ── 4. 标签渲染 ── */
 
-/**
- * 遍历 TAGS 数组，为每个标签创建 <span class="tag"> 节点
- * animation-delay 让标签依次弹入（CSS @keyframes tagPop）
- */
 function renderTags() {
   const container = document.getElementById("tags-container");
   TAGS.forEach((tag, i) => {
     const span = createElement("span", "tag", tag);
-    // 每个标签延迟 0.1s * i 进场，形成波浪效果
     span.style.animationDelay = `${0.8 + i * 0.08}s`;
     container.appendChild(span);
   });
 }
 
-/* ── 5. 项目卡片动态渲染 ── */
+/* ── 5. 论文卡片渲染 ── */
 
 /**
- * 遍历 PROJECTS 数组，为每个项目构建完整卡片 DOM 并插入网格
- * 数据与视图分离：修改 PROJECTS 数组即可更新页面内容
+ * 遍历 PUBLICATIONS 构建横向卡片：
+ *   左侧 .pub-img-wrap（封面图 + 渐变占位背景）
+ *   右侧 .pub-body（徽章 · 标题 · 元信息 · 摘要 · 链接按钮）
+ */
+function renderPublications() {
+  const list = document.getElementById("pub-list");
+
+  PUBLICATIONS.forEach((pub, i) => {
+    const card = createElement("div", "pub-card");
+    card.style.animationDelay = `${i * 0.15}s`;
+
+    /* 封面图区 */
+    const imgWrap = createElement("div", "pub-img-wrap");
+    const placeholder = createElement("span", "pub-img-icon", "📄");
+    imgWrap.appendChild(placeholder);
+
+    const img = document.createElement("img");
+    img.src = pub.img;
+    img.alt = pub.title;
+    img.onerror = () => { img.src = svgPlaceholder("#dbeafe", "#c7d2fe"); };
+    imgWrap.appendChild(img);
+    card.appendChild(imgWrap);
+
+    /* 正文区 */
+    const body = createElement("div", "pub-body");
+
+    /* 状态徽章 */
+    const badge = createElement("div", "pub-badge");
+    badge.appendChild(createElement("span", "pub-badge-dot"));
+    badge.appendChild(document.createTextNode(pub.venue));
+    body.appendChild(badge);
+
+    /* 标题 */
+    body.appendChild(createElement("h3", "pub-title", pub.title));
+
+    /* 元信息：年份 */
+    const meta = createElement("div", "pub-meta");
+    const yearSpan = createElement("span", null, `📅 ${pub.year}`);
+    meta.appendChild(yearSpan);
+    body.appendChild(meta);
+
+    /* 摘要 */
+    body.appendChild(createElement("p", "pub-abstract", pub.abstract));
+
+    /* 链接按钮组 */
+    if (pub.links && pub.links.length) {
+      const linkRow = createElement("div", "pub-links");
+      pub.links.forEach(({ label, url }) => {
+        const a = document.createElement("a");
+        a.className = "pub-link";
+        a.textContent = label;
+        a.href = url;
+        if (url !== "#") a.target = "_blank";
+        linkRow.appendChild(a);
+      });
+      body.appendChild(linkRow);
+    }
+
+    card.appendChild(body);
+    list.appendChild(card);
+  });
+}
+
+/* ── 6. 项目卡片渲染 ── */
+
+/**
+ * 遍历 PROJECTS 构建竖向卡片：
+ *   上方 .proj-img-wrap（封面图 + 渐变占位背景）
+ *   下方 .proj-body（标题 · 描述 · 标签 · 跳转链接）
  */
 function renderProjects() {
   const grid = document.getElementById("projects-grid");
 
   PROJECTS.forEach((proj, i) => {
-    // 外层卡片
     const card = createElement("div", "project-card");
     card.style.animationDelay = `${i * 0.12}s`;
-    if (proj.link && proj.link !== "#") {
-      card.style.cursor = "pointer";
-      card.addEventListener("click", () => window.open(proj.link, "_blank"));
-    }
 
-    // 标题
-    card.appendChild(createElement("h3", "card-title", proj.title));
+    /* 封面图区 */
+    const imgWrap = createElement("div", "proj-img-wrap");
+    imgWrap.appendChild(createElement("span", "proj-img-icon", "🚀"));
 
-    // 描述
-    card.appendChild(createElement("p", "card-desc", proj.desc));
+    const img = document.createElement("img");
+    img.src = proj.img;
+    img.alt = proj.title;
+    img.onerror = () => { img.src = svgPlaceholder("#e0f2fe", "#ddd6fe"); };
+    imgWrap.appendChild(img);
+    card.appendChild(imgWrap);
 
-    // 技术标签行
-    const tagRow = createElement("div", "card-tags");
-    proj.tags.forEach(t => tagRow.appendChild(createElement("span", "card-tag", t)));
-    card.appendChild(tagRow);
+    /* 内容区 */
+    const body = createElement("div", "proj-body");
+    body.appendChild(createElement("h3", "proj-title", proj.title));
+    body.appendChild(createElement("p", "proj-desc", proj.desc));
 
+    /* 标签 */
+    const tagRow = createElement("div", "proj-tags");
+    proj.tags.forEach(t => tagRow.appendChild(createElement("span", "proj-tag", t)));
+    body.appendChild(tagRow);
+
+    /* 跳转链接 */
+    const linkRow = createElement("div", "proj-link-row");
+    const a = document.createElement("a");
+    a.className = "proj-link";
+    a.href = proj.url;
+    if (proj.url !== "#") a.target = "_blank";
+    a.innerHTML = `查看项目 <span class="proj-link-arrow">→</span>`;
+    linkRow.appendChild(a);
+    body.appendChild(linkRow);
+
+    card.appendChild(body);
     grid.appendChild(card);
   });
 }
 
-/* ── 6. Intersection Observer — 滚动淡入 ── */
+/* ── 7. 联系方式卡片渲染 ── */
 
 /**
- * 观察所有带 .fade-target 的 section
- * 当元素进入视口时，添加 .visible 触发 CSS 过渡
+ * 遍历 CONTACTS 构建图标卡片：
+ *   左侧圆角图标框 + 右侧标签/值
  */
+function renderContacts() {
+  const grid = document.getElementById("contact-grid");
+
+  CONTACTS.forEach((item, i) => {
+    const card = createElement("div", "contact-card");
+    card.style.animationDelay = `${i * 0.1}s`;
+
+    const iconWrap = createElement("div", "contact-icon-wrap", item.icon);
+    card.appendChild(iconWrap);
+
+    const bodyDiv = createElement("div", "contact-card-body");
+    bodyDiv.appendChild(createElement("p", "contact-card-label", item.label));
+
+    const valEl = createElement("div", "contact-card-value");
+    if (item.url) {
+      const a = document.createElement("a");
+      a.textContent = item.value;
+      a.href = item.url;
+      if (!item.url.startsWith("mailto")) a.target = "_blank";
+      valEl.appendChild(a);
+    } else {
+      valEl.textContent = item.value;
+    }
+    bodyDiv.appendChild(valEl);
+    card.appendChild(bodyDiv);
+    grid.appendChild(card);
+  });
+}
+
+/* ── 8. Intersection Observer — 滚动淡入 ── */
+
 function initScrollAnimation() {
   const observer = new IntersectionObserver(
     entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add("visible");
-          // 已触发后停止观察，避免反复触发
           observer.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.12 }   // 进入视口 12% 时触发
+    { threshold: 0.1 }
   );
-
   document.querySelectorAll(".fade-target").forEach(el => observer.observe(el));
 }
 
-/* ── 7. Intersection Observer — 导航栏高亮 ── */
+/* ── 9. Intersection Observer — 导航高亮 ── */
 
-/**
- * 监听各 section 的可见状态，更新对应导航链接的 .active 类
- * rootMargin 设为负值，使高亮在 section 接近中部时触发
- */
 function initNavHighlight() {
   const sections = document.querySelectorAll(".section[id]");
   const navLinks = document.querySelectorAll(".nav-link");
@@ -169,162 +323,52 @@ function initNavHighlight() {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const id = entry.target.id;
-          navLinks.forEach(link => {
-            link.classList.toggle(
-              "active",
-              link.getAttribute("href") === `#${id}`
-            );
-          });
+          navLinks.forEach(link =>
+            link.classList.toggle("active", link.getAttribute("href") === `#${id}`)
+          );
         }
       });
     },
     { rootMargin: "-40% 0px -55% 0px" }
   );
-
   sections.forEach(s => observer.observe(s));
 }
 
-/* ── 8. localStorage 留言板 ── */
+/* ── 10. 滚动进度条 ── */
 
-const STORAGE_KEY = "wlh_messages";   // localStorage 中的键名
-
-/** 从 localStorage 读取全部留言，不存在则返回空数组 */
-function loadMessages() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-/** 将留言数组序列化后写入 localStorage */
-function saveMessages(messages) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-}
-
-/**
- * 将留言数组渲染为 DOM 节点
- * 最新的留言显示在最上方（reverse 倒序遍历）
- */
-function renderMessages() {
-  const list = document.getElementById("messages-list");
-  const countEl = document.getElementById("msg-count");
-  const messages = loadMessages();
-
-  list.innerHTML = "";   // 清空后重新渲染
-
-  if (messages.length === 0) {
-    list.appendChild(createElement("p", "empty-hint", "暂无留言，来留下第一条吧！"));
-    countEl.textContent = "";
-    return;
-  }
-
-  countEl.textContent = `(${messages.length} 条)`;
-
-  // 倒序展示，最新在前
-  [...messages].reverse().forEach((msg, i) => {
-    const item = createElement("div", "message-item");
-    item.style.animationDelay = `${i * 0.05}s`;
-
-    const meta = createElement("div", "message-meta");
-    meta.appendChild(createElement("span", "message-author", msg.name));
-    meta.appendChild(createElement("span", "message-date", formatDate(msg.timestamp)));
-    item.appendChild(meta);
-
-    item.appendChild(createElement("p", "message-body", msg.content));
-    list.appendChild(item);
-  });
-}
-
-/** 表单提交：收集数据 → 存入 localStorage → 刷新列表 */
-function initContactForm() {
-  const form    = document.getElementById("message-form");
-  const nameEl  = document.getElementById("f-name");
-  const emailEl = document.getElementById("f-email");
-  const bodyEl  = document.getElementById("f-content");
-  const hint    = document.getElementById("form-hint");
-
-  form.addEventListener("submit", e => {
-    e.preventDefault();   // 阻止默认表单跳转
-
-    const name    = nameEl.value.trim();
-    const content = bodyEl.value.trim();
-    if (!name || !content) return;
-
-    // 构造留言对象
-    const msg = {
-      name,
-      email:     emailEl.value.trim(),
-      content,
-      timestamp: Date.now()   // 时间戳用于排序和展示
-    };
-
-    // 读 → 追加 → 写：模拟数据库的 INSERT 操作
-    const messages = loadMessages();
-    messages.push(msg);
-    saveMessages(messages);
-
-    // 重置表单并提示
-    form.reset();
-    hint.textContent = "留言已保存！感谢您的留言 ✓";
-    setTimeout(() => { hint.textContent = ""; }, 3000);
-
-    // 刷新留言展示
-    renderMessages();
-  });
-}
-
-/* ── 9. 滚动进度条 ── */
-
-/**
- * 监听 scroll 事件，计算已滚动百分比
- * 实时更新顶部进度条的 width
- */
 function initProgressBar() {
-  // 动态创建进度条元素，不污染 HTML 结构
   const bar = document.createElement("div");
   bar.id = "progress-bar";
   document.body.prepend(bar);
 
   window.addEventListener("scroll", () => {
-    const scrolled = window.scrollY;
-    const total    = document.body.scrollHeight - window.innerHeight;
-    const pct      = total > 0 ? (scrolled / total) * 100 : 0;
-    bar.style.width = `${pct}%`;
+    const total = document.body.scrollHeight - window.innerHeight;
+    bar.style.width = total > 0 ? `${(window.scrollY / total) * 100}%` : "0%";
   }, { passive: true });
 }
 
-/* ── 10. 导航栏滚动效果 ── */
+/* ── 11. 导航栏出场动画 + 滚动阴影 ── */
 
 function initNavbar() {
   const nav = document.getElementById("navbar");
-
-  // 页面加载后短暂延迟再显示导航栏，避免与内容动画冲突
   setTimeout(() => nav.classList.add("nav-visible"), 200);
-
   window.addEventListener("scroll", () => {
     nav.classList.toggle("scrolled", window.scrollY > 20);
   }, { passive: true });
 }
 
-/* ── 11. 入口：DOMContentLoaded 后按序初始化 ── */
+/* ── 12. 入口 ── */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 打字机效果
-  const typingEl = document.getElementById("typing-output");
-  typeWriter(TYPING_TEXT, typingEl);
+  typeWriter(TYPING_TEXT, document.getElementById("typing-output"));
 
-  // 动态渲染
   renderTags();
+  renderPublications();
   renderProjects();
+  renderContacts();
 
-  // 交互逻辑
   initScrollAnimation();
   initNavHighlight();
-  initContactForm();
   initProgressBar();
   initNavbar();
-
-  // 初始化时从 localStorage 加载并显示历史留言
-  renderMessages();
 });
