@@ -5,10 +5,9 @@
      2. 标签动态渲染      — JS 操作 DOM 生成标签节点
      3. 论文卡片渲染      — 数据驱动，JS 遍历数组构建横向卡片 DOM
      4. 项目卡片渲染      — 同上，构建带封面图的竖向卡片 DOM
-     5. 联系方式渲染      — 同上，构建图标卡片 DOM
-     6. 滚动淡入动画      — Intersection Observer API 监听可见性
-     7. 导航栏高亮        — Intersection Observer 监听各 section
-     8. 页面滚动进度条    — scroll 事件实时计算百分比
+     5. 滚动淡入动画      — Intersection Observer API 监听可见性
+     6. 导航栏高亮        — Intersection Observer 监听各 section
+     7. 页面滚动进度条    — scroll 事件实时计算百分比
    ============================================================ */
 
 /* ── 1. 页面数据 ── */
@@ -76,17 +75,6 @@ const PROJECTS = [
     tags:  ["Multi-Agent", "ToM", "Vue3", "Python"],
     url:   "#"
   }
-];
-
-/**
- * 联系方式数据数组
- * icon 使用 emoji，label 为小标题，value 为显示文字，url 可选
- */
-const CONTACTS = [
-  { icon: "✉️",  label: "Email",      value: "wanglinhao4140@gmail.com", url: "mailto:wanglinhao4140@gmail.com" },
-  { icon: "🎓",  label: "Institution", value: "吉林大学 · 计算机科学与技术学院" },
-  { icon: "🔬",  label: "Research",   value: "RLHF · 奖励模型 · 多智能体推理" },
-  { icon: "💻",  label: "GitHub",     value: "github.com/goya4140",  url: "https://github.com/goya4140" }
 ];
 
 /* ── 2. 工具函数 ── */
@@ -260,42 +248,7 @@ function renderProjects() {
   });
 }
 
-/* ── 7. 联系方式卡片渲染 ── */
-
-/**
- * 遍历 CONTACTS 构建图标卡片：
- *   左侧圆角图标框 + 右侧标签/值
- */
-function renderContacts() {
-  const grid = document.getElementById("contact-grid");
-
-  CONTACTS.forEach((item, i) => {
-    const card = createElement("div", "contact-card");
-    card.style.animationDelay = `${i * 0.1}s`;
-
-    const iconWrap = createElement("div", "contact-icon-wrap", item.icon);
-    card.appendChild(iconWrap);
-
-    const bodyDiv = createElement("div", "contact-card-body");
-    bodyDiv.appendChild(createElement("p", "contact-card-label", item.label));
-
-    const valEl = createElement("div", "contact-card-value");
-    if (item.url) {
-      const a = document.createElement("a");
-      a.textContent = item.value;
-      a.href = item.url;
-      if (!item.url.startsWith("mailto")) a.target = "_blank";
-      valEl.appendChild(a);
-    } else {
-      valEl.textContent = item.value;
-    }
-    bodyDiv.appendChild(valEl);
-    card.appendChild(bodyDiv);
-    grid.appendChild(card);
-  });
-}
-
-/* ── 8. Intersection Observer — 滚动淡入 ── */
+/* ── 7. Intersection Observer — 滚动淡入 ── */
 
 function initScrollAnimation() {
   const observer = new IntersectionObserver(
@@ -312,7 +265,7 @@ function initScrollAnimation() {
   document.querySelectorAll(".fade-target").forEach(el => observer.observe(el));
 }
 
-/* ── 9. Intersection Observer — 导航高亮 ── */
+/* ── 8. Intersection Observer — 导航高亮 ── */
 
 function initNavHighlight() {
   const sections = document.querySelectorAll(".section[id]");
@@ -334,7 +287,7 @@ function initNavHighlight() {
   sections.forEach(s => observer.observe(s));
 }
 
-/* ── 10. 滚动进度条 ── */
+/* ── 9. 滚动进度条 ── */
 
 function initProgressBar() {
   const bar = document.createElement("div");
@@ -347,7 +300,7 @@ function initProgressBar() {
   }, { passive: true });
 }
 
-/* ── 11. 导航栏出场动画 + 滚动阴影 ── */
+/* ── 10. 导航栏出场动画 + 滚动阴影 ── */
 
 function initNavbar() {
   const nav = document.getElementById("navbar");
@@ -357,7 +310,7 @@ function initNavbar() {
   }, { passive: true });
 }
 
-/* ── 12. 入口 ── */
+/* ── 11. 入口 ── */
 
 document.addEventListener("DOMContentLoaded", () => {
   typeWriter(TYPING_TEXT, document.getElementById("typing-output"));
@@ -365,7 +318,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderTags();
   renderPublications();
   renderProjects();
-  renderContacts();
 
   initScrollAnimation();
   initNavHighlight();
