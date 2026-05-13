@@ -204,48 +204,59 @@ a:hover { text-decoration: underline; }
 /* ============================================================
    论文发表
    ============================================================ */
-.pub-list { display: flex; flex-direction: column; gap: 24px; }
+.pub-list { display: flex; flex-direction: column; gap: 20px; }
 
 .pub-card {
   display: flex;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-left: 4px solid transparent;
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  transition: transform var(--trans), box-shadow var(--trans);
+  transition: transform var(--trans), box-shadow var(--trans), border-left-color var(--trans);
   opacity: 0;
   animation: cardIn 0.5s ease forwards;
 }
 .pub-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 36px rgba(37, 99, 235, 0.11);
+  box-shadow: 0 12px 36px rgba(37, 99, 235, 0.13);
 }
+/* 根据 venueType 控制左侧边框颜色 */
+.pub-card[data-venue-type="review"]:hover  { border-left-color: #f59e0b; }
+.pub-card[data-venue-type="published"]:hover { border-left-color: #10b981; }
+.pub-card[data-venue-type="workshop"]:hover  { border-left-color: #8b5cf6; }
+/* 始终显示左侧边框（hover 时更深） */
+.pub-card[data-venue-type="review"]    { border-left-color: #fcd34d; }
+.pub-card[data-venue-type="published"] { border-left-color: #6ee7b7; }
+.pub-card[data-venue-type="workshop"]  { border-left-color: #c4b5fd; }
 
-/* 论文封面图 */
+/* 论文封面图 — object-fit:contain 完整显示论文图，不裁剪 */
 .pub-img-wrap {
   flex-shrink: 0;
-  width: 240px;
-  min-height: 220px;   /* 保证最小可见高度，内容更短时不塌陷 */
+  width: 220px;
+  aspect-ratio: 4 / 3;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #dbeafe 0%, #c7d2fe 100%);
+  background: #f8faff;
+  border-right: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .pub-img-wrap img {
   position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
+  inset: 8px;              /* 四周留白，避免图紧贴边框 */
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  object-fit: contain;     /* 完整显示，不裁剪 */
   z-index: 1;
   transition: transform 0.4s ease;
 }
-.pub-card:hover .pub-img-wrap img { transform: scale(1.04); }
+.pub-card:hover .pub-img-wrap img { transform: scale(1.03); }
 .pub-img-icon {
-  font-size: 3rem;
-  opacity: 0.45;
+  font-size: 2.8rem;
+  opacity: 0.35;
   pointer-events: none;
   user-select: none;
 }
@@ -253,64 +264,120 @@ a:hover { text-decoration: underline; }
 /* 论文正文 */
 .pub-body {
   flex: 1;
-  padding: 28px 32px;
+  padding: 22px 28px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
+
+/* 顶行：序号 + 徽章 */
+.pub-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pub-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+/* 状态徽章 */
 .pub-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.pub-badge--review {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+.pub-badge--published {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+.pub-badge--workshop {
+  background: #f5f3ff;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
 }
 .pub-badge-dot {
-  width: 6px; height: 6px;
+  width: 5px; height: 5px;
   border-radius: 50%;
-  background: var(--accent);
   display: inline-block;
+  background: currentColor;
 }
+
 .pub-title {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 700;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--text);
 }
+
+/* 作者列表 */
+.pub-authors {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.pub-author-self {
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--accent);
+}
+
 .pub-meta {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--muted);
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
 }
 .pub-meta span { display: flex; align-items: center; gap: 4px; }
+
 .pub-abstract {
-  font-size: 0.88rem;
-  color: #374151;
-  line-height: 1.65;
+  font-size: 0.86rem;
+  color: #4b5563;
+  line-height: 1.7;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   flex: 1;
 }
-.pub-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+
+.pub-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .pub-link {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  padding: 5px 14px;
+  padding: 4px 13px;
   border-radius: 999px;
   border: 1.5px solid var(--accent);
   color: var(--accent);
   background: transparent;
-  transition: background var(--trans), color var(--trans);
+  transition: background var(--trans), color var(--trans), transform 0.15s ease;
   letter-spacing: 0.3px;
 }
-.pub-link:hover { background: var(--accent); color: #fff; text-decoration: none; }
+.pub-link:hover {
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
 
 /* ============================================================
    工程项目

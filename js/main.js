@@ -21,6 +21,8 @@ const TAGS = [
 
 /**
  * 论文数据数组
+ * authors: 作者列表，self:true 表示本人（会高亮显示）
+ * venueType: "review" | "published" | "workshop" 控制徽章颜色
  * links 数组中每项为 { label, url }，JS 会渲染为跳转按钮
  * img 指向本地封面图路径，图片缺失时显示渐变占位背景
  */
@@ -28,7 +30,13 @@ const PUBLICATIONS = [
   {
     title:    "MACM: Multi-Agent Collaborative Reasoning with Theory of Mind",
     venue:    "Under Review",
+    venueType: "review",
     year:     "2025",
+    authors:  [
+      { name: "王邻皓", self: true },
+      { name: "Co-Author A" },
+      { name: "Co-Author B" }
+    ],
     abstract: "We present MACM, a novel multi-agent framework that incorporates Theory of Mind (ToM) reasoning to enable agents to model the beliefs, intentions, and knowledge states of other agents. Evaluated on complex social reasoning benchmarks, MACM demonstrates significant improvements over single-agent and naive multi-agent baselines, highlighting the importance of belief modeling in collaborative inference tasks.",
     img:      "images/pub_macm.jpg",
     links:    [
@@ -39,7 +47,12 @@ const PUBLICATIONS = [
   {
     title:    "Towards Scalable Reward Modeling for RLHF: A Preference Aggregation Perspective",
     venue:    "Under Review",
+    venueType: "review",
     year:     "2025",
+    authors:  [
+      { name: "王邻皓", self: true },
+      { name: "Co-Author C" }
+    ],
     abstract: "Reward models are central to the success of Reinforcement Learning from Human Feedback (RLHF), yet their scalability and calibration remain open challenges. This paper proposes a preference aggregation framework that improves reward model robustness by ensemble-based preference fusion, achieving better alignment performance across diverse human feedback distributions while mitigating reward hacking.",
     img:      "images/pub_rlhf.jpg",
     links:    [
@@ -136,14 +149,16 @@ function renderTags() {
 
 /**
  * 遍历 PUBLICATIONS 构建横向卡片：
- *   左侧 .pub-img-wrap（封面图 + 渐变占位背景）
- *   右侧 .pub-body（徽章 · 标题 · 元信息 · 摘要 · 链接按钮）
+ *   左侧 .pub-img-wrap（封面图，object-fit:contain 完整显示论文图）
+ *   右侧 .pub-body（序号 · 徽章 · 标题 · 作者 · 元信息 · 摘要 · 链接按钮）
  */
 function renderPublications() {
   const list = document.getElementById("pub-list");
+  const total = PUBLICATIONS.length;
 
   PUBLICATIONS.forEach((pub, i) => {
     const card = createElement("div", "pub-card");
+    card.dataset.venueType = pub.venueType || "review";
     card.style.animationDelay = `${i * 0.15}s`;
 
     /* 封面图区 */
@@ -161,18 +176,38 @@ function renderPublications() {
     /* 正文区 */
     const body = createElement("div", "pub-body");
 
-    /* 状态徽章 */
-    const badge = createElement("div", "pub-badge");
+    /* 顶行：序号 + 状态徽章 */
+    const topRow = createElement("div", "pub-top-row");
+    const numBadge = createElement("span", "pub-num", `[${total - i}]`);
+    topRow.appendChild(numBadge);
+
+    const badge = createElement("span", `pub-badge pub-badge--${pub.venueType || "review"}`);
     badge.appendChild(createElement("span", "pub-badge-dot"));
     badge.appendChild(document.createTextNode(pub.venue));
-    body.appendChild(badge);
+    topRow.appendChild(badge);
+    body.appendChild(topRow);
 
     /* 标题 */
     body.appendChild(createElement("h3", "pub-title", pub.title));
 
+    /* 作者列表（本人加粗高亮） */
+    if (pub.authors && pub.authors.length) {
+      const authorsEl = createElement("p", "pub-authors");
+      pub.authors.forEach((author, idx) => {
+        if (idx > 0) authorsEl.appendChild(document.createTextNode(", "));
+        if (author.self) {
+          const strong = createElement("strong", "pub-author-self", author.name);
+          authorsEl.appendChild(strong);
+        } else {
+          authorsEl.appendChild(document.createTextNode(author.name));
+        }
+      });
+      body.appendChild(authorsEl);
+    }
+
     /* 元信息：年份 */
     const meta = createElement("div", "pub-meta");
-    const yearSpan = createElement("span", null, `📅 ${pub.year}`);
+    const yearSpan = createElement("span", null, `${pub.year}`);
     meta.appendChild(yearSpan);
     body.appendChild(meta);
 
