@@ -37,6 +37,10 @@ When editing an article, update both language files and refresh the matching che
 
 ## Hosting
 
+Live site: [Chinese](https://goya4140.github.io/Personal_Page/) · [English](https://goya4140.github.io/Personal_Page/en/) · [Blog](https://goya4140.github.io/Personal_Page/blog.html).
+
+GitHub Pages publishes the tracked static site from the root of the default branch. The `.nojekyll` marker preserves the generated HTML and assets without Jekyll processing.
+
 The static pages use relative URLs and support both a domain root and a GitHub Pages project subdirectory. Publish `dist/`, or serve the tracked generated HTML and assets directly. Private Sites configuration and local import/source records are managed separately from a public GitHub export.
 
 The CV download is explicitly labeled as Chinese. Source credits accompany paper illustrations. Research entries use an image/text layout inspired by [w-r-s/academic-homepage-template](https://github.com/w-r-s/academic-homepage-template).
