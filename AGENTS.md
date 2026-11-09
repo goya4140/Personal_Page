@@ -43,3 +43,5 @@ ScientistTwo 的示例：`["AI for Science", "科研智能体", "论文阅读"]`
 - 有可用插图的文章在列表与标题右侧展示缩略图，手机端自适应。海报按当前语言选择，在文章顶部速览，并可打开完整文件。
 - `data/posts.json` 的 `covers.zh`、`covers.en` 指定语言封面，`pinned` 指定置顶文章。
 - 修改后更新 `content/translations.json` 的对应源文与译文 SHA-256，执行 `npm run build` 与 `npm run check`。
+
+- 首页仅展示个人资料、研究与项目经历；不嵌入 Blog 精选、文章摘要或海报。Blog 通过导航入口访问。

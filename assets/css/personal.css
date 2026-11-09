@@ -204,14 +204,3 @@ body.theme-luka .research-practice > h3 { font-size: 15px; margin-bottom: 20px; 
 body.theme-luka .practice-entry h4 { font-size: 13px; font-weight: 600; line-height: 1.6; margin: 0; }
 body.theme-luka .practice-affiliation { font-size: 10px; color: var(--luka-secondary); margin: 5px 0 9px; }
 @media (max-width: 560px) { .practice-entry .entry-top { flex-direction: column; gap: 3px; } }
-
-/* A paper-reading entry, distinct from personal research. */
-.home-reading { margin:0 0 45px;border:1px solid var(--luka-border);border-radius:7px;background:var(--luka-social-bg); }
-.home-reading>a { display:grid;grid-template-columns:minmax(0,1fr) 48%;gap:20px;align-items:center;padding:18px;color:var(--luka-text); }
-.home-reading>a:hover { text-decoration:none; }
-.reading-eyebrow { font-size:9px;letter-spacing:1px;color:var(--luka-accent); }
-body.theme-luka .home-reading h2 { font-size:19px;margin:10px 0 5px;font-weight:550; }
-.home-reading p { font-size:12px;color:var(--luka-secondary);margin:0 0 12px; }
-.reading-more { font-size:10px;color:var(--luka-accent); }
-.home-reading-image img { width:100%;height:auto;border:1px solid var(--luka-border);border-radius:3px;background:#fff; }
-@media(max-width:560px){ .home-reading>a { grid-template-columns:1fr; } }

@@ -49,8 +49,6 @@ parts += ['</dl></div></section>',heading('awards','荣誉奖励','Honors',7),f'
 page='\n'.join(parts)
 page=page.replace('<h1 class="site-name">王邻皓</h1>',f'<h1 class="site-name">{bi("王邻皓","Linhao Wang")}</h1>')
 page=page.replace('<p class="name-en">Linhao Wang</p>',f'<p class="name-en">{bi("Linhao Wang","王邻皓")}</p>')
-reading=f'''<aside class="home-reading" aria-label="Featured paper reading"><a href="blog/scientisttwo.html"><div><span class="reading-eyebrow">{bi('精选阅读 · 海报速览','FEATURED READING · POSTER')}</span><h2>ScientistTwo</h2><p>{bi('从研究想法到实验反馈','From research ideas to experimental feedback')}</p><span class="reading-more">{bi('阅读文章与海报','Read the article & poster')} ↗</span></div><div class="home-reading-image"><img class="lang-zh" src="assets/posters/scientisttwo/zh/preview.png" alt="ScientistTwo 中文海报" width="3072" height="1536"><img class="lang-en" src="assets/posters/scientisttwo/en/preview.png" alt="ScientistTwo English poster" width="3072" height="1536"></div></a></aside>'''
-page=page.replace('<section class="section" id="education"',reading+'<section class="section" id="education"')
 (root/'index.html').write_text(page)
 english=page.replace('lang="zh-CN" data-locale="zh"','lang="en" data-locale="en"').replace('data-language-url="en/index.html"','data-language-url="../index.html"')
 english=english.replace('href="assets/','href="../assets/').replace('src="assets/','src="../assets/')
