@@ -1,0 +1,61 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>从静态资料到 Agent 训练数据：指令、动作、环境与奖励 | Linhao Wang</title>
+  <meta name="description" content="同一份文档或工具记录，怎样逐步增加任务、状态与验证结构，转化为 SFT 和 RL 可用的数据。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="从静态资料到 Agent 训练数据：指令、动作、环境与奖励">
+  <meta property="og:description" content="同一份文档或工具记录，怎样逐步增加任务、状态与验证结构，转化为 SFT 和 RL 可用的数据。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/agent-training-data/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="从静态资料到 Agent 训练数据：指令、动作、环境与奖励" data-title-en="From static materials to agent training data" data-language-url="../../en/blog/agent-training-data/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">科研笔记</span><span>约 6 分钟</span><span>中文原稿</span></div><div class="article-heading-layout"><div><h1>从静态资料到 Agent 训练数据：指令、动作、环境与奖励</h1><p class="article-summary">同一份文档或工具记录，怎样逐步增加任务、状态与验证结构，转化为 SFT 和 RL 可用的数据。</p><div class="post-topics"><span>数据工程</span><span>Agent 训练</span><span>强化学习</span></div></div></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">指令化</a></li><li><a href="#section-2">动作化</a></li><li><a href="#section-3">环境化</a></li><li><a href="#section-4">奖励化</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>数据收集得到的领域文档、代码仓库、API 文档、用户轨迹、教程和工作流规范，通常不能直接用于 Agent 训练。它们需要逐步增加任务、动作、状态和验证结构，才能分别满足预训练、监督微调（SFT）和强化学习（RL）的要求。本文将这一过程概括为指令化、动作化、环境化和奖励化。预训练、SFT 与 RL 并非与四步平行的数据类别：经过基础规范化的材料可用于预训练；指令化和动作化主要形成 SFT 数据；环境化和奖励化则进一步产生可用于 RL 的交互经验。</p>
+<h2 id="section-1">指令化</h2>
+<p>指令化将文档、issue、教程或业务规范转化为明确任务，并划分模型可见上下文、环境隐藏状态和验证器私有信息。用于预训练时，领域材料可以保留文档、代码、schema 或弱标注轨迹的序列形态，重点是来源、版本、去重和许可；用于 SFT 时，则必须形成信息充分、目标明确的 instruction–response 样本。若把参考 patch、隐藏测试或完整操作答案写入输入，会造成标签泄露；若省略权限、历史状态或成功条件，任务又会变成欠约束问题。</p>
+<p><a href="https://arxiv.org/abs/2212.10560" target="_blank" rel="noopener noreferrer">Self-Instruct</a> 展示了从少量 seed 自动生成 instruction、input 和 output 的通用范式，但启发式过滤不能证明任务事实正确。<a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener noreferrer">SWE-bench</a> 则从真实 GitHub issue 提取任务，并用 base commit、仓库和测试保留执行上下文。<a href="https://arxiv.org/abs/2603.11076" target="_blank" rel="noopener noreferrer">DIVE</a> 进一步采用 evidence-first 流程：先执行真实工具取得证据，再生成被证据支持的任务，从而减少与工具能力不匹配或没有可验证答案的合成请求。由此，指令化不只是文本改写，而是建立任务、证据和信息边界之间的对应关系。</p>
+<h2 id="section-2">动作化</h2>
+<p>动作化将最终回答或操作步骤转化为 Agent 可学习的动作接口与轨迹。对于工具 Agent，SFT 标签不仅包括文本答案，还应包含工具选择、参数、返回结果和跨轮依赖。<a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener noreferrer">Toolformer</a>、<a href="https://arxiv.org/abs/2304.08244" target="_blank" rel="noopener noreferrer">API-Bank</a> 与 <a href="https://arxiv.org/abs/2307.16789" target="_blank" rel="noopener noreferrer">ToolLLM/ToolBench</a> 分别展示了工具调用自举、可运行训练/评测和大规模 API 路径合成。<a href="https://arxiv.org/abs/2406.18518" target="_blank" rel="noopener noreferrer">APIGen</a> 使用格式、执行和语义三级检查，使合成调用从“语法正确”推进到“可执行且与任务语义一致”。</p>
+<p>真实工作流还包含澄清、用户修改和工具依赖。<a href="https://arxiv.org/abs/2504.03601" target="_blank" rel="noopener noreferrer">APIGen-MT</a> 将 ground-truth actions 与多轮对话分离，<a href="https://arxiv.org/abs/2510.01179" target="_blank" rel="noopener noreferrer">TOUCAN</a> 从真实 MCP 环境生成多工具、多轮轨迹。教程和用户日志也可被动作化为 GUI demonstration，但必须在对应状态中重放；专家或教程给出的一条成功路径并不等于唯一正确路径。动作化后的数据主要服务于 SFT，其最低要求是动作可解析、时序一致、正负标签明确，并避免将事后信息提前写入 observation。</p>
+<h2 id="section-3">环境化</h2>
+<p>环境化将固定轨迹放回可交互世界，补齐初始状态、动作执行、状态转移、异常、副作用和 reset。SFT 只需要模型模仿已有 demonstration，而 RL 需要模型尝试不同策略并观察后果，因此仅保存一串 tool calls 或静态返回值并不能构成 RL 数据。<a href="https://arxiv.org/abs/2010.03768" target="_blank" rel="noopener noreferrer">ALFWorld</a>、<a href="https://arxiv.org/abs/2207.01206" target="_blank" rel="noopener noreferrer">WebShop</a> 和 <a href="https://arxiv.org/abs/2306.14898" target="_blank" rel="noopener noreferrer">InterCode</a> 分别在具身、网页与代码执行任务中建立 step–observation–reset 接口；<a href="https://arxiv.org/abs/2407.18901" target="_blank" rel="noopener noreferrer">AppWorld</a> 同时检查目标状态和 collateral damage，使环境能够接受多条策略，而非匹配唯一参考轨迹。</p>
+<p>近期工作开始自动扩展环境。<a href="https://arxiv.org/abs/2406.04151" target="_blank" rel="noopener noreferrer">AgentGym</a> 统一异质环境接口，<a href="https://arxiv.org/abs/2601.05808" target="_blank" rel="noopener noreferrer">EnvScaler</a> 程序化生成 environment skeleton、scenario 和 rule validator，<a href="https://arxiv.org/abs/2605.18703" target="_blank" rel="noopener noreferrer">EnvFactory</a> 从真实资源探索可执行环境。软件工程中的 <a href="https://arxiv.org/abs/2412.21139" target="_blank" rel="noopener noreferrer">SWE-Gym</a>、<a href="https://arxiv.org/abs/2504.21798" target="_blank" rel="noopener noreferrer">SWE-smith</a> 和 <a href="https://arxiv.org/abs/2601.22859" target="_blank" rel="noopener noreferrer">MEnvAgent</a> 则将仓库、依赖、容器和测试组织为可重放任务。环境化的质量不能只用环境数量衡量，还应报告状态图、工具组合、异常分支、reset 成功率和版本信息。</p>
+<h2 id="section-4">奖励化</h2>
+<p>奖励化将成功条件、过程进展、副作用和政策约束转化为 verifier 与 reward，使环境能够产生 RL 信号。最基础的验证检查格式和执行；更强的验证还需判断目标状态是否达成、无关状态是否被破坏，以及结果是否符合语义和政策。<a href="https://arxiv.org/abs/2107.03374" target="_blank" rel="noopener noreferrer">HumanEval</a> 使用单元测试判断功能正确性，SWE-bench 结合 fail-to-pass 与 regression tests，AppWorld 检查目标状态与 collateral damage，<a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a> 则结合程序执行、fresh reproduction 和层级 rubric。</p>
+<p>终局 reward 稳定但稀疏，长轨迹还需要可靠的过程信号。<a href="https://arxiv.org/abs/2605.10325" target="_blank" rel="noopener noreferrer">Verifiable Process Rewards</a> 使用 symbolic 或 algorithmic intermediate oracle 构造 turn-level reward；<a href="https://arxiv.org/abs/2604.09813" target="_blank" rel="noopener noreferrer">COVERT</a> 在保持 oracle 不变的条件下加入 distractor、模糊请求和错误工具输出；<a href="https://arxiv.org/abs/2608.14312" target="_blank" rel="noopener noreferrer">Envs-FORGE</a> 根据当前 policy 的通过率与 verifier reward 调整环境难度。这些方法把 RL 数据从静态轨迹扩展为“环境—rollout—验证器”的组合，但也使 verifier 偏差成为核心风险：如果任务生成器与验证器同源，或 reward 只接受参考路径，模型可能学习投机而非真实工作流能力。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>处理步骤</th>
+<th>新增结构</th>
+<th>主要训练用途</th>
+<th>核心质量要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>指令化</td>
+<td>任务、上下文和信息边界</td>
+<td>领域预训练、instruction SFT</td>
+<td>来源与版本明确；任务充分；无答案泄露</td>
+</tr>
+<tr>
+<td>动作化</td>
+<td>工具 schema、动作和轨迹</td>
+<td>Tool-use / GUI / multi-turn SFT</td>
+<td>动作可解析、可执行、时序一致</td>
+</tr>
+<tr>
+<td>环境化</td>
+<td>初始状态、状态转移、异常与 reset</td>
+<td>轨迹重放、offline/online RL</td>
+<td>状态真实、可重置、能检查副作用</td>
+</tr>
+<tr>
+<td>奖励化</td>
+<td>verifier、reward、政策约束与预算</td>
+<td>RL、curriculum、失败恢复</td>
+<td>验证独立；接受等价路径；防止 reward hacking</td>
+</tr>
+</tbody>
+</table></div><p>四步构成一条带反馈的数据转化链。指令化与动作化产生 Agent SFT 所需的任务和行为监督；环境化与奖励化将这些监督扩展为可探索、可验证的 RL 经验。RL rollout 中产生的失败还可经过定位、修复和重新执行，回流为新的 SFT 修复轨迹或异常恢复环境。由此，预训练提供领域与工具知识，SFT 提供稳定的行动初始化，RL 则学习长期后果与恢复策略，而三者的要求被统一到同一套数据处理过程中。</p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">指令化</a></li><li><a href="#section-2">动作化</a></li><li><a href="#section-3">环境化</a></li><li><a href="#section-4">奖励化</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../generate-verify-repair/"><span>科研笔记</span><strong>生成—验证—修复：Coding Agent 的证据闭环</strong><i aria-hidden="true">↗</i></a><a href="../scientistone/"><span>论文阅读</span><strong>ScientistOne：用证据链连接论文、代码与实验</strong><i aria-hidden="true">↗</i></a><a href="../scientific-discovery-evaluation/"><span>论文阅读</span><strong>SDE：答对科学题，能否做好科学研究</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

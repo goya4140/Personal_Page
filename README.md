@@ -13,14 +13,16 @@ npm run dev
 
 The development server serves the generated HTML in this repository at `http://127.0.0.1:4173`. Production output is in `dist/`.
 
-- Chinese homepage: `index.html`; blog: `blog.html`.
-- English homepage: `en/index.html`; blog: `en/blog.html`.
+- Chinese homepage: `/`; blog: `/blog/`.
+- English homepage: `/en/`; blog: `/en/blog/`.
 - Each of the 13 articles has a complete Chinese and English reading page, including translated captions, tables, and contents.
 - The language button keeps the current article, section anchor, and archive search/filter. Theme preferences are stored locally.
 - Article and archive covers appear beside titles on larger screens and adapt for smaller screens.
 - ScientistTwo is pinned with the corresponding Chinese or English poster. The poster gallery offers PNG, one-page PDF, editable HTML, and complete asset/provenance bundles.
 
 ## Authoring
+
+Public navigation uses directory URLs without `.html`. `scripts/clean-routes.mjs` rebases assets and links, publishes `.../index.html`, and retains legacy `.html` redirects. The old `/Personal_Page/` address redirects to the personal root site.
 
 - `scripts/personalize.py`: homepage source. Do not edit generated `index.html` directly.
 - `content/posts/<slug>.md`: Chinese original.
@@ -37,7 +39,7 @@ When editing an article, update both language files and refresh the matching che
 
 ## Hosting
 
-Live site: [Chinese](https://goya4140.github.io/Personal_Page/) · [English](https://goya4140.github.io/Personal_Page/en/) · [Blog](https://goya4140.github.io/Personal_Page/blog.html).
+Live site: [Chinese](https://goya4140.github.io/) · [English](https://goya4140.github.io/en/) · [Blog](https://goya4140.github.io/blog/).
 
 GitHub Pages publishes the tracked static site from the root of the default branch. The `.nojekyll` marker preserves the generated HTML and assets without Jekyll processing.
 

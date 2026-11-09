@@ -11,9 +11,10 @@ for(const file of walk(root).filter(f=>f.endsWith('.html'))){
  for(const match of html.matchAll(/(?:href|src)="([^"]+)"/g)){
   const value=match[1].replaceAll('&amp;','&');
   if(!value||/^(?:https?:|mailto:|data:|javascript:)/.test(value))continue;
-  const [part,fragment]=value.split('#'),target=path.resolve(path.dirname(file),decodeURIComponent(part.split('?')[0]||path.basename(file)));
-  assert(target.startsWith(root+path.sep),`Nonportable path in ${file}: ${value}`);
+  const [part,fragment]=value.split('#');let target=path.resolve(path.dirname(file),decodeURIComponent(part.split('?')[0]||path.basename(file)));
+  assert(target===root||target.startsWith(root+path.sep),`Nonportable path in ${file}: ${value}`);
   assert(fs.existsSync(target),`Missing local target in ${file}: ${value}`);
+  if(fs.statSync(target).isDirectory())target=path.join(target,'index.html');
   if(fragment&&target.endsWith('.html'))assert(fs.readFileSync(target,'utf8').includes(`id="${fragment}"`),`Missing anchor: ${file}: ${value}`);
   references++;
  }
@@ -28,7 +29,7 @@ for(const p of posts){
  assert.deepEqual(numbersInTables(zh),numbersInTables(en),`Translated table numbers: ${p.slug}`);
  assert(!/[\u3400-\u9fff]/u.test(en),`Untranslated Chinese in ${p.slug}`);
  for(const [prefix,language] of [['','zh-CN'],['en/','en']]){
-  const html=fs.readFileSync(`dist/${prefix}blog/${p.slug}.html`,'utf8');
+  const html=fs.readFileSync(`dist/${prefix}blog/${p.slug}/index.html`,'utf8');
   assert(html.includes(`<article class="article-prose" id="article-content" lang="${language}">`));
  }
 }

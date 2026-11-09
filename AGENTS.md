@@ -45,3 +45,5 @@ ScientistTwo 的示例：`["AI for Science", "科研智能体", "论文阅读"]`
 - 修改后更新 `content/translations.json` 的对应源文与译文 SHA-256，执行 `npm run build` 与 `npm run check`。
 
 - 首页仅展示个人资料、研究与项目经历；不嵌入 Blog 精选、文章摘要或海报。Blog 通过导航入口访问。
+
+- 对外主页地址为 `https://goya4140.github.io/`；导航使用不带 `.html` 的目录 URL。通过 `scripts/clean-routes.mjs` 生成目录首页并保留旧链接跳转，不手改生成页。

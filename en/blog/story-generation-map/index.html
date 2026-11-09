@@ -1,0 +1,250 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A field guide to AI story generation | Linhao Wang</title>
+  <meta name="description" content="A map of long-form planning, narrative memory, interactive choices, and story evaluation.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="A field guide to AI story generation">
+  <meta property="og:description" content="A map of long-form planning, narrative memory, interactive choices, and story evaluation.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/story-generation-map/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AI 故事生成的领域地图：规划、记忆、交互与评价" data-title-en="A field guide to AI story generation" data-language-url="../../../blog/story-generation-map/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Research notes</span><span>10 min read</span><span>English translation</span><time datetime="2026-09-02">2026-09-02</time></div><div class="article-heading-layout"><div><h1>A field guide to AI story generation</h1><p class="article-summary">A map of long-form planning, narrative memory, interactive choices, and story evaluation.</p><div class="post-topics"><span>Long-form generation</span><span>Literature map</span><span>Interactive narrative</span></div></div></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. What does this field study?</a></li><li><a href="#section-2">2. Core question: how to generate</a></li><li><a href="#section-8">3. Core question: how to evaluate</a></li><li><a href="#section-13">4. Reading list</a></li><li><a href="#section-19">5. Suggested reading order</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><blockquote>
+<p><strong>Scope:</strong> AI for Writing / Story Generation studies model participation throughout ideation, planning, drafting, continuation, revision, and evaluation. This guide focuses on long-form planning, state memory, interactive choices, and narrative evaluation.</p>
+</blockquote>
+<h2 id="section-1">1. What does this field study?</h2>
+<p>AI for Writing spans NLP, artificial intelligence, computational creativity, and human–computer interaction. Beyond fluent passages, it asks whether machines can understand writing goals, organize long-range structure, form causal events, maintain characters/worlds, and collaborate effectively with authors or readers.</p>
+<p>Story generation is especially challenging because it is open-ended: one prompt admits many equally reasonable stories with different plots and expression. It therefore tests language, planning, commonsense reasoning, character modeling, creativity, and reader experience.</p>
+<p>Existing research can be organized along the following dimensions.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Dimension</th>
+<th>Type</th>
+<th>Core question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary author</td>
+<td>Independent generation</td>
+<td>Generate from prompts, themes, or outlines</td>
+</tr>
+<tr>
+<td>Primary author</td>
+<td>Author assistance</td>
+<td>Human-led suggestions, continuation, rewriting, feedback, or local material</td>
+</tr>
+<tr>
+<td>Scale</td>
+<td>Short stories</td>
+<td>A few sentences to hundreds of words; event completeness and endings</td>
+</tr>
+<tr>
+<td>Scale</td>
+<td>Long stories/novels</td>
+<td>Thousands of words or more; planning, memory, long-range consistency</td>
+</tr>
+<tr>
+<td>Control</td>
+<td>Conditional generation</td>
+<td>Follow themes, characters, style, emotional arcs, outlines, or knowledge</td>
+</tr>
+<tr>
+<td>Control</td>
+<td>Interactive generation</td>
+<td>Authors/readers choose, edit, or provide feedback during generation</td>
+</tr>
+</tbody>
+</table></div><p>The creative workflow commonly includes:</p>
+<ol>
+<li><strong>Ideation:</strong> Themes, characters, worlds, conflicts, and inspiration.</li>
+<li><strong>Planning:</strong> Plotlines, outlines, chapters, emotional arcs, and character goals.</li>
+<li><strong>Drafting:</strong> Realize plans as readable narrative.</li>
+<li><strong>Revision:</strong> Detect and rewrite repetition, contradictions, flat plots, and style issues.</li>
+<li><strong>Evaluation:</strong> Assess fluency, coherence, interest, creativity, and satisfaction of creative constraints.</li>
+</ol>
+<blockquote>
+<p>The central tension is that language models excel at local fluency without naturally ensuring global planning, while open, subjective, multidimensional story quality cannot be judged through reference-word overlap alone.</p>
+</blockquote>
+<hr>
+<h2 id="section-2">2. Core question: how to generate</h2>
+<h3 id="section-3">2.1 Direct generation and continuation</h3>
+<p>The simplest setting supplies a title, prompt, or opening and asks the model to continue. It is flexible but can produce drift, repetition, sudden characters, inconsistent facts, rushed endings, and declining quality with length.</p>
+<p><a href="https://aclanthology.org/P18-1082/" target="_blank" rel="noopener noreferrer">Hierarchical Neural Story Generation</a> introduces WritingPrompts and separates premise generation from story realization, addressing the inadequacy of word-by-word generation for high-level structure.</p>
+<h3 id="section-4">2.2 Plan-and-Write: planning before writing</h3>
+<p>A common long-form approach separates two levels:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>→</mo><mi>P</mi><mo>→</mo><mi>Y</mi></mrow><annotation encoding="application/x-tex">x \rightarrow P \rightarrow Y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.2222em;">Y</span></span></span></span></p>
+<p>Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span> is the prompt/setting, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi></mrow><annotation encoding="application/x-tex">P</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span></span></span></span> the plan, and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi></mrow><annotation encoding="application/x-tex">Y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.2222em;">Y</span></span></span></span> the story.</p>
+<p>Plans may be event sequences, keyword plotlines, chapter or hierarchical outlines, emotional arcs, or character goals. The generator realizes the plan section by section rather than continuing freely.</p>
+<p>Key developments include:</p>
+<ul>
+<li><a href="https://ojs.aaai.org/index.php/AAAI/article/view/4726" target="_blank" rel="noopener noreferrer">Plan-and-Write</a>, AAAI 2019: compares complete advance planning with interleaved planning/writing.</li>
+<li><a href="https://aclanthology.org/2020.emnlp-main.349/" target="_blank" rel="noopener noreferrer">PlotMachines</a>, EMNLP 2020: tracks dynamic plot state during outline-conditioned generation.</li>
+<li><a href="https://aclanthology.org/2022.emnlp-main.296/" target="_blank" rel="noopener noreferrer">Re3</a>, EMNLP 2022: generates global plans, recursively reinjects plans/state, reranks continuations, and revises facts.</li>
+<li><a href="https://aclanthology.org/2023.acl-long.190/" target="_blank" rel="noopener noreferrer">DOC</a>, ACL 2023: detailed hierarchical outlines and fine-grained controllers for stories of thousands of words.</li>
+<li><a href="https://aclanthology.org/2025.naacl-long.63/" target="_blank" rel="noopener noreferrer">DOME</a>, NAACL 2025: dynamically expands hierarchical outlines and uses temporal knowledge graphs for character/event changes.</li>
+</ul>
+<p>The emerging understanding is that <strong>long-form generation needs macro planning separated from local realization, with plans allowed to adapt during writing; longer context windows alone are insufficient</strong>.</p>
+<h3 id="section-5">2.3 Memory, state, and knowledge</h3>
+<p>Long stories must track what has happened, including:</p>
+<ul>
+<li>Character attributes, goals, relationships, knowledge, and emotions.</li>
+<li>World rules, locations, objects, and social relationships.</li>
+<li>Events, causality, and chronology.</li>
+<li>Outstanding promises, foreshadowing, and unresolved conflicts.</li>
+<li>Current outline position and progress toward an ending.</li>
+</ul>
+<p>Implementations include summaries, retrieval memories, character profiles, event graphs, knowledge graphs, and explicit state tables. <a href="https://arxiv.org/abs/2305.13304" target="_blank" rel="noopener noreferrer">RecurrentGPT</a> uses natural-language long/short-term memory for paragraphwise generation. DOME adds temporal knowledge graphs to detect contextual conflicts.</p>
+<h3 id="section-6">2.4 Candidates, criticism, and revision</h3>
+<p>Another approach avoids accepting the first draft:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Draft</mtext><mo>→</mo><mtext>Critique</mtext><mo>→</mo><mtext>Select/Revise</mtext></mrow><annotation encoding="application/x-tex">\text{Draft} \rightarrow \text{Critique} \rightarrow \text{Select/Revise}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6944em;"></span><span class="mord text"><span class="mord">Draft</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord text"><span class="mord">Critique</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">→</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">Select/Revise</span></span></span></span></span></p>
+<p>Re3 reranks candidates by plot coherence and prompt relevance. <a href="https://aclanthology.org/2024.emnlp-main.1046/" target="_blank" rel="noopener noreferrer">Collective Critics for Creative Story Generation</a>, EMNLP 2024, uses multiple critics and a leader to improve plans and prose for coherence, creativity, and expressiveness. Evaluation enters the generation loop, connecting the two research questions.</p>
+<h3 id="section-7">2.5 Human–AI co-writing</h3>
+<p>AI can support authors rather than replace them:</p>
+<ul>
+<li><a href="https://doi.org/10.1145/3490099.3511105" target="_blank" rel="noopener noreferrer">Wordcraft</a>, IUI 2022: continuation, substitution, and rewriting suggestions.</li>
+<li><a href="https://arxiv.org/abs/2201.06796" target="_blank" rel="noopener noreferrer">CoAuthor</a>, CHI 2022: 1,445 GPT-3 writing sessions with 63 writers for studying collaboration.</li>
+<li><a href="https://arxiv.org/abs/2209.14958" target="_blank" rel="noopener noreferrer">Dramatron</a>, CHI 2023: hierarchical generation of characters, plot points, scenes, and dialogue from a logline, used and evaluated by professional writers.</li>
+<li><a href="https://aclanthology.org/N19-4016/" target="_blank" rel="noopener noreferrer">Plan, Write, and Revise</a>, INLG 2019: compares human involvement at different creative stages.</li>
+</ul>
+<p>Good writing systems need controllable, understandable, reversible, editable processes alongside quality text.</p>
+<hr>
+<h2 id="section-8">3. Core question: how to evaluate</h2>
+<h3 id="section-9">3.1 Why BLEU and ROUGE are insufficient</h3>
+<p>Story generation is strongly one-to-many. A good story need not share words with a reference. BLEU, ROUGE, and embedding similarity generally assess surface proximity rather than plot quality, creativity, or reader response reliably.</p>
+<p><a href="https://aclanthology.org/2020.emnlp-main.736/" target="_blank" rel="noopener noreferrer">UNION</a> and <a href="https://aclanthology.org/2021.acl-long.500/" target="_blank" rel="noopener noreferrer">OpenMEVA</a> show insufficient human correlation and difficulty detecting event-order errors, long-range incoherence, and causal-commonsense problems in common metrics.</p>
+<h3 id="section-10">3.2 Which dimensions matter?</h3>
+<p>Evaluation should extend beyond one overall score:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Level</th>
+<th>Dimensions</th>
+<th>Questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language</td>
+<td>Fluency, grammar, readability, style</td>
+<td>Are sentences natural and voice/style stable?</td>
+</tr>
+<tr>
+<td>Local narrative</td>
+<td>Transitions, event plausibility</td>
+<td>Does an event follow naturally from prior text?</td>
+</tr>
+<tr>
+<td>Global narrative</td>
+<td>Plot, causality, chronology, character consistency</td>
+<td>Do facts from earlier chapters still hold?</td>
+</tr>
+<tr>
+<td>Structure</td>
+<td>Beginning, development, climax, ending, pacing</td>
+<td>Is this a complete story rather than accumulated fragments?</td>
+</tr>
+<tr>
+<td>Control</td>
+<td>Prompts, outlines, style, constraints</td>
+<td>Is it the requested story?</td>
+</tr>
+<tr>
+<td>Creativity</td>
+<td>Novelty, surprise, expression, interest</td>
+<td>Does it avoid clichés while remaining plausible?</td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Immersion, emotion, empathy, desire to continue</td>
+<td>Does the work affect readers?</td>
+</tr>
+</tbody>
+</table></div><p><a href="https://aclanthology.org/2023.findings-emnlp.353/" target="_blank" rel="noopener noreferrer">DeltaScore</a> evaluates fluency, coherence, relevance, logicality, and interest. <a href="https://aclanthology.org/2024.emnlp-main.953/" target="_blank" rel="noopener noreferrer">Psychological Depth Scale</a> draws on literary theory and reader experience to assess authenticity, complexity, emotion, empathy, and engagement.</p>
+<h3 id="section-11">3.3 Main automatic evaluation approaches</h3>
+<p><strong>1. Rules and structural checks</strong></p>
+<p>Check conflicting character properties, reversed chronology, repeated plots, violations of world rules, and outline coverage. These are interpretable but cover only formalized errors.</p>
+<p><strong>2. Learned reference-free metrics</strong></p>
+<p>UNION distinguishes real stories from perturbed ones to detect repetition, logical conflicts, and long-range incoherence. OpenMEVA is a benchmark for testing correlation, generalization, robustness, and discourse-error detection rather than merely another metric.</p>
+<p><strong>3. Perturbation-based evaluation</strong></p>
+<p>DeltaScore perturbs stories along a quality dimension and measures language-model probability changes to assess that dimension.</p>
+<p><strong>4. LLM-as-a-Judge</strong></p>
+<p><a href="https://aclanthology.org/2024.tacl-1.62/" target="_blank" rel="noopener noreferrer">Do Language Models Enjoy Their Own Stories?</a>, TACL 2024, examines substituting LLMs for human evaluation. LLM judges outperform traditional metrics at system level but remain sensitive to prompts, explanation quality, self-preference, and model biases. Decomposed checklists, swapped candidate order, multiple judges, and human calibration are preferable to one model’s overall score.</p>
+<p><strong>5. Human readers</strong></p>
+<p>Human evaluation remains central. Prefer pairwise preferences over asking readers to distinguish scores such as six and seven precisely. Ask which story is more coherent, interesting, faithful to its setting, or worth continuing, and whether readers can identify concrete contradictions.</p>
+<h3 id="section-12">3.4 A recommended evaluation combination</h3>
+<blockquote>
+<p>Instead of seeking one universal score, combine <strong>deterministic state checks, story-specific automated metrics, human-calibrated multidimensional LLM judges, and real-reader pairwise preferences/behavior</strong>.</p>
+</blockquote>
+<p>Report:</p>
+<ol>
+<li><strong>Hard constraints:</strong> Conflicts involving characters, chronology, objects, places, and narrative commitments.</li>
+<li><strong>Generation quality:</strong> Fluency, coherence, causality, relevance, style, creativity.</li>
+<li><strong>Control:</strong> Prompt adherence, outline coverage, goal achievement.</li>
+<li><strong>Human outcomes:</strong> Overall preference, desire to continue, emotional engagement.</li>
+<li><strong>Process:</strong> Writing/inference cost, recovery, and user interventions.</li>
+</ol>
+<hr>
+<h2 id="section-13">4. Reading list</h2>
+<h3 id="section-14">A. Surveys for a field map</h3>
+<ol>
+<li><a href="https://aclanthology.org/2026.eacl-srw.39/" target="_blank" rel="noopener noreferrer">Text-to-Text Automatic Story Generation: A Survey</a> — EACL SRW 2026; text-to-text work from 2021–2025.</li>
+<li><a href="https://aclanthology.org/2025.findings-emnlp.750/" target="_blank" rel="noopener noreferrer">A Survey on LLMs for Story Generation</a> — Findings of EMNLP 2025; separates independent generation and author assistance.</li>
+<li><a href="https://arxiv.org/abs/2602.15851" target="_blank" rel="noopener noreferrer">Narrative Theory-Driven LLM Methods for Automatic Story Generation and Understanding</a> — 2026; narrative-theory organization of generation, understanding, and evaluation.</li>
+<li><a href="https://doi.org/10.1145/3453156" target="_blank" rel="noopener noreferrer">Automatic Story Generation: A Survey of Approaches</a> — ACM Computing Surveys 2021; symbolic planning, earlier neural methods, and evaluation history.</li>
+</ol>
+<h3 id="section-15">B. Generation foundations and long-form work</h3>
+<ol start="5">
+<li><a href="https://aclanthology.org/P18-1082/" target="_blank" rel="noopener noreferrer">Hierarchical Neural Story Generation</a> — ACL 2018; WritingPrompts and hierarchical generation.</li>
+<li><a href="https://ojs.aaai.org/index.php/AAAI/article/view/4726" target="_blank" rel="noopener noreferrer">Plan-and-Write: Towards Better Automatic Storytelling</a> — AAAI 2019; explicit plotline planning.</li>
+<li><a href="https://aclanthology.org/2020.emnlp-main.349/" target="_blank" rel="noopener noreferrer">PlotMachines</a> — EMNLP 2020; outline conditioning and dynamic plot state.</li>
+<li><a href="https://aclanthology.org/2022.emnlp-main.296/" target="_blank" rel="noopener noreferrer">Re3: Generating Longer Stories With Recursive Reprompting and Revision</a> — EMNLP 2022; planning, candidate reranking, consistency revision.</li>
+<li><a href="https://aclanthology.org/2023.acl-long.190/" target="_blank" rel="noopener noreferrer">DOC: Improving Long Story Coherence With Detailed Outline Control</a> — ACL 2023; detailed hierarchical control over thousands of words.</li>
+<li><a href="https://aclanthology.org/2024.emnlp-main.1046/" target="_blank" rel="noopener noreferrer">Collective Critics for Creative Story Generation</a> — EMNLP 2024; iterative plan/prose improvement with multiple critics.</li>
+<li><a href="https://aclanthology.org/2025.naacl-long.63/" target="_blank" rel="noopener noreferrer">Generating Long-form Story Using Dynamic Hierarchical Outlining with Memory-Enhancement</a> — NAACL 2025; dynamic outlines, temporal knowledge graphs, conflict detection.</li>
+<li><a href="https://aclanthology.org/2025.findings-acl.1071/" target="_blank" rel="noopener noreferrer">STORYTELLER: An Enhanced Plot-Planning Framework</a> — Findings of ACL 2025; plot coherence and transitions.</li>
+<li><a href="https://aclanthology.org/2026.findings-acl.968/" target="_blank" rel="noopener noreferrer">From Style to Story: A Curriculum Learning Approach for Imitative Novel Generation</a> — Findings of ACL 2026; imitation of style, characters, worlds, and plot.</li>
+</ol>
+<h3 id="section-16">C. Story-specific evaluation</h3>
+<ol start="14">
+<li><a href="https://aclanthology.org/2020.emnlp-main.736/" target="_blank" rel="noopener noreferrer">UNION: An Unreferenced Metric for Evaluating Open-ended Story Generation</a> — EMNLP 2020; reference-free story quality.</li>
+<li><a href="https://aclanthology.org/2021.acl-long.500/" target="_blank" rel="noopener noreferrer">OpenMEVA</a> — ACL 2021; metric correlation, generalization, robustness, and discourse errors.</li>
+<li><a href="https://aclanthology.org/2023.findings-emnlp.353/" target="_blank" rel="noopener noreferrer">DeltaScore</a> — Findings of EMNLP 2023; perturbation-based fine-grained evaluation.</li>
+<li><a href="https://aclanthology.org/2024.tacl-1.62/" target="_blank" rel="noopener noreferrer">Do Language Models Enjoy Their Own Stories?</a> — TACL 2024; capabilities and biases of story judges.</li>
+<li><a href="https://aclanthology.org/2024.emnlp-main.953/" target="_blank" rel="noopener noreferrer">Measuring Psychological Depth in Language Models</a> — EMNLP 2024; authenticity, emotion, complexity, and empathy from reader psychology.</li>
+<li><a href="https://aclanthology.org/2025.gem-1.31/" target="_blank" rel="noopener noreferrer">CoKe: Customizable Fine-Grained Story Evaluation</a> — GEM 2025; customizable dimensions.</li>
+<li><a href="https://aclanthology.org/2025.acl-long.1254/" target="_blank" rel="noopener noreferrer">Help Me Write a Story</a> — ACL 2025; human-injected problems for testing defect detection and feedback.</li>
+</ol>
+<h3 id="section-17">D. Human–AI writing</h3>
+<ol start="21">
+<li><a href="https://aclanthology.org/N19-4016/" target="_blank" rel="noopener noreferrer">Plan, Write, and Revise</a> — INLG 2019; human involvement across creative stages.</li>
+<li><a href="https://doi.org/10.1145/3490099.3511105" target="_blank" rel="noopener noreferrer">Wordcraft</a> — IUI 2022; professional story-writing assistance.</li>
+<li><a href="https://arxiv.org/abs/2201.06796" target="_blank" rel="noopener noreferrer">CoAuthor</a> — CHI 2022; large-scale human–GPT-3 writing-process data.</li>
+<li><a href="https://arxiv.org/abs/2209.14958" target="_blank" rel="noopener noreferrer">Co-Writing Screenplays and Theatre Scripts with Language Models</a> — CHI 2023; Dramatron and professional-writer evaluation.</li>
+</ol>
+<h3 id="section-18">E. Interactive fiction and reader choices</h3>
+<ol start="25">
+<li><a href="https://aclanthology.org/2024.wnu-1.2/" target="_blank" rel="noopener noreferrer">How to Tame Your Plotline</a> — WNU 2024; generate a story segment and three actions per turn, then continue from user choice.</li>
+<li><a href="https://arxiv.org/abs/2305.13304" target="_blank" rel="noopener noreferrer">RecurrentGPT</a> — 2023; long/short-term memory, long text, and candidate continuation plans.</li>
+<li><a href="https://pcgworkshop.com/archive/freiknecht2020procedural.pdf" target="_blank" rel="noopener noreferrer">Procedural Generation of Interactive Stories Using Language Models</a> — 2020; analytical, masked, and free-generation choices.</li>
+<li><a href="https://aclanthology.org/2024.games-1.8/" target="_blank" rel="noopener noreferrer">Branching Narratives: Character Decision Points Detection</a> — Games and NLP 2024; consequential character decisions.</li>
+<li><a href="https://ojs.aaai.org/index.php/AIIDE/article/view/12791" target="_blank" rel="noopener noreferrer">Generating Relaxed, Obvious, and Dilemma Choices with Dunyazad</a> — AIIDE 2015; choices with different psychological effects.</li>
+<li><a href="https://www.fdg2014.org/papers/fdg2014_paper_19.pdf" target="_blank" rel="noopener noreferrer">Towards a Theory of Choice Poetics</a> — FDG 2014; framing, options, and outcomes.</li>
+<li><a href="https://aclanthology.org/2021.naacl-main.279/" target="_blank" rel="noopener noreferrer">Choose Your Own Adventure: Paired Suggestions</a> — NAACL 2021; evaluating continuations through human choices.</li>
+<li><a href="https://arxiv.org/abs/2607.20767" target="_blank" rel="noopener noreferrer">Rushes: A Human Preference Dataset for Pluralistic Alignment</a> — 2026; 44,226 narrative choices from 8,167 users.</li>
+<li><a href="https://arxiv.org/abs/2608.08160" target="_blank" rel="noopener noreferrer">Can LLM Agents Stick to the Script?</a> — ICML 2026; factual and narrative commitments in long interactions.</li>
+</ol>
+<hr>
+<h2 id="section-19">5. Suggested reading order</h2>
+<p>To develop a research proposal quickly:</p>
+<ol>
+<li><strong>Overview:</strong> A Survey on LLMs for Story Generation.</li>
+<li><strong>Generation:</strong> Plan-and-Write → Re3 → DOC → DOME.</li>
+<li><strong>Evaluation:</strong> UNION → OpenMEVA → DeltaScore → Do Language Models Enjoy Their Own Stories?</li>
+<li><strong>Interactive tasks:</strong> How to Tame Your Plotline → RecurrentGPT → CHADPOD → Dunyazad.</li>
+<li><strong>Interactive evaluation:</strong> Choice Poetics → Rushes → NCP-Bench.</li>
+</ol>
+<p>The intended research picture is a <strong>generation loop of planning, memory, prose, decisions, and state updates</strong>, paired with evaluation covering text quality, story structure, choices, consequence fidelity, long-range consistency, and real-reader experience.</p>
+<hr>
+<p><em>Retrieved and compiled September 2, 2026. The list prioritizes original papers on ACL Anthology, AAAI, ACM/DOI, and arXiv.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. What does this field study?</a></li><li><a href="#section-2">2. Core question: how to generate</a></li><li><a href="#section-8">3. Core question: how to evaluate</a></li><li><a href="#section-13">4. Reading list</a></li><li><a href="#section-19">5. Suggested reading order</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../scientistone/"><span>Paper reading</span><strong>ScientistOne: linking papers, code, and experiments through evidence</strong><i aria-hidden="true">↗</i></a><a href="../scientific-discovery-evaluation/"><span>Paper reading</span><strong>SDE: do scientific Q&amp;A scores predict discovery?</strong><i aria-hidden="true">↗</i></a><a href="../scientisttwo/"><span>Paper reading</span><strong>ScientistTwo: from research ideas to experimental feedback</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>
