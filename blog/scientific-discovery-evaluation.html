@@ -1,0 +1,135 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDE：答对科学题，能否做好科学研究 | Linhao Wang</title>
+  <meta name="description" content="从研究场景、题目测评到多轮项目，理解科学发现能力该怎样评价，以及答题分数何时无法预测研究表现。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="SDE：答对科学题，能否做好科学研究">
+  <meta property="og:description" content="从研究场景、题目测评到多轮项目，理解科学发现能力该怎样评价，以及答题分数何时无法预测研究表现。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../assets/css/personal.css">
+<link rel="stylesheet" href="../assets/css/blog.css"><link rel="stylesheet" href="../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../en/blog/scientific-discovery-evaluation.html"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="SDE：答对科学题，能否做好科学研究" data-title-en="SDE: do scientific Q&amp;A scores predict discovery?" data-language-url="../en/blog/scientific-discovery-evaluation.html"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../index.html">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../index.html" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../blog.html" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../blog.html">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 9 分钟</span><span>中文原稿</span><time datetime="2026-11-09">2026-11-09</time></div><div class="article-heading-layout has-art"><div><h1>SDE：答对科学题，能否做好科学研究</h1><p class="article-summary">从研究场景、题目测评到多轮项目，理解科学发现能力该怎样评价，以及答题分数何时无法预测研究表现。</p><div class="post-topics"><span>AI for Science</span><span>科研能力评测</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../assets/img/blog/scientific-discovery-evaluation/framework.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../assets/img/blog/scientific-discovery-evaluation/framework.png" alt="SDE：答对科学题，能否做好科学研究" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2512.15567v2" target="_blank" rel="noopener noreferrer">Evaluating Large Language Models in Scientific Discovery ↗</a><small>arXiv · 2025 / v2 · 2026-05-08</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样评价 AI 的科研能力</a></li><li><a href="#section-2">二、相关文献解读：从科学问答走向研究任务</a></li><li><a href="#section-3">三、研究问题解读：哪些能力值得分别检查</a></li><li><a href="#section-4">四、方法解读：从研究项目到两层评价</a></li><li><a href="#section-8">五、实验设计与结果：围绕三个问题看证据</a></li><li><a href="#section-12">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>如果一个模型能答对很多高难度科学题，我们是否就可以把研究交给它？这篇论文提出 Scientific Discovery Evaluation（SDE），把研究场景中的答题表现与多轮项目表现放在一起评价。沿着这套设计，我们也能重新思考：选择科研模型时，究竟应该相信什么证据。</p>
+<h2 id="section-1">一、课题解读：怎样评价 AI 的科研能力</h2>
+<p>设想我们要寻找一种性能更好的材料。研究过程中，既需要判断已有数据意味着什么，也需要提出下一批候选、获得计算或实验反馈，再调整搜索方向。某个知识问题答对了，只说明其中一个环节有了支持。</p>
+<p><strong>科研能力评测关注的是：模型能否在具体研究条件下作出有用的判断，并利用反馈推动任务。</strong> 评价对象因此包含局部能力与连续行动：前者帮助定位薄弱环节，后者检查这些能力组合后能否完成工作。</p>
+<p>这个领域需要解决的核心困难，是让容易测量的分数与我们真正关心的研究表现建立联系。题目正确率、候选方案的有效性和最终项目收益，分别提供不同层次的证据。</p>
+<h2 id="section-2">二、相关文献解读：从科学问答走向研究任务</h2>
+<p>已有评测分别从知识、可执行任务和研究复现切入。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要评价什么</th>
+<th>为本文提供的观察角度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2311.12022" target="_blank" rel="noopener noreferrer">GPQA</a></td>
+<td>专家编写的高难度科学选择题</td>
+<td>模型具备哪些科学知识与解题能力？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>来自真实论文的数据驱动任务，检查程序、执行结果与成本</td>
+<td>模型能否把要求落实为可执行产物？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>从零复现机器学习论文，以分层准则评价完成情况</td>
+<td>多环节研究工作怎样被拆解与评分？</td>
+</tr>
+</tbody>
+</table></div><p>SDE 进一步把“研究项目—研究场景—具体题目”联系起来，并在项目中加入候选生成、计算验证和结果反馈。我们关注的是：这种联系能否解释，为什么一个模型答题较强，却未必在研究项目中领先。</p>
+<h2 id="section-3">三、研究问题解读：哪些能力值得分别检查</h2>
+<p>我们将论文的研究目标归纳为三个问题：</p>
+<ol>
+<li><strong>贴近研究场景的题目，能否揭示通用分数掩盖的能力差异？</strong> 需要把大领域继续拆成具体研究环节。</li>
+<li><strong>增加推理投入，能否稳定改善这些能力？</strong> 需要检查各场景收益，而不是只看总分。</li>
+<li><strong>题目答得好，是否意味着项目做得好？</strong> 需要让模型真正进入多轮搜索，并比较两个层次的结果。</li>
+</ol>
+<p>这三个问题分别对应后面的场景画像、推理投入比较，以及题目与项目的对照。本文基于 <a href="https://arxiv.org/abs/2512.15567v2" target="_blank" rel="noopener noreferrer">2026 年 5 月 8 日修订的 v2</a>，下文模型名称和结果均指论文当时的实验设置。</p>
+<h2 id="section-4">四、方法解读：从研究项目到两层评价</h2>
+<p>SDE 的方法是一套评测设计。下面按数据构建、题目评价、项目评价的顺序理解。</p>
+<h3 id="section-5">第一步：把项目拆成可以复用的研究场景</h3>
+<p>作者组织领域专家，从真实研究兴趣出发确定场景，再通过公开数据、计算流程和人工编写形成题目，并进行审核。一个“场景”是能参与多个项目的研究单元，例如反应预测、谱图解读或分子性质判断。</p>
+<figure class="blog-figure"><a class="article-figure" href="../assets/img/blog/scientific-discovery-evaluation/framework.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../assets/img/blog/scientific-discovery-evaluation/framework.png" alt="SDE 将科学领域、研究项目、研究场景与具体题目连接起来" loading="lazy" decoding="async"></a><figcaption>图 1 · 评测如何构建。由领域进入项目，再拆为场景和题目；图中的 eval 分别标出项目层和题目层评价。来源：原论文 Figure 1c，v2 PDF 第 3 页，摘录对应子图；点击查看大图。</figcaption></figure>
+<p>例如，逆合成是从目标分子倒推原料与反应路线。完成多步路线规划，会涉及单步逆合成、反应机理和正向反应预测。分别检查这些场景，才能进一步判断项目失败可能发生在哪里。最终题集覆盖生物、化学、材料和物理四个领域，共 43 个场景、1,125 道题。</p>
+<h3 id="section-6">第二步：在题目层建立能力画像</h3>
+<p>模型回答场景内的问题，再按精确匹配、数值容差或相似度等任务规则评分。作者既比较整体表现，也保留场景层结果；另改变推理投入，检查改善发生在哪些环节。</p>
+<p>这里对应前两个问题：模型在什么场景可靠，增加推理又帮助了哪些场景。需要注意，这一层仍然主要在评价题目回答。</p>
+<h3 id="section-7">第三步：在项目层运行“假设—验证—观察”循环</h3>
+<p>作者构建 sde-harness，在八类项目中让模型提出候选假设，由计算评价器或模拟器检查，再把结果反馈给下一轮。项目涉及分子、蛋白质、晶体、方程等不同搜索空间，并采用演化搜索作为共同框架：保留表现较好的候选，再据此生成新候选，同时允许任务所需的适配。</p>
+<p>以过渡金属配合物（TMC）优化为例：模型获得候选配体、约束、目标和初始样本，随后提出新结构；结构经过有效性检查及性质计算，结果进入下一轮上下文。<strong>评价关注的是候选怎样随反馈改善，而不只是单次答案是否正确。</strong></p>
+<p>这一步回应第三个问题。它也划定了边界：这里评价的是模型与给定搜索框架、计算工具结合后的表现，不能直接等同于完整的真实实验室科研能力。<a href="https://arxiv.org/pdf/2512.15567v2#page=15" target="_blank" rel="noopener noreferrer">方法见 PDF 第 15—18 页</a>。</p>
+<h2 id="section-8">五、实验设计与结果：围绕三个问题看证据</h2>
+<h3 id="section-9">问题一：场景拆解揭示了什么差异</h3>
+<p>作者按领域汇总场景分数，同时保留每个场景的表现。下图以生物、化学两个领域为例，每个点代表一个场景；同一模型的点分布较散，说明领域平均数无法充分描述它的能力。</p>
+<figure class="blog-figure"><a class="article-figure" href="../assets/img/blog/scientific-discovery-evaluation/scenario-profiles.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../assets/img/blog/scientific-discovery-evaluation/scenario-profiles.png" alt="十个模型在生物、化学两领域上的场景正确率分布" loading="lazy" decoding="async"></a><figcaption>图 2 · 看能力分布，而不只看均值。各点对应场景，菱形与横线分别表示均值和中位数；同一模型在不同场景上可能差异很大。来源：原论文 Figure 2a，v2 PDF 第 5 页，摘录生物、化学两组并保留模型图例；点击查看大图。</figcaption></figure>
+<p>一个具体例子是：论文中的 GPT-5 在逆合成场景得分为 0.85，在核磁共振（NMR）谱图到结构的场景中为 0.23。我们会据此判断，选型需要进一步落到任务环节；这组差异本身还不能解释错误的具体原因。</p>
+<h3 id="section-10">问题二：更多推理是否稳定带来收益</h3>
+<p>论文比较 GPT-5 在不同推理投入下的表现。下面摘录 medium 与 high 两档的领域结果：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>领域</th>
+<th style="text-align:right">medium</th>
+<th style="text-align:right">high</th>
+<th style="text-align:right">差值（百分点）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生物</td>
+<td style="text-align:right">70%</td>
+<td style="text-align:right">69%</td>
+<td style="text-align:right">−1</td>
+</tr>
+<tr>
+<td>化学</td>
+<td style="text-align:right">53%</td>
+<td style="text-align:right">60%</td>
+<td style="text-align:right">+7</td>
+</tr>
+<tr>
+<td>材料</td>
+<td style="text-align:right">74%</td>
+<td style="text-align:right">75%</td>
+<td style="text-align:right">+1</td>
+</tr>
+<tr>
+<td>物理</td>
+<td style="text-align:right">58%</td>
+<td style="text-align:right">60%</td>
+<td style="text-align:right">+2</td>
+</tr>
+</tbody>
+</table></div><p><em>数据来源：v2 PDF 第 7 页正文，相关曲线见 Figure 3a。此处是同一模型不同推理设置的比较。</em></p>
+<p>结果更适合解释为“收益依赖领域和设置”。化学在这一比较中仍提高了 7 个百分点，因此不能把所有领域概括成“增加推理已经无用”；同时，也不能默认更高投入在每个领域都更好。</p>
+<h3 id="section-11">问题三：题目表现能否预测项目表现</h3>
+<p>项目实验让模型进入多轮验证流程，并与各任务的传统方法比较。原图中每个项目采用自身的归一化指标，适合看项目内部差异，不宜把跨项目柱高直接解释成统一科研能力分数。</p>
+<figure class="blog-figure"><a class="article-figure" href="../assets/img/blog/scientific-discovery-evaluation/project-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../assets/img/blog/scientific-discovery-evaluation/project-results.png" alt="八类科研项目中四个模型与相应传统方法的归一化结果" loading="lazy" decoding="async"></a><figcaption>图 3 · 项目层评价。八类任务分别比较模型与参考方法；橙色为各任务的参考方法。指标按项目分别归一化，跨项目柱高不应直接比较。来源：原论文 Figure 4a，v2 PDF 第 10 页，摘录项目结果区域；点击查看大图。</figcaption></figure>
+<p>论文展示了两个值得对照的现象。</p>
+<p><strong>知识判断不强，项目仍可能表现良好。</strong> 在 TMC 相关性质题上，各模型并不突出；但三个推理模型能够通过计算反馈，在限定的候选空间中找到高极化率结构。附录还用五组不同初始样本检查了这一结果。</p>
+<figure class="blog-figure"><a class="article-figure" href="../assets/img/blog/scientific-discovery-evaluation/tmc-search.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../assets/img/blog/scientific-discovery-evaluation/tmc-search.png" alt="过渡金属配合物优化中的极化率随迭代变化，以及多目标搜索结果" loading="lazy" decoding="async"></a><figcaption>图 4 · TMC 搜索案例。左侧显示高极化率候选随迭代改善，虚线是给定 137 万候选空间内的最大值；右侧展示两个性质之间的帕累托前沿，即不存在另一候选能在一项目标上更好、另一项不差的候选集合。来源：原论文 Figure 4b，v2 PDF 第 10 页；点击查看大图。</figcaption></figure>
+<p><strong>局部题目较强，也可能在多步规划中失效。</strong> 在逆合成项目中，模型还需要生成完整有效的多步路线。论文分析了无效分子表示和反应有效性等失败，并报告这些模型未超过相应传统规划方法。</p>
+<p>我们的理解是：局部正确率、约束满足和利用反馈搜索，分别影响项目表现。上述案例支持把它们分开检查，尚不足以把项目成功完全归因于模型已掌握相应科学机制。<a href="https://arxiv.org/pdf/2512.15567v2#page=11" target="_blank" rel="noopener noreferrer">结果讨论见 PDF 第 11—12 页；TMC 设置见第 49 页</a>。</p>
+<h2 id="section-12">六、我们自己的思考</h2>
+<h3 id="section-13">课题思考：这个领域在研究什么</h3>
+<p>这个领域在研究评价指标与真实科研任务之间的关系。我们最关注的是：一个分数能否帮助判断模型适合承担哪个环节，以及何时需要工具或其他模型补充。局部题目有助于诊断，连续项目有助于检查组合后的效果，两层评价应当相互验证。</p>
+<h3 id="section-14">局限问题思考：目前还存在哪些问题</h3>
+<ul>
+<li><strong>评价范围有限：</strong> 四个领域、八类项目仍难代表广泛科研；计算评价器给出的收益，与真实实验中的价值也需要继续连接。</li>
+<li><strong>结果归因困难：</strong> 项目表现同时受模型、提示、搜索规则和预算影响。当前设置中的排名，未必适用于其他研究流程。</li>
+<li><strong>场景到项目的映射仍需验证：</strong> 相关题目可以提供线索，但还需要更直接的实验，确认某个局部能力确实决定了项目中的哪类失败。</li>
+</ul>
+<h3 id="section-15">解决方案思考：这些问题有哪些解决方向</h3>
+<p>我们会优先尝试三个对应方向：</p>
+<ul>
+<li><strong>扩展验证层次：</strong> 在更多研究主题上建立同样的两层评价，并把部分计算候选交给独立实验验证，检查指标是否对应实际收益。</li>
+<li><strong>控制模型之外的变量：</strong> 在相近预算下交叉比较模型、提示和搜索策略，报告多次运行的波动与单位成本收益。</li>
+<li><strong>干预具体失败环节：</strong> 对多步路线加入结构与反应校验，比较校验前后的项目成功率；若失败显著减少，才能更有依据地定位瓶颈。</li>
+</ul>
+<p>这些方向是我们的后续设想。对实际研究而言，我们更愿意先明确任务中的关键环节，再检查模型在这些环节和完整流程中的证据，而非仅用一个通用分数决定是否采用它。</p>
+<p><em>阅读依据：<a href="https://arxiv.org/abs/2512.15567v2" target="_blank" rel="noopener noreferrer">Evaluating Large Language Models in Scientific Discovery，arXiv v2</a>。插图摘录自原论文对应子图，仅裁去外围内容，未改绘或更改数据，版权归 Zhangde Song 等原作者所有。表格为原文数据摘录；延伸判断与验证方向属于本文分析。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样评价 AI 的科研能力</a></li><li><a href="#section-2">二、相关文献解读：从科学问答走向研究任务</a></li><li><a href="#section-3">三、研究问题解读：哪些能力值得分别检查</a></li><li><a href="#section-4">四、方法解读：从研究项目到两层评价</a></li><li><a href="#section-8">五、实验设计与结果：围绕三个问题看证据</a></li><li><a href="#section-12">六、我们自己的思考</a></li></ol><a href="../blog.html">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="scientistone.html"><span>论文阅读</span><strong>ScientistOne：用证据链连接论文、代码与实验</strong><i aria-hidden="true">↗</i></a><a href="scientisttwo.html"><span>论文阅读</span><strong>ScientistTwo：从研究想法到实验反馈</strong><i aria-hidden="true">↗</i></a><a href="reflexion.html"><span>论文阅读</span><strong>Reflexion：把失败反馈写进记忆</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../assets/js/homepage.js"></script><script src="../assets/js/article.js"></script></body></html>

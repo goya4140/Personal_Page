@@ -1,0 +1,58 @@
+{
+  "source_language": "zh-CN",
+  "target_language": "en",
+  "articles": {
+    "scientistone": {
+      "source_sha256": "a58d2814754cca9541c0997774a0c0bce51028622683127b8f99cb69b3965e44",
+      "english_sha256": "fd94a9e34f2af5f15d9ea09ff9633d9f0adac8e07f48ca2f62bb3f3d4099cbcb"
+    },
+    "scientific-discovery-evaluation": {
+      "source_sha256": "b5b10fffb7991f226c915566f097fec7b37d0850c33c41b3e773cd1df44a6ffa",
+      "english_sha256": "9cf5fccc050bd36f93435967a5a82cf4e925d926861a95b21899f982dc91bf2b"
+    },
+    "scientisttwo": {
+      "source_sha256": "a7212f953c0e1e015fdfdbc3a576fde57eb0940f808bf81dab674f88e2dd1726",
+      "english_sha256": "739892ddca298522efedca95577fbb2bcd8b10e2996fc1de736869b87512ef4b"
+    },
+    "medical-vlm-probe": {
+      "source_sha256": "c3d28e808b6408757dd748f00262d830de4c060dfbd6fd08e48c8fbc07288a4e",
+      "english_sha256": "cd92f1fbc9a86620ce2a593ea1c6f93a3584b3ac132bc24d170a458adba8efb7"
+    },
+    "deeprare": {
+      "source_sha256": "0ba7f54c6f39245a9cff773825d0f7bfcbda926a222f7103449ca297305aec7a",
+      "english_sha256": "0003922052924620307a59a828e32c3f840b5e963ea296559a4d0ed7f9195e9a"
+    },
+    "generate-verify-repair": {
+      "source_sha256": "410c8b115ce7108a17dded2ab16624d982afe83a16d957cd9217f3e76bb519ae",
+      "english_sha256": "243a6b5583712a628dab6821fcb045c86867e981404846dfae2a6ae57dee984f"
+    },
+    "rubric-construction": {
+      "source_sha256": "87e382cce44fdb42e067dd9db368e26e603cd94fe6245d9a35f035e780a6f26c",
+      "english_sha256": "70fa6c34058e046a0ef292cb513194943a84c41213141d7cd0878d09ca81ed9b"
+    },
+    "agent-training-data": {
+      "source_sha256": "6ef91d65cbe27fca63cdba09d5933df2c39a9c4a1f5acabcc76d9d3ecee7df3b",
+      "english_sha256": "09fa7e519c8c2f57b8f7899f916fd038f8c0034d964da2f453511ddb329cbb8c"
+    },
+    "story-generation-map": {
+      "source_sha256": "ac4a9ec2ffd1295b99246cf21fc12d0346a208e8414d78b51e2ed0242a06e655",
+      "english_sha256": "a7416bf1dbc0694079d6fc5aed05f61bc6050d5af84637327566c5c30ceb9425"
+    },
+    "reflexion": {
+      "source_sha256": "335a0b32ea3309d601ed96f1b48cf9e0d37f7ea27baef43c06aff4a2a719a335",
+      "english_sha256": "f2f37fd16afa6f4ad7b2abb8d2d47cca0e3d56973373db759b7b25bb43b6acae"
+    },
+    "critic": {
+      "source_sha256": "cc608a9bafb093f19c8d6e5b55b59380b506882362be86e389eed3fe9ce25c0e",
+      "english_sha256": "c87b657a4d4ded571ad36aff8074279d0681a6e5acb5bebea486366e02984b4e"
+    },
+    "self-refine": {
+      "source_sha256": "3388747dcdc69d3888f8074b1c7ca2767ff9ea360f68dca2873f05cca4b347b7",
+      "english_sha256": "7e638728cb38ac86da4526f7fa25b2726181cfff9fdbdb1f0a9d7e304f479708"
+    },
+    "paperbench": {
+      "source_sha256": "c58fe9c5f410c2b041dfc797bd1d37062f4c2e44bdea924a3e5f23ea4a7279cb",
+      "english_sha256": "91a4d45fb822f1723a06f3c76ec756a2eed08d8b1d2645890a64aa2f98fa4a55"
+    }
+  }
+}

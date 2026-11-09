@@ -1,0 +1,16 @@
+.DS_Store
+Thumbs.db
+
+# Local editor files
+.idea/
+.vscode/
+
+# macOS metadata
+._*
+
+# Generated site and local QA output
+dist/
+.openai/local/
+.qa/
+
+node_modules/

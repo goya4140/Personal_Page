@@ -1,0 +1,214 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rubric construction: from scoring rules to verifiable learning signals | Linhao Wang</title>
+  <meta name="description" content="A framework for requirement provenance, atomic criteria, hard gates, process feedback, and adversarial audits.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Rubric construction: from scoring rules to verifiable learning signals">
+  <meta property="og:description" content="A framework for requirement provenance, atomic criteria, hard gates, process feedback, and adversarial audits.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../blog/rubric-construction.html"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="Rubric Construction：让评分规则成为可验证的学习信号" data-title-en="Rubric construction: from scoring rules to verifiable learning signals" data-language-url="../../blog/rubric-construction.html"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../index.html">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../index.html" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../blog.html" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../blog.html">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Research notes</span><span>11 min read</span><span>English translation</span></div><div class="article-heading-layout"><div><h1>Rubric construction: from scoring rules to verifiable learning signals</h1><p class="article-summary">A framework for requirement provenance, atomic criteria, hard gates, process feedback, and adversarial audits.</p><div class="post-topics"><span>Evaluation</span><span>Coding agents</span><span>Rubrics</span></div></div></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">Definition: a rubric is an executable approximation of requirements</a></li><li><a href="#section-2">A spectrum from fixed dimensions to task-adaptive construction</a></li><li><a href="#section-3">Comparing verifier structures rather than single scores</a></li><li><a href="#section-4">A construction and validation protocol for coding agents</a></li><li><a href="#section-5">Limitations: what current evidence does not establish</a></li><li><a href="#section-6">Open questions and research agenda</a></li><li><a href="#section-7">Closing perspective</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><blockquote>
+<p>This article synthesizes primary papers and author project pages on constructing and validating scoring rules. Reported findings remain scoped to each study’s settings. Cross-work comparisons and research proposals are our synthesis, not established conclusions.</p>
+</blockquote>
+<p>Evaluating open-ended coding agents extends beyond whether a patch passes tests. Real issues combine functionality, compatibility, performance, safety, maintainability, and process constraints. Compilation, tests, and static analysis can adjudicate some requirements; others require interpreting intent, checking evidence, and accommodating multiple correct implementations. Rubric construction therefore builds <strong>a verifier combining requirements, environmental evidence, and decision rules</strong>, beyond a longer scoring prompt. Good rubrics decompose vague success into traceable, observable, falsifiable criteria. Poor ones may scale judge preferences, superficial reference structures, or generator biases.</p>
+<p>Educational measurement offers a warning: analytic, task-specific rubrics and rater training often improve reliability, but a rubric’s existence does not establish validity. <a href="https://doi.org/10.1016/j.edurev.2007.05.002" target="_blank" rel="noopener noreferrer">Jonsson and Svingby, 2007</a> <a href="https://doi.org/10.1080/00131911.2014.929565" target="_blank" rel="noopener noreferrer">Brookhart and Chen, 2015</a> This distinction matters even more for LLM evaluation. FLASK, G-Eval, and Prometheus show benefits from fine-grained, conditioned judges for diagnosis or human agreement, while MT-Bench identifies position, verbosity, and self-enhancement biases. <a href="https://arxiv.org/abs/2307.10928" target="_blank" rel="noopener noreferrer">FLASK</a> <a href="https://arxiv.org/abs/2303.16634" target="_blank" rel="noopener noreferrer">G-Eval</a> <a href="https://arxiv.org/abs/2310.08491" target="_blank" rel="noopener noreferrer">Prometheus</a> <a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener noreferrer">MT-Bench</a> We therefore examine the verification chain from construction to training, beyond individual judge accuracy.</p>
+<h2 id="section-1">Definition: a rubric is an executable approximation of requirements</h2>
+<p>Let task requirements be (Q) and available environmental evidence (E), including issues, repositories, tests, logs, reference patches, and tool outputs. A rubric can be written as:</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi mathvariant="script">R</mi><mo>=</mo><mo stretchy="false">{</mo><mo stretchy="false">(</mo><msub><mi>c</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>p</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>v</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>w</mi><mi>i</mi></msub><mo separator="true">,</mo><msub><mi>g</mi><mi>i</mi></msub><mo stretchy="false">)</mo><msubsup><mo stretchy="false">}</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><mo separator="true">,</mo></mrow><annotation encoding="application/x-tex">\mathcal{R} = \{(c_i, p_i, v_i, w_i, g_i)\}_{i=1}^{m},</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathcal">R</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">{(</span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mclose"><span class="mclose">}</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7144em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">m</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mpunct">,</span></span></span></span></span></div>
+<p>Here, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">c_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">c</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is a criterion, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">p_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> its requirement provenance, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">v</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> acceptable evidence or a verifier, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">w_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0269em;">w</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0269em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> its weight, and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">g_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> its hierarchy or gate. Two implications follow. Every criterion should trace to requirements, tests, domain standards, or risk constraints, rather than generic preferences such as clarity or elegant code detached from the task. Each criterion also needs evidence that could support or refute it: tests, behavioral properties, tool-produced artifacts, or calibrated human/LLM judgments.</p>
+<p>Coding agents particularly need separate hard gates and soft/process criteria. Hard gates cover compilation, prohibition of grader tampering, critical safety invariants, and executable tests. Soft criteria cover localization, evidence collection, minimal edits, recovery, and efficiency. A weighted sum can improperly reward fluent but functionally wrong trajectories. Conversely, final tests alone give sparse signals for long searches. SWE-TRACE trains process reward models (PRMs) using process rubrics; a rubric-supervised critic learns from sparse real outcomes. Neither removes the need for independent final execution. <a href="https://arxiv.org/abs/2604.14820" target="_blank" rel="noopener noreferrer">SWE-TRACE</a> <a href="https://arxiv.org/abs/2603.03800" target="_blank" rel="noopener noreferrer">A Rubric-Supervised Critic</a></p>
+<blockquote>
+<p><strong>Construction chain:</strong> requirements and environmental evidence → requirement graph → atomic criteria → executable gates and process evidence → independent validation → training or search → adversarial audit and revision.</p>
+</blockquote>
+<h2 id="section-2">A spectrum from fixed dimensions to task-adaptive construction</h2>
+<p>Methods can be organized by rubric origin, structure, and use rather than publication year. <strong>Fixed capability dimensions</strong> include FLASK’s instruction-conditioned skill sets, G-Eval’s evaluation forms and chain-of-thought, and Prometheus’s open evaluator conditioned on explicit rubrics/references. They demonstrate more diagnostic scoring than a single overall score. Prometheus reports Pearson correlation 0.897 across 45 customized rubrics, evidence of judge alignment under particular data/rubric conditions rather than proof of rubric correctness. <a href="https://arxiv.org/abs/2307.10928" target="_blank" rel="noopener noreferrer">FLASK</a> <a href="https://arxiv.org/abs/2303.16634" target="_blank" rel="noopener noreferrer">G-Eval</a> <a href="https://arxiv.org/abs/2310.08491" target="_blank" rel="noopener noreferrer">Prometheus</a></p>
+<p><strong>Question-specific rubrics</strong> include SedarEval’s scoring/deduction points for 1,000 knowledge, math, coding, and logic questions; AlignBench’s Chinese scenarios, manually checked references/evidence, and rule-calibrated multidimensional judges; and Rubric Is All You Need’s comparisons on 150 DSA and 80 OOP submissions. They bring task details, deductions, and evidence into evaluation beyond generic helpfulness. <a href="https://aclanthology.org/2024.findings-emnlp.984/" target="_blank" rel="noopener noreferrer">SedarEval</a> <a href="https://aclanthology.org/2024.acl-long.624/" target="_blank" rel="noopener noreferrer">AlignBench</a> <a href="https://arxiv.org/abs/2503.23989" target="_blank" rel="noopener noreferrer">Rubric Is All You Need</a> Specificity also introduces authoring, reference anchoring, and maintenance costs. Criteria extracted from a gold patch’s surface structure may reject behaviorally equivalent alternatives.</p>
+<p><strong>Hierarchical tasks and process trajectories</strong> extend the structure further. PaperBench decomposes 20 paper-replication tasks into 8,316 individually scorable nodes, developed with original authors, to assess partial progress. <a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a> SWE-TRACE’s Rubric-Agent provides intermediate feedback for PRM training. Another critic defines 24 observable behaviors from real human–agent traces and improves SWE-bench reranking and early stopping. <a href="https://arxiv.org/abs/2604.14820" target="_blank" rel="noopener noreferrer">SWE-TRACE</a> <a href="https://arxiv.org/abs/2603.03800" target="_blank" rel="noopener noreferrer">A Rubric-Supervised Critic</a> Their value is turning observable intermediate evidence into learning signals, beyond replacing tests with language judges. Local behavior scores still have no automatic causal relationship with success.</p>
+<p><strong>Automatic generation, selection, and reconstruction</strong> includes OpenRubrics, which extracts hard rules and implicit principles from preferred/rejected differences and filters by preference-label consistency; Auto-Rubric, which builds a compressed hierarchical core from few preference pairs through verification-driven refinement; and RRD, which recursively decomposes, filters, and controls correlation weights to address missing coverage, mixed dimensions, and redundancy. <a href="https://arxiv.org/abs/2510.07743" target="_blank" rel="noopener noreferrer">OpenRubrics</a> <a href="https://arxiv.org/abs/2510.17314" target="_blank" rel="noopener noreferrer">Auto-Rubric</a> <a href="https://arxiv.org/abs/2602.05125" target="_blank" rel="noopener noreferrer">RRD</a> RubricHub combines principle-guided synthesis, multi-model aggregation, and difficulty evolution into a coarse-to-fine pipeline with 110k examples. RubricRAG retrieves similar-task rubrics for domain knowledge. <a href="https://aclanthology.org/2026.acl-long.1445/" target="_blank" rel="noopener noreferrer">RubricHub</a> <a href="https://arxiv.org/abs/2603.20882" target="_blank" rel="noopener noreferrer">RubricRAG</a> This shifts manual bottlenecks into generation, filtering, and versioning, while introducing generator monoculture, preference biases, and retrieval leakage.</p>
+<p>Finally, rubrics become <strong>training signals</strong>. Rubrics as Rewards uses instance-specific rubrics for on-policy RL on HealthBench and GPQA-Diamond, reporting improvements of up to 31% and 7% over direct Likert-judge rewards. OpenRS combines pairwise adaptive meta-rubrics with verifiable pointwise rubrics for pairwise RL; AdaRubric generates agent-specific dimensions from task descriptions to produce DPO preferences. <a href="https://arxiv.org/abs/2507.17746" target="_blank" rel="noopener noreferrer">Rubrics as Rewards</a> <a href="https://arxiv.org/abs/2602.14069" target="_blank" rel="noopener noreferrer">OpenRS</a> <a href="https://arxiv.org/abs/2603.21362" target="_blank" rel="noopener noreferrer">AdaRubric</a> Denser training makes rubrics active optimization targets. Static test agreement therefore cannot establish RL safety: policies may exploit criteria, judge biases, or fabricate superficial tool evidence.</p>
+<h2 id="section-3">Comparing verifier structures rather than single scores</h2>
+<p>Table 4.5-1 summarizes methods consistently. Evidence identifies what criteria ultimately depend on; boundaries indicate where findings should not be extrapolated, rather than dismissing papers.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Method</th>
+<th>Rubric origin/structure</th>
+<th>Task/environment</th>
+<th>Evidence and feedback stage</th>
+<th>Main contribution/result</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FLASK</td>
+<td>Instruction-conditioned skills</td>
+<td>Open LLM instructions</td>
+<td>Fine-grained human/model scores; final</td>
+<td>Capability diagnosis beyond overall scores</td>
+<td>Taxonomy/judge distribution sensitivity</td>
+</tr>
+<tr>
+<td>Prometheus</td>
+<td>User rubric, optional reference; flat scoring</td>
+<td>Long/open responses</td>
+<td>Rubric-conditioned 13B judge; final</td>
+<td>Reported r=0.897 on 45 rubrics</td>
+<td>Synthetic teacher, reference dependence, no RL audit</td>
+</tr>
+<tr>
+<td>SedarEval</td>
+<td>Per-question scoring/deductions</td>
+<td>Knowledge/math/code/logic</td>
+<td>Evaluator LM; final</td>
+<td>1,000 question-specific rubrics</td>
+<td>Manual cost; incomplete characterization of multiple valid answers</td>
+</tr>
+<tr>
+<td>AlignBench</td>
+<td>Checked evidence, multidimensional rules</td>
+<td>Chinese open QA</td>
+<td>Rule-calibrated LLM judge; final</td>
+<td>Evidence-aware Chinese alignment evaluation</td>
+<td>No repository/agent environment; drifting web evidence</td>
+</tr>
+<tr>
+<td>PaperBench</td>
+<td>Author-developed artifact hierarchy</td>
+<td>Paper-replication agents</td>
+<td>LLM judge; tasks/subtasks</td>
+<td>Partial progress across 20 tasks and 8,316 nodes</td>
+<td>Hierarchical error accumulation; implementation-similarity bias</td>
+</tr>
+<tr>
+<td>Rubric Is All You Need</td>
+<td>Question-specific code rubric</td>
+<td>Student DSA/OOP code</td>
+<td>Multi-agent grading; final</td>
+<td>Logical assessment and leniency metrics</td>
+<td>Small educational dataset, not production repositories</td>
+</tr>
+<tr>
+<td>SWE-TRACE</td>
+<td>Intermediate heuristic rubric</td>
+<td>SWE agents</td>
+<td>PRM; RL/test-time pruning</td>
+<td>Process feedback and token/latency optimization</td>
+<td>PRM hacking, short-trace preferences; independent tests needed</td>
+</tr>
+<tr>
+<td>Critic Rubrics</td>
+<td>24 observable trace behaviors</td>
+<td>Real human–coding-agent traces</td>
+<td>Critic; rerank/early stop/training</td>
+<td>Learning critics from sparse outcomes</td>
+<td>Proxy behaviors with unknown causal validity</td>
+</tr>
+<tr>
+<td>OpenRubrics / Auto-Rubric / RRD</td>
+<td>Contrastive rules; compressed hierarchy; recursive deduplication</td>
+<td>Reward models/open tasks</td>
+<td>Generated rubrics → RM/RFT</td>
+<td>Scalable construction and criterion filtering</td>
+<td>Shared preference/generator origins; insufficient coverage</td>
+</tr>
+<tr>
+<td>RubricHub</td>
+<td>Coarse-to-fine synthesis, aggregation, difficulty evolution</td>
+<td>Multidomain post-training</td>
+<td>RuFT → RuRL</td>
+<td>110k examples and training pipeline</td>
+<td>Synthetic monoculture; benchmark optimization</td>
+</tr>
+<tr>
+<td>RubricBench</td>
+<td>Expert atomic gold rubrics</td>
+<td>Difficult pairwise comparisons</td>
+<td>Rubric meta-evaluation</td>
+<td>Direct human/model rubric-gap measurement</td>
+<td>Scale/domain limits; gold needs auditing</td>
+</tr>
+<tr>
+<td>RaR / OpenRS / AdaRubric</td>
+<td>Instance/meta/task-adaptive rubrics</td>
+<td>Medical/scientific tasks or agent traces</td>
+<td>RL / pairwise RL / DPO</td>
+<td>Rubrics as learning signals</td>
+<td>Policy shift and hacking not fully resolved</td>
+</tr>
+<tr>
+<td>LLMEval-Logic / ClinConsensus</td>
+<td>Expert atomic items plus solvers/thresholds</td>
+<td>Chinese logic/medicine</td>
+<td>Z3 or dual judges; final</td>
+<td>Formal/domain-expert grounding of critical coverage</td>
+<td>Formal semantics, privacy, domain-transfer risks</td>
+</tr>
+</tbody>
+</table></div><p>Cross-paper reporting should distinguish <strong>requirement coverage</strong>, <strong>judge compliance with the rubric</strong>, <strong>agreement with human/execution outcomes</strong>, and <strong>real capability gains after optimizing the score</strong>. A single Pearson correlation or pairwise accuracy conflates different failures. LLM-Rubric shows calibration can reduce errors on specific human scales; RubricBench and paper-reproduction meta-evaluation show fluent model-written rubrics can still differ substantially from expert atomic criteria. <a href="https://aclanthology.org/2024.acl-long.745/" target="_blank" rel="noopener noreferrer">LLM-Rubric</a> <a href="https://aclanthology.org/2026.acl-long.1439/" target="_blank" rel="noopener noreferrer">RubricBench</a> <a href="https://arxiv.org/abs/2607.12835" target="_blank" rel="noopener noreferrer">Can LLMs Write Reliable Rubrics?</a></p>
+<blockquote>
+<p><strong>Two conceptual axes:</strong> generic to task-adaptive criteria, and final scoring to process diagnosis/training loops. This is a classification, not a leaderboard.</p>
+</blockquote>
+<h2 id="section-4">A construction and validation protocol for coding agents</h2>
+<p>Use specification-first, trajectory-second construction. Build a provenance-linked requirement graph from issues, interface contracts, repository constraints, tests, and historical behavior. Separate hard gates, key functionality, boundary/regression cases, quality constraints, and optional process evidence. Keep criteria atomic so a failure maps to a clear requirement. Assign the strongest available verifier: tests or static invariants before LLM judgments; use conditioned judges only where quality/process items cannot be checked directly. Validate with reference patches, different correct patches, single-violation mutations, near misses, and adversarial traces.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Check</th>
+<th>Should accept</th>
+<th>Should reject</th>
+<th>Failure implies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reference acceptance</td>
+<td>Reference patch / verified trace</td>
+<td>—</td>
+<td>Incorrect criterion or verifier implementation</td>
+</tr>
+<tr>
+<td>Alternative acceptance</td>
+<td>Behaviorally equivalent, structurally different patches</td>
+<td>—</td>
+<td>Overfitting to reference surface form</td>
+</tr>
+<tr>
+<td>Single-criterion mutation</td>
+<td>Patches preserving the criterion</td>
+<td>Near misses violating only that criterion</td>
+<td>Nonatomic criteria, mismatched evidence, or inappropriate weights</td>
+</tr>
+<tr>
+<td>Harness integrity</td>
+<td>Original/random rerun environments</td>
+<td>Grader tampering or mocks hiding failures</td>
+<td>Verifier bypass</td>
+</tr>
+<tr>
+<td>Judge robustness</td>
+<td>Equivalent paraphrased, reordered, or length-perturbed traces</td>
+<td>—</td>
+<td>Wording/format bias</td>
+</tr>
+<tr>
+<td>Policy-shift audit</td>
+<td>Real success before/after training</td>
+<td>High-reward, low-success traces</td>
+<td>Reward hacking or out-of-distribution judges</td>
+</tr>
+</tbody>
+</table></div><p>The protocol combines PaperBench’s artifact hierarchy, SWE-TRACE’s dense feedback, RubricBench’s atomic comparisons, and LLMEval-Logic’s formal anchors without treating any one as a complete solution. <a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a> <a href="https://arxiv.org/abs/2604.14820" target="_blank" rel="noopener noreferrer">SWE-TRACE</a> <a href="https://aclanthology.org/2026.acl-long.1439/" target="_blank" rel="noopener noreferrer">RubricBench</a> <a href="https://arxiv.org/abs/2605.19597" target="_blank" rel="noopener noreferrer">LLMEval-Logic</a></p>
+<h2 id="section-5">Limitations: what current evidence does not establish</h2>
+<p>First, most findings are correlations or downstream gains under particular benchmarks, judges, prompts, and model versions; they do not establish sufficient validity against task truth. Second, generators, filters, and judges often share model families or preference sources, allowing shared bias to appear internally stable. Third, reference conditioning can confuse reference similarity with specification satisfaction, especially for code with multiple valid solutions. Fourth, RL/reranking gains do not automatically establish safe rewards: persistent optimization changes the trajectories a judge encounters. Fifth, medical, personal-health, and real-repository uses also raise privacy, accountability, update governance, expert disagreement, and auditability issues. ClinConsensus and RubricsTree illustrate the value of expert anchors and hierarchies, while showing that automation does not erase these costs. <a href="https://arxiv.org/abs/2603.02097" target="_blank" rel="noopener noreferrer">ClinConsensus</a> <a href="https://arxiv.org/abs/2606.18203" target="_blank" rel="noopener noreferrer">RubricsTree</a></p>
+<h2 id="section-6">Open questions and research agenda</h2>
+<p><strong>Rubric adequacy benchmarks.</strong> The immediate gap is counterfactual testing of rubrics themselves: construct alternative passes, single-failure near misses, and adversarial bypasses per criterion, measuring coverage and discrimination through criterion-level true/false positives. RubricBench provides an expert-atomic starting point that still needs links to executable behavior and mutation testing. <a href="https://aclanthology.org/2026.acl-long.1439/" target="_blank" rel="noopener noreferrer">RubricBench</a></p>
+<p><strong>Specification-first verification with multiple correct solutions.</strong> Derive criteria from external behavior, contracts, and invariants rather than gold-patch syntax/files. A heterogeneous ensemble of property-based tests, metamorphic relations, static analysis, and semantic judges is promising; report alternative-solution acceptance explicitly.</p>
+<p><strong>Rubric–policy co-evolution.</strong> Once used in RL, DPO, or search, ask whether rubrics still represent objectives against actively optimizing policies. Go beyond best-of-N to frozen anchor rubrics, independent post-training tests, red-teaming, replay relabeling, and reward-hacking success rates. RaR, OpenRS, SWE-TRACE, and AdaRubric demonstrate potential while making audits prerequisites. <a href="https://arxiv.org/abs/2507.17746" target="_blank" rel="noopener noreferrer">RaR</a> <a href="https://arxiv.org/abs/2602.14069" target="_blank" rel="noopener noreferrer">OpenRS</a> <a href="https://arxiv.org/abs/2604.14820" target="_blank" rel="noopener noreferrer">SWE-TRACE</a> <a href="https://arxiv.org/abs/2603.21362" target="_blank" rel="noopener noreferrer">AdaRubric</a></p>
+<p><strong>Causal validity of process signals.</strong> A behavior common in successful traces need not cause success. Compare sibling actions from identical states, or use counterfactual replay/step ablation to measure success changes after removing a process item, moving PRMs beyond language-style critics toward causal verifiers.</p>
+<p><strong>Independent domain, language, and harness holdouts.</strong> Generalization cannot be measured only through English paraphrases. Retain domain, language, tool/harness, judge, and generator holdouts. Chinese logic and clinical contexts deserve independent domain treatment rather than translated English benchmarks. <a href="https://arxiv.org/abs/2605.19597" target="_blank" rel="noopener noreferrer">LLMEval-Logic</a> <a href="https://arxiv.org/abs/2603.02097" target="_blank" rel="noopener noreferrer">ClinConsensus</a></p>
+<p><strong>Human collaboration and version governance.</strong> Prioritize human effort for high-disagreement, low-confidence, high-risk, or high-reward-gradient frontier cases instead of authoring every item from scratch. Version criterion provenance, generating models/prompts, editors, validation examples, known exploits, and withdrawal histories. These support both reproducibility and high-stakes governance.</p>
+<h2 id="section-7">Closing perspective</h2>
+<p>Rubric construction should focus on evaluation rules remaining valid against requirements, evidence, and optimized policies. Fixed-dimension judges provide diagnostic starting points; question-specific and hierarchical rubrics bring task structure; automatic generation and rewards scale feedback while amplifying omissions, shared bias, and hacking. For coding agents, anchor final correctness in executable hard gates, provide dense feedback through atomic process rubrics, and continuously test the gap using alternative correct solutions, mutations, adversarial traces, and human review.</p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">Definition: a rubric is an executable approximation of requirements</a></li><li><a href="#section-2">A spectrum from fixed dimensions to task-adaptive construction</a></li><li><a href="#section-3">Comparing verifier structures rather than single scores</a></li><li><a href="#section-4">A construction and validation protocol for coding agents</a></li><li><a href="#section-5">Limitations: what current evidence does not establish</a></li><li><a href="#section-6">Open questions and research agenda</a></li><li><a href="#section-7">Closing perspective</a></li></ol><a href="../blog.html">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="paperbench.html"><span>Paper reading</span><strong>PaperBench: evaluating research replication</strong><i aria-hidden="true">↗</i></a><a href="generate-verify-repair.html"><span>Research notes</span><strong>Generate–Verify–Repair: an evidence loop for coding agents</strong><i aria-hidden="true">↗</i></a><a href="scientistone.html"><span>Paper reading</span><strong>ScientistOne: linking papers, code, and experiments through evidence</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

@@ -1,0 +1,31 @@
+{
+  "source": "https://arxiv.org/pdf/2605.26340v1",
+  "license": "CC BY 4.0",
+  "attribution": "Rui Meng et al. ScientistOne (2026)",
+  "figures": [
+    {
+      "file": "pipeline.png",
+      "pdf_page": 5,
+      "figure": 1,
+      "clip_points": [
+        61,
+        80,
+        535,
+        289
+      ],
+      "operation": "Cropped surrounding page content; original figure unchanged; rendered at 4x"
+    },
+    {
+      "file": "integrity-audit.png",
+      "pdf_page": 6,
+      "figure": 2,
+      "clip_points": [
+        61,
+        80,
+        535,
+        260
+      ],
+      "operation": "Cropped surrounding page content; original figure unchanged; rendered at 4x"
+    }
+  ]
+}
