@@ -1,5 +1,30 @@
 [
   {
+    "slug": "exp-bench",
+    "title_zh": "EXP-Bench：AI 能把研究实验完整做对吗？",
+    "title_en": "EXP-Bench: can AI complete a research experiment correctly?",
+    "summary_zh": "从 461 个实验任务、过程评分到独立执行，理解单项能力与完整成功的差距，以及 0.5% 严格得分的统计边界。",
+    "summary_en": "From 461 experimental tasks and process scoring to independent execution: the gap between partial competence and complete success, and the limits of the strict 0.5% result.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "EXP-Bench: Can AI Conduct AI Research Experiments?",
+      "url": "https://arxiv.org/abs/2505.24785v2",
+      "venue": "arXiv · 2025 / v2 · 2025-06-02"
+    },
+    "cover": "assets/img/blog/exp-bench/overview.png"
+  },
+  {
     "slug": "researchclawbench",
     "title_zh": "ResearchClawBench：完整报告距离可靠科研还有多远",
     "title_en": "ResearchClawBench: how far are complete reports from reliable research?",

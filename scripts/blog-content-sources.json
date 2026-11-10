@@ -1,5 +1,20 @@
 [
   {
+    "slug": "exp-bench",
+    "source": "https://arxiv.org/abs/2505.24785v2",
+    "source_pdf": "https://arxiv.org/pdf/2505.24785v2",
+    "source_pdf_sha256": "e90e40d9fdb08a83eac2a8b20064bcc5d4b81a1acbe800e8f109207ead7f95df",
+    "figure_manifest": "assets/img/blog/exp-bench/sources.json",
+    "scope": "Complete bilingual six-section reading; original Figures 1, 2, 4, 6; full main Table 1 followed by scoring, cost and failure analysis. Distinguishes partial credit, strict joint success, unequal execution coverage, subset averages, automated judging and error-taxonomy prevalence.",
+    "related_sources": [
+      "https://arxiv.org/abs/2410.05080v3",
+      "https://arxiv.org/abs/2410.07095v6",
+      "https://arxiv.org/abs/2504.01848v1",
+      "https://github.com/Just-Curieous/Curie/tree/main/benchmark/exp_bench"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
     "slug": "researchclawbench",
     "source": "https://arxiv.org/abs/2606.07591v5",
     "source_pdf": "https://arxiv.org/pdf/2606.07591v5",

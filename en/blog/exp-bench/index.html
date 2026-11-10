@@ -1,0 +1,294 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EXP-Bench: can AI complete a research experiment correctly? | Linhao Wang</title>
+  <meta name="description" content="From 461 experimental tasks and process scoring to independent execution: the gap between partial competence and complete success, and the limits of the strict 0.5% result.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="EXP-Bench: can AI complete a research experiment correctly?">
+  <meta property="og:description" content="From 461 experimental tasks and process scoring to independent execution: the gap between partial competence and complete success, and the limits of the strict 0.5% result.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/exp-bench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="EXP-Bench：AI 能把研究实验完整做对吗？" data-title-en="EXP-Bench: can AI complete a research experiment correctly?" data-language-url="../../../blog/exp-bench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>13 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>EXP-Bench: can AI complete a research experiment correctly?</h1><p class="article-summary">From 461 experimental tasks and process scoring to independent execution: the gap between partial competence and complete success, and the limits of the strict 0.5% result.</p><div class="post-topics"><span>AI for Science</span><span>Research agent evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/exp-bench/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/exp-bench/overview.png" alt="EXP-Bench: can AI complete a research experiment correctly?" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2505.24785v2" target="_blank" rel="noopener noreferrer">EXP-Bench: Can AI Conduct AI Research Experiments? ↗</a><small>arXiv · 2025 / v2 · 2025-06-02</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the field: what counts as completing an experiment?</a></li><li><a href="#section-2">2. Related work: from executable programs to verifiable research</a></li><li><a href="#section-3">3. Research questions: what should this benchmark reveal?</a></li><li><a href="#section-4">4. Method: from research artifacts to joint evaluation</a></li><li><a href="#section-9">5. Experimental design and results: from partial credit to complete success</a></li><li><a href="#section-13">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>Does a plausible experimental plan, a program that starts successfully, and a reasonable conclusion add up to a completed experiment? EXP-Bench checks these stages separately and then requires them to hold together, exposing the gap between partial competence and complete experimental success.</p>
+<p>This article reads <strong>EXP-Bench: Can AI Conduct AI Research Experiments?</strong> by Patrick Tser Jern Kon, Jiachen Liu, and colleagues, using <a href="https://arxiv.org/abs/2505.24785v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>, revised on June 2, 2025. This version is labeled a preprint under review; its scores are a snapshot of the models and frameworks tested then. The <a href="https://github.com/Just-Curieous/Curie/tree/main/benchmark/exp_bench" target="_blank" rel="noopener noreferrer">official code and dataset entry point</a> provides running instructions, rather than making the paper a current model leaderboard.</p>
+<h2 id="section-1">1. Understanding the field: what counts as completing an experiment?</h2>
+<p>Suppose we want to know whether a convolutional architecture improves image classification. A researcher must identify comparisons, control data splits and training conditions, implement the architecture, train or evaluate models, record metrics, and determine whether the observed difference answers the question.</p>
+<p>Each stage can appear complete without being sound. A plan names models but misses a control variable; a program exits normally without performing the required evaluation; a conclusion points in the right direction but comes from memory or guessing. Checking only the final answer or whether a program starts misses some of these failures.</p>
+<p><strong>Experimental research competence means translating a question into appropriate operations and supporting a conclusion with evidence actually produced by those operations.</strong> It requires scientific judgment alongside data preparation, environment configuration, implementation, and debugging.</p>
+<p>Evaluation inherits this difficulty. Requirements are scattered across papers, appendices, configurations, and code, making them hard to turn into standardized tasks. Success also requires several stages to hold together, so separate average scores can overstate complete capability.</p>
+<h2 id="section-2">2. Related work: from executable programs to verifiable research</h2>
+<p>Three benchmarks clarify different evaluation choices. This comparison follows their original definitions rather than simply adopting the target paper's abbreviated descriptions of prior work.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main evaluation target</th>
+<th>Relationship and difference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080v3" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>Extract data-driven tasks from real papers, require self-contained Python programs, and assess programs, results, and costs</td>
+<td>Emphasizes reliable completion of specific scientific workflow tasks; this paper additionally organizes explicit joint evaluation of design, implementation, execution, and conclusion</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.07095v6" target="_blank" rel="noopener noreferrer">MLE-bench</a></td>
+<td>Prepare data, train models, and experiment in Kaggle competitions, using competition performance for comparison</td>
+<td>More directly targets predictive or engineering objectives; this paper derives references from research questions and experimental conditions in papers</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v1" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Provide a research paper, require method implementation and replication experiments, and grade progress through a hierarchical rubric</td>
+<td>Also evaluates implementation and execution, potentially across an entire paper; this paper creates experiment-level tasks while hiding the source paper and parts of the code</td>
+</tr>
+</tbody>
+</table></div><p>PaperBench should therefore not be reduced to checking script execution, and the benchmarks' percentages should not be ranked directly. Their supplied information, task granularity, and success criteria differ. EXP-Bench's distinguishing feature is <strong>extracting many experimental tasks from completed research while retaining both process-level decomposition and strict joint metrics</strong>.</p>
+<h2 id="section-3">3. Research questions: what should this benchmark reveal?</h2>
+<p>We organize the paper around three reading questions; these are our synthesis rather than verbatim author-defined research questions.</p>
+<ol>
+<li><strong>How can papers and code yield experimental tasks with grounded references?</strong> Consolidate scattered objectives, variables, procedures, and conclusions into executable, gradable materials.</li>
+<li><strong>How can partial correctness be distinguished from complete success?</strong> Check design, implementation, independent execution, and conclusion together, while restricting shortcuts to original answers.</li>
+<li><strong>Where does the experimental chain break?</strong> Compare models and frameworks, then examine stricter scoring, runtime, and common failure patterns.</li>
+</ol>
+<p>Here, “end to end” means <strong>the experimental process after a research question and high-level method have been supplied</strong>. Identifying a gap independently, inventing an original research question, and sustaining an open-ended discovery program are not fully covered.</p>
+<h2 id="section-4">4. Method: from research artifacts to joint evaluation</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/exp-bench/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/exp-bench/overview.png" alt="EXP-Bench inputs and evaluation of design, implementation, execution, and conclusion" loading="lazy" decoding="async"></a><figcaption>Figure 1 · The left supplies a question, high-level method, and starter code; the right checks design, code changes, execution, and conclusion. Partial design and implementation credit can coexist with failed execution and an incorrect conclusion. Source: original paper v2, Figure 1, PDF page 1; not redrawn. Click for the full-size image.</figcaption></figure>
+<h3 id="section-5">Step one: extract experiment-level tasks from real papers</h3>
+<p>The authors select AI papers with public code, using signals such as citations and repository activity to assist filtering. Version 2 contains <strong>51 ICLR / NeurIPS 2024 papers, 461 experimental tasks, and 12,737 individually gradable items</strong>. These items are not additional complete research projects; tasks from one paper can share background and code.</p>
+<p>The construction pipeline first applies OCR and multimodal structure extraction to PDFs, retaining tables, figures, and headings. Multiple retrieval passes then turn broad findings into specific questions and recover constraints scattered through appendices and other sections. Outputs include the question, high-level method, and expected outcome.</p>
+<p>An implementation extraction agent receives the full codebase and task, locates relevant scripts, and assembles their execution chain. Validated scripts support AST tracing to extract natural-language implementation requirements, supplemented with hyperparameters from configurations and documentation. This connects what the paper reports with how the code performs it.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/exp-bench/construction.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/exp-bench/construction.png" alt="Source filtering, task extraction, implementation extraction, and validation" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Follow how paper information and code converge into tasks, followed by validation and human checking. Construction agents can inspect full papers and code, unlike evaluated agents with restricted inputs. Source: original paper v2, Figure 4, PDF page 5; not redrawn. Click for the full-size image.</figcaption></figure>
+<h3 id="section-6">Step two: validate references and mask answer materials</h3>
+<p>For tasks with matched implementations, scripts run in clean containers and outputs are checked, with failures returned for refinement. Tasks without matched implementations receive manual checks that the objective remains faithful to the paper. Lightweight human consistency review finalizes the materials. <strong>It would therefore be inaccurate to describe every task as having passed the same complete execution validation.</strong></p>
+<p>Evaluated agents receive the question, high-level method, masked starter repository, and necessary context; relevant scripts and README files may be removed. Reference designs, implementation requirements, and expected conclusions remain with the evaluator. Repositories are freshly cloned and masked for each agent. <a href="https://arxiv.org/html/2505.24785v2#S3" target="_blank" rel="noopener noreferrer">Section 3</a>.</p>
+<h3 id="section-7">Step three: design, implement, execute, and answer</h3>
+<p>The paper's MogaNet example asks about comparison with existing lightweight models on ImageNet-1K. An agent must complete the experiment from the high-level method, respect model, input, and training conditions, obtain accuracy and efficiency evidence, and derive a comparative conclusion.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/exp-bench/task-example.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/exp-bench/task-example.png" alt="Agent-visible inputs and evaluator-side references in the MogaNet task" loading="lazy" decoding="async"></a><figcaption>Figure 3 · The green area on the left contains the question, high-level method, and starter code; the gray area on the right contains design, implementation, and expected-outcome references. The key is the information boundary: the right side is not part of the agent&#39;s visible instructions. Source: original paper v2, Figure 2, PDF page 3; not redrawn. Click for the full-size image.</figcaption></figure>
+<p>Expected submissions include an experimental design, repository code changes, and a conclusion answering the question. These artifacts must be interpreted alongside execution traces: writing the paper's correct conclusion does not establish that the corresponding experiment ran.</p>
+<h3 id="section-8">Step four: check stages separately, then require them together</h3>
+<p>Evaluation combines an <strong>o3-mini automated judge</strong> with a <strong>code execution validator</strong>. A Monitor first checks logs for reading the target paper, using Git to recover other versions, or substituting fabricated, hardcoded, placeholder, or pre-existing repository results for actual experimentation. These benchmark rules address answer leakage and result authenticity.</p>
+<p>The judge then awards partial design and implementation credit and checks conclusion semantics. The execution validator runs submitted modifications in a clean, equivalent container, checking executability and expected outputs. This provides evidence distinct from an agent's claim that it ran successfully.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Metric</th>
+<th>Interpretation</th>
+<th>Limitation when used alone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D</td>
+<td>Agreement of design variables and conditions with the reference</td>
+<td>A sound plan does not establish completion</td>
+</tr>
+<tr>
+<td>I</td>
+<td>Fulfillment of implementation requirements, based on code changes and related evidence</td>
+<td>Partially correct implementation may not run</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Semantic correctness of the conclusion against the reference</td>
+<td>A guessed conclusion can still be judged correct</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Independent execution validation of submitted code</td>
+<td>Executability still requires checking task appropriateness</td>
+</tr>
+<tr>
+<td>I·E</td>
+<td>Joint consideration of implementation correctness and executability</td>
+<td>Limits over-crediting based on executability alone</td>
+</tr>
+<tr>
+<td>All✓</td>
+<td>Full correctness of D, I, and C</td>
+<td>Does not yet add independent execution</td>
+</tr>
+<tr>
+<td>All·E✓</td>
+<td>Adds execution validation to All✓</td>
+<td>Strictest complete-experiment metric, also affected by execution coverage</td>
+</tr>
+</tbody>
+</table></div><p>The dot follows the paper's joint-metric notation; it does not mean multiplying the reported column averages yields the joint score. Appendix H asks the implementation judge to check required operations individually while accepting functionally equivalent filenames and function names, rather than literal copies of reference code. <strong>This is automated grading plus execution validation, rather than human scientific review of every result.</strong> <a href="https://arxiv.org/html/2505.24785v2#S4.SS1" target="_blank" rel="noopener noreferrer">Section 4.1</a>, <a href="https://arxiv.org/html/2505.24785v2#A8" target="_blank" rel="noopener noreferrer">Appendix H</a>.</p>
+<h2 id="section-9">5. Experimental design and results: from partial credit to complete success</h2>
+<h3 id="section-10">Main experiment: how many complete tasks succeed?</h3>
+<p>The main experiment compares seven combinations of <strong>OpenHands (OH) and IterativeAgent (IA)</strong> with o3-mini, Claude 3.7 Sonnet, Claude 3.5 Haiku, Amazon Nova Pro, and DeepSeek R1. Agents run in Ubuntu 24.04 Docker with access to <strong>four NVIDIA A40 GPUs</strong> and a <strong>40-minute agent time limit per task</strong>. The IA configuration aims to reduce early stopping.</p>
+<p>The following transcribes v2 Table 1. All values except the final task-count column retain the paper's percentage scale, with higher being better. D and I represent partial correctness; C and strict success metrics have different meanings, so these columns are not interchangeable complete-task success rates.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Agent</th>
+<th>Model</th>
+<th>D</th>
+<th>I</th>
+<th>E</th>
+<th>I·E</th>
+<th>C</th>
+<th>All✓</th>
+<th>All·E✓</th>
+<th>#E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OH</td>
+<td>o3-mini</td>
+<td>18.4</td>
+<td>20.3</td>
+<td>15.0</td>
+<td>2.9</td>
+<td>21.0</td>
+<td>1.4</td>
+<td>0.5</td>
+<td>420</td>
+</tr>
+<tr>
+<td>OH</td>
+<td>Claude 3.7 Sonnet</td>
+<td>16.0</td>
+<td>35.0</td>
+<td>33.2</td>
+<td>14.9</td>
+<td>13.4</td>
+<td>0.7</td>
+<td>0.4</td>
+<td>235</td>
+</tr>
+<tr>
+<td>OH</td>
+<td>Amazon Nova Pro</td>
+<td>18.2</td>
+<td>19.5</td>
+<td>26.8</td>
+<td>0.0</td>
+<td>15.7</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>56</td>
+</tr>
+<tr>
+<td>OH</td>
+<td>Claude 3.5 Haiku</td>
+<td>20.6</td>
+<td>26.2</td>
+<td>9.3</td>
+<td>1.3</td>
+<td>13.8</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>237</td>
+</tr>
+<tr>
+<td>OH</td>
+<td>DeepSeek R1</td>
+<td>6.8</td>
+<td>10.0</td>
+<td>0.7</td>
+<td>0.0</td>
+<td>2.4</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>140</td>
+</tr>
+<tr>
+<td>IA</td>
+<td>Claude 3.5 Haiku</td>
+<td>6.4</td>
+<td>20.6</td>
+<td>25.2</td>
+<td>5.4</td>
+<td>2.2</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>111</td>
+</tr>
+<tr>
+<td>IA</td>
+<td>Amazon Nova Pro</td>
+<td>0.1</td>
+<td>10.0</td>
+<td>18.1</td>
+<td>0.0</td>
+<td>0.3</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>215</td>
+</tr>
+</tbody>
+</table></div><p>At the complete-task level, <strong>OH + o3-mini reports 0.5% All·E✓, OH + Sonnet reports 0.4%, and the other combinations report 0.0%.</strong> The former reaches only 1.4% All✓. This supports the central observation: partial credit is possible, but correctly connecting all stages and passing execution validation remains rare.</p>
+<p>At the component level, Sonnet's I of 35.0 and E of 33.2 exceed o3-mini's, yet its strict joint result is lower. Selecting the strongest system on a single dimension does not automatically yield the most reliable complete experiment. This observation applies to the tested configurations; it does not independently isolate the effects of model, framework, or any particular tool.</p>
+<p><strong>Read “0.5%” alongside #E.</strong> The authors describe main results as averages over 461 tasks, but execution cost limits validation to a subset of traces; Monitor failures are discarded before execution. The configurations have #E values from 56 to 420, so coverage differs. The main text does not fully specify a unified treatment of every unchecked trace in execution-related aggregates. We retain reported values and sample counts rather than inferring exact success counts from rounded percentages or constructing precise confidence intervals. The 0.5% is the best configuration's strict reported value in this table, not a pooled success rate across all models.</p>
+<p>These are also not human baseline or best-of-N results. The paper supplies no corresponding human baseline here, preventing a direct conclusion about relative human capability. <a href="https://arxiv.org/html/2505.24785v2#S4.SS1" target="_blank" rel="noopener noreferrer">Section 4.1 and Table 1, PDF pages 6–7</a>.</p>
+<h3 id="section-11">Scoring analysis: why does execution push scores toward zero?</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/exp-bench/metric-analysis.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/exp-bench/metric-analysis.png" alt="Cost versus time and progressively stricter evaluation criteria" loading="lazy" decoding="async"></a><figcaption>Figure 4 · Left: average runtime and backbone-model token cost. Right: adding conclusion, design, implementation, and execution criteria after the Monitor causes scores to collapse. The right panel displays four OH configurations, and this analysis concerns the execution-checked task subset. Source: original paper v2, Figure 6, PDF page 8; surrounding page content cropped, with both panels, axes, and legends retained. Click for the full-size image.</figcaption></figure>
+<p>Section 4.2 analyzes progressively stricter criteria on execution-checked tasks: the reported average falls from 20.6% for the Monitor criterion to 3.7% after adding design and conclusion, 0.4% after implementation, and 0.2% after execution. <strong>These values reflect that analysis subset and aggregation, unlike the 0.5% for the best individual configuration in Table 1.</strong></p>
+<p>The lesson is that a plausible conclusion may lack a correct design, an implementation may omit necessary components, and executable code may still perform the wrong experiment. Figure 5 also shows lower score variation for joint metrics. This does not establish an unbiased automated judge, however, and a falling joint score alone cannot validate grading accuracy.</p>
+<p>The “ablation” here primarily concerns <strong>stricter scoring criteria and cost comparisons</strong>, rather than removing an agent module and retraining or reevaluating it. It cannot establish the causal performance contribution of a particular module. <a href="https://arxiv.org/html/2505.24785v2#S4.SS2" target="_blank" rel="noopener noreferrer">Section 4.2</a>.</p>
+<h3 id="section-12">Cost and failure analysis: what does more time accomplish?</h3>
+<p>The left panel of Figure 6 shows no consistent performance improvement with time or expense. The authors observe early stopping in OH, sometimes without actual experimentation; IA more often consumes its budget without achieving higher complete success. Costs <strong>include only backbone-model input/output tokens, excluding other internal APIs and compute</strong>, so they are not total experiment costs.</p>
+<p>Failure analysis extracts 3,238 raw observations from evaluation records and condenses them into 361 failure types. The following selects representative entries from Table 2.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Stage</th>
+<th>Representative error</th>
+<th>Reported prevalence (%)</th>
+<th>Practical meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Design</td>
+<td>Missing or misclassified variables</td>
+<td>16.05</td>
+<td>Failure to distinguish necessary experimental factors from other conditions</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Missing essential components</td>
+<td>39.71</td>
+<td>Omitted retrieval strategies, augmentations, or other required components</td>
+</tr>
+<tr>
+<td>Execution</td>
+<td>Environment or dependency configuration errors</td>
+<td>29.38</td>
+<td>Required environments, frameworks, or libraries unavailable</td>
+</tr>
+<tr>
+<td>Execution</td>
+<td>Script or file errors</td>
+<td>23.84</td>
+<td>Unrecognized model names, missing checkpoints, and similar problems</td>
+</tr>
+<tr>
+<td>Conclusion</td>
+<td>Missing or incomplete content</td>
+<td>26.18</td>
+<td>Required comparisons or quantitative observations absent</td>
+</tr>
+<tr>
+<td>Conclusion</td>
+<td>Incorrect interpretation</td>
+<td>19.66</td>
+<td>Claiming improvement without supporting baseline evidence</td>
+</tr>
+</tbody>
+</table></div><p>These are reported frequencies in an error taxonomy, rather than independent failure probabilities over 461 tasks. Entries cannot be added into a total failure rate or used for direct cross-stage risk comparisons. The main table does not fully specify raw counts and a common denominator for every category, so it helps locate recurring problems rather than estimate precise risks. <a href="https://arxiv.org/html/2505.24785v2#S4.SS3" target="_blank" rel="noopener noreferrer">Section 4.3 and Table 2</a>.</p>
+<h2 id="section-13">6. Our reflections</h2>
+<h3 id="section-14">Thinking about the field: what is being studied?</h3>
+<p>In our view, experimental automation depends on <strong>maintaining correspondence between questions, operations, artifacts, and conclusions</strong>. Sound plans, correct code, successful execution, and credible conclusions each matter, but complete capability depends on their intersection. EXP-Bench offers a task structure for diagnosing that intersection.</p>
+<p>It also encourages separating replication of known experiments from exploration of unknown questions. The former has references and supports diagnosis; the latter involves choosing objectives, interpreting negative results, and changing direction. Evaluating these stages separately is more informative than describing autonomous research through one score.</p>
+<h3 id="section-15">Thinking about limitations: what remains unresolved?</h3>
+<p><strong>First, task representativeness is limited.</strong> Tasks come from existing, relatively visible AI papers with code. Long-term exploration, autonomous question selection, research without mature implementations, and experiments in other sciences receive less coverage. Tasks from the same paper are also correlated.</p>
+<p><strong>Second, references and judges need auditing.</strong> Models extract tasks with lightweight human checks, while validation differs between tasks with and without matched executable implementations. D, I, and C rely on automated judgment. Even when the implementation judge accepts equivalent solutions, reference pathways may influence grading, and semantic agreement does not establish that a conclusion follows from this run's evidence.</p>
+<p><strong>Third, success statistics and resource conditions need greater transparency.</strong> Unequal execution coverage, bounded task budgets, and incomplete cost accounting affect comparisons. Near-zero scores expose difficulties but make precise system comparisons hard without consistent denominators, repeated runs, and uncertainty reporting.</p>
+<h3 id="section-16">Thinking about solutions: what directions could address them?</h3>
+<p>The following are our research proposals, rather than effects already demonstrated by the paper.</p>
+<p><strong>For representativeness:</strong> split training and evaluation by source paper rather than only by task, and add newer research, non-public answers, and tasks without mature scripts. Separately evaluate long-horizon question selection and route changes, reporting known-experiment and open-exploration capabilities independently.</p>
+<p><strong>For reference and judge quality:</strong> label each task's validation strength, have experts audit multiple valid implementations, and report agreement between automated scores and human review. Attach run identifiers, logs, metric files, and generating scripts to conclusions so grading can trace evidence to actual experiments.</p>
+<p><strong>For statistics and resources:</strong> fix a common executable subset and publish metric denominators, exclusion reasons, and success counts. Repeat runs under matched budgets, account for source-paper correlations, and report complete success, stage scores, and total costs including GPUs. This would clarify whether improvements arise from scientific design, software reliability, or additional resources.</p>
+<p>Paper and materials: <a href="https://arxiv.org/pdf/2505.24785v2" target="_blank" rel="noopener noreferrer">v2 PDF</a>. Original Figures 1, 2, 4, and 6 are used; Figure 6 only removes surrounding page content, and the others are not redrawn. arXiv lists <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0 1.0</a>. The illustration provenance record stores sources, pages, dimensions, and checksums.</p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the field: what counts as completing an experiment?</a></li><li><a href="#section-2">2. Related work: from executable programs to verifiable research</a></li><li><a href="#section-3">3. Research questions: what should this benchmark reveal?</a></li><li><a href="#section-4">4. Method: from research artifacts to joint evaluation</a></li><li><a href="#section-9">5. Experimental design and results: from partial credit to complete success</a></li><li><a href="#section-13">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../astabench/"><span>Paper reading</span><strong>AstaBench: how to evaluate research agents fairly</strong><i aria-hidden="true">↗</i></a><a href="../paperbench/"><span>Paper reading</span><strong>PaperBench: can AI truly replicate a research paper?</strong><i aria-hidden="true">↗</i></a><a href="../researchclawbench/"><span>Paper reading</span><strong>ResearchClawBench: how far are complete reports from reliable research?</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

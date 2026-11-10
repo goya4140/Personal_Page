@@ -73,6 +73,10 @@
     "researchclawbench": {
       "source_sha256": "94e0d8f6080ca50bb1f25aabfe7a692b4a9c6e2f5e5617b81b42378dadba7ae1",
       "english_sha256": "d1b222e0adb3a4ccdd2458c8103d3314d22799ee23012cdd8fdd06ccec8f7142"
+    },
+    "exp-bench": {
+      "source_sha256": "ea1853955b117b52d094d392dbc6dd7c393501c15c74e94d03188c83c1775cfa",
+      "english_sha256": "cb6c474b94f9f966c44d1da72aa4cf5b1a0101c7cfe05b43dae9ad98f26d6251"
     }
   }
 }
