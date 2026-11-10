@@ -53,8 +53,8 @@
     "slug": "researchclawbench",
     "title_zh": "ResearchClawBench：完整报告距离可靠科研还有多远",
     "title_en": "ResearchClawBench: how far are complete reports from reliable research?",
-    "summary_zh": "从隐藏目标论文、专家 rubric 到 50 分参考锚点，解读 40 个跨学科任务的主实验、证据链失败与评分边界。",
-    "summary_en": "A reading of hidden target papers, expert rubrics, and the 50-point reference anchor across 40 tasks, examining main results, evidence failures, and scoring limits.",
+    "summary_zh": "从隐藏目标、任务输入到加权 RADS 评分，理解科研证据与报告外观的差别；附评分教学算例、可展开说明及与 AutoSciRub 的连接。",
+    "summary_en": "From hidden targets and task inputs to weighted RADS scoring: scientific evidence, report quality, a labeled teaching example, expandable notes, and the link to AutoSciRub.",
     "tags_zh": [
       "AI for Science",
       "科研能力评测",

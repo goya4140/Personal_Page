@@ -2,6 +2,8 @@ A research agent can read papers, run code, generate figures, and deliver a comp
 
 This article reads **ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research**, by Wanghan Xu and colleagues at Shanghai Artificial Intelligence Laboratory, using [arXiv v5](https://arxiv.org/abs/2606.07591v5), updated July 3, 2026. Results refer to that paper snapshot, separately from the continually updated project leaderboard.
 
+For an introductory reading, follow one chain: **receive a research objective and materials → conduct analyses → submit code, figures, and a report → assess the evidence against hidden reference research.** Independence here operates within a supplied objective. The reference anchor of 50 and the tested system's task-average score of 21.5 are scores, rather than complete-research success rates. Expandable notes at relevant sentences explain inputs and outputs, a scoring example, and the connection to AutoSciRub.
+
 ## 1. Understanding the Topic: How Can We Tell Whether AI Completed Research?
 
 Suppose an AI system is asked to explain a delayed rainy season using climate data. It must understand the background, inspect variables and time ranges, design analyses, execute code, and explain how evidence supports its hypotheses.
@@ -46,7 +48,7 @@ Domain experts select papers with clear questions, accessible data, and research
 
 Version v5 contains **40 tasks across 10 domains, with 4 tasks per domain**. The two main types are diagnostic analysis and target optimization, emphasizing explanations and mechanisms or quantitative objectives and performance.
 
-Systems receive task descriptions, related literature, and data. **Target papers and associated evaluation materials remain on the evaluation side.** Packages include experimental or simulated results as well as processed features, posterior samples, and figure data. Starting from raw data should therefore be interpreted task by task. [Sections 3.1–3.2 and Appendix B](https://arxiv.org/html/2606.07591v5#S3).
+Systems receive [task descriptions, related literature, and data](#reading-note-task-boundary). **Target papers and associated evaluation materials remain on the evaluation side.** Packages include experimental or simulated results as well as processed features, posterior samples, and figure data. Starting from raw data should therefore be interpreted task by task. [Sections 3.1–3.2 and Appendix B](https://arxiv.org/html/2606.07591v5#S3).
 
 ### Step 2: Conduct Research with Tools and Submit Artifacts
 
@@ -72,7 +74,7 @@ Reading the data is only part of the task. Greater weight is assigned to how obs
 
 ### Step 4: Assess Evidence with a Reference-Anchored Score
 
-The authors introduce **Reference-Anchored Discovery Score, RADS**. Items use a hundred-point scale with target-paper-level evidence anchored in the middle:
+The authors introduce **Reference-Anchored Discovery Score, RADS**. Items use a hundred-point scale with target-paper-level evidence anchored in the middle: [the anchor of 50 and the weighted aggregate need to be interpreted together](#reading-note-rads-example).
 
 | Score position | Meaning | Interpretation limit |
 | --- | --- | --- |
@@ -85,6 +87,8 @@ The authors introduce **Reference-Anchored Discovery Score, RADS**. Items use a 
 The paper reports that **GPT-5.1** evaluates the report against rubrics after each run. Experts construct the standards and a model applies them; this does not mean every report receives expert blind review. [Sections 3.4 and 4.1](https://arxiv.org/html/2606.07591v5#S3.SS4).
 
 As an implementation supplement, we inspected a [pinned official scorer version](https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py). It scores items and computes `total = sum(weight * item_score) / sum(weight)`. This snapshot clarifies aggregation; it does not reproduce every historical environment used for the paper.
+
+Connecting this benchmark to our preceding [AutoSciRub reading](autoscirub.html): ResearchClawBench uses expert-authored criteria on the evaluation side, while the later AutoSciRub method induces execution requirements from visible task materials and uses them to guide revision. [The two rubrics differ in origin, visibility, and purpose](#reading-note-autoscirub-connection). This separates measuring research from helping a system conduct it.
 
 ## 5. Experimental Design and Results: How Far Are Complete Reports from Reliable Research?
 

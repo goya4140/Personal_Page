@@ -37,14 +37,18 @@
     "source_pdf": "https://arxiv.org/pdf/2606.07591v5",
     "source_pdf_sha256": "30389c1af9d445b1031e25da797b9645809d39f6bcb5a17a12fcb037054e94ef",
     "figure_manifest": "assets/img/blog/researchclawbench/sources.json",
-    "scope": "Complete bilingual six-section reading with three reflection subsections; PDF Figures 2, 4, 6 with HTML numbering differences noted. Main Tables 5 and 6, task example Table 2, and independently recomputed Table 8 frontier scopes. Distinguish average scores from completion rates, per-task oracle frontier from a deployed system, expert-authored rubrics from human scoring, and discovery potential from validated discovery. Note case weight inconsistency and current-code versus paper-snapshot boundaries.",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; PDF Figures 2, 4, 6 with HTML numbering differences noted. Main Tables 5 and 6, task example Table 2, and independently recomputed Table 8 frontier scopes. Distinguish average scores from completion rates, per-task oracle frontier from a deployed system, expert-authored rubrics from human scoring, and discovery potential from validated discovery. Note case weight inconsistency and current-code versus paper-snapshot boundaries. Added bilingual introductory orientation and source-grounded popovers on task visibility, RADS versus success rates with an explicitly hypothetical weighted example, and the later AutoSciRub execution rubric versus hidden benchmark rubric.",
     "related_sources": [
       "https://arxiv.org/abs/2407.13168",
       "https://arxiv.org/abs/2410.05080",
       "https://arxiv.org/abs/2504.01848v3",
-      "https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py"
+      "https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py",
+      "https://arxiv.org/abs/2608.31076v1",
+      "https://arxiv.org/html/2608.31076v1#S3.SS2"
     ],
-    "imported_on": "2026-11-10"
+    "imported_on": "2026-11-10",
+    "updated_on": "2026-11-10",
+    "annotation_manifest": "content/annotations/researchclawbench.json"
   },
   {
     "slug": "astabench",
