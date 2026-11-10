@@ -51,7 +51,7 @@ The lesson is that **difficult questions also need quality control**. Missing in
 
 ### Step 3: decompose open answers into checkable criteria
 
-Each Research question has a rubric totaling 10 points, with specific requirements and possible partial credit. The chemistry example separately examines limitations of synthesis methods, electronic structure, spectroscopy, and reactivity. Mentioning concepts can therefore receive a different assessment from correctly connecting them.
+[Each Research question has a rubric totaling 10 points](#reading-note-rubric-construction), with specific requirements and possible partial credit. The chemistry example separately examines limitations of synthesis methods, electronic structure, spectroscopy, and reactivity. Mentioning concepts can therefore receive a different assessment from correctly connecting them.
 
 Both tracks use GPT-5 high as the model grader. Olympiad checks equivalence to a reference answer; Research sums rubric credit, with **at least 7/10 points counted as success**. Automated grading scales evaluation, while making the reliability of both criteria and graders important. [See Section 2.3 and the grading prompts in Appendix B](https://arxiv.org/html/2601.21165v1#S2.SS3).
 

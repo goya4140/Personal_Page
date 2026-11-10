@@ -80,7 +80,7 @@
 <p>审核不仅要看题目难不难，还要检查条件是否充分、答案是否正确、问题是否原创。Research 至少经过两次独立审核，之后还有整体复审。无法解决的分歧可以导致题目被丢弃。</p>
 <p>这里值得学习的是：<strong>难题也需要质量控制。</strong> 缺少条件或存在歧义，同样可能让模型失败，却不能据此判断其推理能力不足。</p>
 <h3 id="section-7">第三步：把开放回答拆成可检查的评分项</h3>
-<p>Research 每题配有总分 10 分的 rubric。它把回答拆成若干具体要求，并可设置部分分。例如，原文的化学样例分别检查合成方法的限制、电子结构、谱学表现及反应性解释，使“提到了概念”与“建立了正确联系”获得不同评价。</p>
+<p><button type="button" class="reading-note-trigger" popovertarget="reading-note-rubric-construction" aria-controls="reading-note-rubric-construction" aria-expanded="false" aria-haspopup="dialog">Research 每题配有总分 10 分的 rubric</button>。它把回答拆成若干具体要求，并可设置部分分。例如，原文的化学样例分别检查合成方法的限制、电子结构、谱学表现及反应性解释，使“提到了概念”与“建立了正确联系”获得不同评价。</p>
 <p>两条轨道都使用 GPT-5 high 作为模型评分器：Olympiad 比较回答与参考答案是否等价；Research 则按 rubric 累加分数，<strong>达到 7/10 分记为通过</strong>。评分器能扩大评测规模，但评分规则和评分器自身的可靠性也需要检查。<a href="https://arxiv.org/html/2601.21165v1#S2.SS3" target="_blank" rel="noopener noreferrer">评分方法与提示词见原文第 2.3 节及附录 B</a>。</p>
 <h2 id="section-8">五、实验设计与结果：先看整体表现，再看推理投入</h2>
 <h3 id="section-9">主实验：模型在两条轨道上的整体表现</h3>
@@ -199,4 +199,18 @@
 <p><strong>为什么不等于完整自主科研？</strong> 这里交付的是一个给定约束下的设计与论证。评测不要求模型自行寻找研究方向、实际改造植物、开展湿实验，再根据实验结果反复修订方案。</p>
 <p><strong>求解模型与评分模型要分开理解。</strong> 附录 B 明确给出评分器的输入，包括 rubric；它没有完整公开每个被测模型的求解端提示词，因此不能据此断言所有求解模型收到完全相同的提示模板，或把评分器提示词当作求解器输入。</p>
 <p>来源：<a href="https://arxiv.org/html/2601.21165v1#S2.SS3" target="_blank" rel="noopener noreferrer">任务定义与评分，第 1、2.3、3.1 节</a>；<a href="https://arxiv.org/pdf/2601.21165v1#page=12" target="_blank" rel="noopener noreferrer">原论文附录 A，Figure 10（PDF 第 12 页）</a>；<a href="https://arxiv.org/pdf/2601.21165v1#page=14" target="_blank" rel="noopener noreferrer">附录 B，Research 评分器提示词（PDF 第 14 页）</a>。上述样例为原文意译；算术示例及范围解释为我们的整理。</p>
+</div></details></aside><aside id="reading-note-rubric-construction" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-rubric-construction-title" tabindex="-1"><div class="reading-note-top"><span>阅读问答</span><button type="button" class="reading-note-close" popovertarget="reading-note-rubric-construction" popovertargetaction="hide" aria-label="关闭解释">×</button></div><p class="reading-note-title" id="reading-note-rubric-construction-title">每道 Research 题的 rubric 是怎么制定的？</p><div class="reading-note-answer"><p><strong>专家编写</strong>：领域专家在构建题目时提供该题的 rubric，并提交能够拿满分的详细参考解。GPT-5 评分器负责执行这些既定细则。</p>
+<p><strong>逐项明确</strong>：每条写清楚“满足什么条件、给多少分”，要求条目独立、可客观检查，总分为 10 分。<strong>总分 10 分不等于固定十项、每项一分。</strong></p>
+<p><strong>复审定稿</strong>：Research 题目、rubric 和解答至少经过两次独立专家审核，再做整体复审；分歧需讨论解决，无法解决则可丢弃题目。</p>
+</div><details class="reading-note-detail"><summary>展开编写规范、分值样例与验证边界</summary><div class="reading-note-answer"><p><strong>1. 题目、参考解和评分项一起构建</strong></p>
+<p>论文第 2.1 节要求出题专家提供能获得满分的详细解答；第 2.3 节说明每题有专属评分项和分值。可以把它理解为：将正确解答必须体现的关键结果与推理要求写成可检查的条件。这里是对其设计逻辑的解释；论文没有规定所有专家必须按一个固定的先后顺序或自动生成算法来写 rubric。</p>
+<p><strong>2. 条目要具体，分值因题而异</strong></p>
+<p>附录 C 要求条目独立、客观可评，措辞明确、正向描述，并定义变量和缩写。例如，检查“是否写出指定方程”比“分析是否足够深入”更明确。评分既可以检查最终结论，也可以检查中间推理。</p>
+<p>附录 A 的植物设计样例（Figure 10）有 10 个条目，每项 1 分，其中包括解释双输入 AND 门的激活机制。物理样例（Figure 9）则包含 0.5、1 和 1.5 分的条目。因此，统一的是每题总分 10 分，条目内容和分配并不统一。</p>
+<p><strong>3. 审核的不只是题目，也包括评分规则</strong></p>
+<p>第 2.2 节说明，独立领域专家同时阅读题目、rubric 和解题说明，核查正确性及是否符合规范。Research 至少经过两次独立审核，再由专家做 meta review。若出题人与审稿人存在分歧，要形成共识或舍弃题目。</p>
+<p><strong>4. 一致性要求与已验证结果要分开</strong></p>
+<p>附录 C 将人类与模型评分总分差异不超过 0.5 分列为出题规范；构建流程也会用内部模型测试难度，得分过高的题目可能被修改或丢弃。前者是评分一致性要求，后者是难度筛选，不能混为同一项验证。</p>
+<p>论文没有在这里给出统一的权重计算公式、逐题的完整修订记录或全面的一致性统计。因此，不能把出题规范直接当作“所有 rubric 都已被证明无偏且完全可靠”。我们的后续问题是：有效的替代解法会不会被漏掉？这些分值是否准确反映各部分的重要性？</p>
+<p>来源：<a href="https://arxiv.org/html/2601.21165v1#S2.SS1" target="_blank" rel="noopener noreferrer">第 2.1 节，数据构建</a>；<a href="https://arxiv.org/html/2601.21165v1#S2.SS2" target="_blank" rel="noopener noreferrer">第 2.2–2.3 节，审核与评分</a>；<a href="https://arxiv.org/pdf/2601.21165v1#page=12" target="_blank" rel="noopener noreferrer">附录 A，分值样例（PDF 第 12 页）</a>；<a href="https://arxiv.org/pdf/2601.21165v1#page=15" target="_blank" rel="noopener noreferrer">附录 C，出题规范（PDF 第 15 页）</a>。规范与流程按原文整理，设计逻辑解释及后续问题为我们的分析。</p>
 </div></details></aside><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>
