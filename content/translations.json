@@ -61,6 +61,10 @@
     "autosota": {
       "source_sha256": "b5c9843bed766868af810ca753f85156c50f040f8b1466ee89a1e0e0485ca09f",
       "english_sha256": "e3e357762106083a28391beb0ac53669a5bff5f433e790b63fac0dad913497b6"
+    },
+    "evoscientist": {
+      "source_sha256": "fbcda9326dd94965429359f83833601100b837a3cb4d8f295e27d03b8f5921cd",
+      "english_sha256": "7c62c4310b33c85390bec46183cf9ac24d3a228cb2e61bfb7da74f69bca0148e"
     }
   }
 }

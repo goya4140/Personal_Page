@@ -1,0 +1,313 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化 | Linhao Wang</title>
+  <meta name="description" content="沿构思、实验与经验回写流程，解读双记忆和三种演化机制，区分提案人评、代码成功率与六篇论文录用的证据边界。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化">
+  <meta property="og:description" content="沿构思、实验与经验回写流程，解读双记忆和三种演化机制，区分提案人评、代码成功率与六篇论文录用的证据边界。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/evoscientist/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化" data-title-en="Learning from research experience: EvoScientist’s dual memory and cross-task evolution" data-language-url="../../en/blog/evoscientist/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 13 分钟</span><span>中文原稿</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化</h1><p class="article-summary">沿构思、实验与经验回写流程，解读双记忆和三种演化机制，区分提案人评、代码成功率与六篇论文录用的证据边界。</p><div class="post-topics"><span>AI for Science</span><span>科研智能体</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/evoscientist/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/evoscientist/overview.png" alt="让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery ↗</a><small>arXiv · 2026 / v2 · 2026-10-05</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：自主科研系统怎样从经历中学习</a></li><li><a href="#section-2">二、相关文献解读：从组织科研流程到复用研究经验</a></li><li><a href="#section-3">三、研究问题解读：论文实际检验了什么</a></li><li><a href="#section-4">四、方法解读：经验怎样进入下一次研究</a></li><li><a href="#section-9">五、实验设计与结果：优势出现在哪里</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>科研经验的价值，经常体现在下一次研究中：哪些方向值得继续，哪些问题曾经导致失败，哪些工程做法可以直接复用。这篇论文围绕这一点，尝试让科研智能体把研究过程中的经验保存下来，再用于后续任务。</p>
+<p>本文解读 Yougang Lyu 等人的 <strong>EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery</strong>，依据 <a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>，更新于 2026 年 10 月 5 日。</p>
+<p><strong>本文最值得关注的设计，是把“研究方向的经验”和“实验执行的经验”分别存储，并让实验结果反过来影响未来选题。</strong> 实验支持这种设计具有一定价值，同时也暴露出一个明显瓶颈：复用工程经验带来的提升，尚未充分转化为实现新方法的能力。</p>
+<h2 id="section-1">一、课题解读：自主科研系统怎样从经历中学习</h2>
+<p>假设一个研究团队准备改进模型在低资源数据上的表现。团队需要查阅文献、形成假设、设计实验、编写代码，再根据结果决定下一步。</p>
+<p>完成一次研究之后，通常会留下两类经验。第一类涉及<strong>研究判断</strong>：某种假设需要什么前提，某个方向为什么值得尝试，一次负面结果究竟否定了什么。第二类涉及<strong>实验执行</strong>：数据怎样处理，训练怎样保持稳定，某种报错怎样解决，哪些配置适用于当前资源。</p>
+<p>自主科研的一个重要问题，就是如何让这些经验持续影响之后的行动。只有保存日志还不够：系统还需要从日志中提取有用内容，在合适的任务中找到它，并判断它是否仍然适用。</p>
+<p>因此，评价这类系统至少需要区分三个层次：它能否提出有价值的方案，能否把方案落实成有效实验，以及过去的经历能否改善未来表现。</p>
+<h2 id="section-2">二、相关文献解读：从组织科研流程到复用研究经验</h2>
+<p>下面四项工作，分别提供了理解这篇论文的几个入口。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要探索</th>
+<th>与本文的联系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.08066" target="_blank" rel="noopener noreferrer">AI Scientist-v2</a></td>
+<td>用智能体树搜索组织实验探索，连接想法、实验、分析与写作</td>
+<td>提供完整科研流程与实验搜索的基础</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.18864" target="_blank" rel="noopener noreferrer">AI co-scientist</a></td>
+<td>通过生成、批评、比较和改进来发展研究假设</td>
+<td>提供候选想法迭代与锦标赛筛选的思路</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">Reflexion</a></td>
+<td>将任务反馈转为语言反思，保存后指导后续尝试</td>
+<td>说明行为可以通过文本经验得到调整</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2409.07429" target="_blank" rel="noopener noreferrer">Agent Workflow Memory</a></td>
+<td>从过去的执行经历中归纳可复用流程</td>
+<td>说明执行轨迹可以转化为后续行动的资源</td>
+</tr>
+</tbody>
+</table></div><p>这些工作分别推进了研究流程自动化、想法搜索和经验复用。EvoScientist 将它们连接起来，重点处理两个环节：<strong>研究者如何利用过去的方向判断，以及工程师如何利用过去的执行经验。</strong></p>
+<p>它还增加了一条重要反馈路径：实验失败之后，经验会进入研究方向记忆，影响之后提出什么方案。<a href="https://arxiv.org/html/2603.08127v2#S2" target="_blank" rel="noopener noreferrer">原论文第 2—3 节</a>。</p>
+<h2 id="section-3">三、研究问题解读：论文实际检验了什么</h2>
+<p>作者在第 4.1 节明确提出四个研究问题，下面按阅读需要转述：</p>
+<ol>
+<li><strong>想法质量：</strong> 系统提出的研究想法，在新颖性、可行性、相关性和清晰度上表现如何？</li>
+<li><strong>执行可靠性：</strong> 系统能否生成并成功执行实验代码？</li>
+<li><strong>完整研究产出：</strong> 系统能否从想法走到完整论文，并获得同行评审认可？</li>
+<li><strong>演化机制的贡献：</strong> 从历史经验中更新策略，是否确实改善了想法质量？</li>
+</ol>
+<p>这四个问题使用了不同评价方式。想法质量来自模型和专家的判断，代码能力来自运行结果，完整产出则通过投稿案例评价。阅读时需要保留这些区别。<a href="https://arxiv.org/html/2603.08127v2#S4" target="_blank" rel="noopener noreferrer">原论文第 4 节</a>。</p>
+<h2 id="section-4">四、方法解读：经验怎样进入下一次研究</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/evoscientist/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/evoscientist/overview.png" alt="EvoScientist 方法总览，研究者、工程师与演化管理者通过两类记忆连接" loading="lazy" decoding="async"></a><figcaption>图 1 · 上方是研究者提出与筛选想法，下方是工程师实现与执行实验，右侧的演化管理者负责把过程经验写入两类记忆。来源：原论文 v2 Figure 1，PDF 第 4 页；原图未改绘。点击查看大图。</figcaption></figure>
+<h3 id="section-5">第一步：检索方向经验，生成候选想法</h3>
+<p>系统首先接收用户研究目标，例如希望解决哪一类模型或任务中的问题。</p>
+<p><strong>Researcher Agent，简称 RA</strong>，从文献和长期记忆中获得参考信息，再提出候选想法。这里的长期记忆叫作 <strong>Ideation Memory，研究构思记忆</strong>，同时包含有潜力的方向和过去失败的方向。</p>
+<p>候选想法通过“提出—评审—修改”的树搜索继续发展。每个节点保存一个想法及其评审反馈，后续分支根据反馈生成修改方案。</p>
+<p>论文设置最多搜索 <strong>21 个候选想法</strong>，检索与当前目标最相关的 <strong>2 条方向记忆</strong>。因此，最终提案是经过多次探索和筛选后的产物。<a href="https://arxiv.org/html/2603.08127v2#S3.SS3" target="_blank" rel="noopener noreferrer">第 3.3、4.5 节</a>。</p>
+<h3 id="section-6">第二步：通过比较选出研究提案</h3>
+<p>系统用基于 <strong>Elo 评分的锦标赛</strong>比较候选想法，考虑新颖性、可行性、相关性和清晰度。</p>
+<p>可以把它理解为：让候选方案两两比较，根据比较结果更新排名。排名第一的想法被扩展成完整研究提案，包括背景、相关工作、方法、实验计划和预期结果；前三名则用于总结潜在研究方向。</p>
+<p>这里需要注意：<strong>在想法比较中排名靠前，代表它值得进一步验证；它的科学有效性仍然要由实验检查。</strong></p>
+<h3 id="section-7">第三步：检索工程经验，执行四阶段实验</h3>
+<p>完整提案交给 <strong>Engineer Agent，简称 EA</strong>。</p>
+<p>EA 检索 <strong>Experimentation Memory，实验记忆</strong>，获得与当前提案相关的数据处理和模型训练策略，然后依次推进四个阶段：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>阶段</th>
+<th>主要工作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始实现</td>
+<td>建立可运行的初始实验代码</td>
+</tr>
+<tr>
+<td>超参数调整</td>
+<td>改进初始配置</td>
+</tr>
+<tr>
+<td>提出的方法</td>
+<td>实现研究提案中的新方法</td>
+</tr>
+<tr>
+<td>消融实验</td>
+<td>检查方法组件的贡献</td>
+</tr>
+</tbody>
+</table></div><p>每个阶段内部都有代码搜索、执行和修订。系统记录代码、运行状态、日志和评价指标，并选取表现最好的实现继续推进。</p>
+<p>四个阶段的最大尝试次数分别为 <strong>20、12、12、18</strong>；EA 每次检索最相关的 <strong>1 条实验记忆</strong>。这些预算也说明，论文中的系统表现包含了多次搜索与修复的作用。<a href="https://arxiv.org/html/2603.08127v2#S3.SS4" target="_blank" rel="noopener noreferrer">第 3.4、4.5 节</a>。</p>
+<h3 id="section-8">第四步：把研究过程转为三种可复用经验</h3>
+<p><strong>Evolution Manager Agent，简称 EMA</strong>，负责总结历史，而两类记忆通过三种机制更新。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>机制</th>
+<th>从哪里提取信息</th>
+<th>保存什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDE：想法方向演化</td>
+<td>排名前三的候选想法</td>
+<td>核心假设、适用前提、资源要求和最小验证计划</td>
+</tr>
+<tr>
+<td>IVE：想法验证演化</td>
+<td>提案及其执行报告</td>
+<td>失败判断、触发条件、证据和避免重犯的建议</td>
+</tr>
+<tr>
+<td>ESE：实验策略演化</td>
+<td>代码探索轨迹与优秀实现</td>
+<td>数据处理步骤、模型结构和具体训练配置</td>
+</tr>
+</tbody>
+</table></div><p>其中，IVE 将两种情况记为失败：在预算内无法得到可执行代码，或者完成实验后，所提方法表现差于基线。</p>
+<p>这条机制把工程执行连接回研究选题，但也带来一个解释问题：<strong>没有实现出来，可能反映资源或工程能力不足；一次实验不如基线，也可能反映实现、调参或评价设置的问题。</strong> 将这些结果保存为方向经验时，失败条件需要足够具体。</p>
+<p>附录中的提示词确实要求记录证据、触发条件和对策；同时，它也把“已验证或尚无定论”归入同一个 <code>NOT_FAILED</code> 类别。因此，“没有被标记失败”仍然需要进一步解释。<a href="https://arxiv.org/html/2603.08127v2#S3.SS5" target="_blank" rel="noopener noreferrer">第 3.5 节及附录 D</a>。</p>
+<p>这篇论文中的“演化”，主要通过<strong>更新外部记忆，再把检索结果加入提示词</strong>来实现。论文描述的机制没有训练基础模型参数，也没有自动改造整个智能体架构。</p>
+<h2 id="section-9">五、实验设计与结果：优势出现在哪里</h2>
+<h3 id="section-10">主实验一：生成的研究想法是否更好</h3>
+<p>作者收集了 <strong>30 个研究目标</strong>，涉及机器翻译、语音识别、医疗智能体、Text-to-SQL、RAG、模型效率和对齐等方向。</p>
+<p>系统与七个基线比较：Virtual Scientist、AI-Researcher、InternAgent、AI Scientist-v2、Hypogenic、Novix 和 K-Dense。</p>
+<p>评价包括：</p>
+<ul>
+<li><strong>自动评价：</strong> Gemini-3-flash 对想法两两打分，并交换呈现顺序以减少位置偏差。</li>
+<li><strong>专家评价：</strong> 三位相关 AI 领域的博士级评价者，评价四组较强基线对应的 <strong>120 对想法，即 30×4</strong>。</li>
+</ul>
+<p>四个维度中，“可行性”主要考察研究设计是否严谨、可检验，所需资源是否合理；“清晰度”强调能否据此采取行动。它们并不直接等于真实实验成功率。<a href="https://arxiv.org/html/2603.08127v2#S4" target="_blank" rel="noopener noreferrer">第 4 节及附录 C</a>。</p>
+<p>下面摘录人评主结果。各项均为 <strong>EvoScientist 的胜／平／负比例，单位为 %</strong>：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>对照系统</th>
+<th style="text-align:right">新颖性</th>
+<th style="text-align:right">可行性</th>
+<th style="text-align:right">相关性</th>
+<th style="text-align:right">清晰度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InternAgent</td>
+<td style="text-align:right">66.67 / 23.33 / 10.00</td>
+<td style="text-align:right">96.67 / 3.33 / 0</td>
+<td style="text-align:right">90.00 / 0 / 10.00</td>
+<td style="text-align:right">93.33 / 6.67 / 0</td>
+</tr>
+<tr>
+<td>AI Scientist-v2</td>
+<td style="text-align:right">73.33 / 10.00 / 16.67</td>
+<td style="text-align:right">50.00 / 16.67 / 33.33</td>
+<td style="text-align:right">43.33 / 50.00 / 6.67</td>
+<td style="text-align:right">53.33 / 20.00 / 26.67</td>
+</tr>
+<tr>
+<td>Novix</td>
+<td style="text-align:right">93.33 / 0 / 6.67</td>
+<td style="text-align:right">56.67 / 6.66 / 36.67</td>
+<td style="text-align:right">36.67 / 60.00 / 3.33</td>
+<td style="text-align:right">73.33 / 10.00 / 16.67</td>
+</tr>
+<tr>
+<td>K-Dense</td>
+<td style="text-align:right">96.67 / 3.33 / 0</td>
+<td style="text-align:right">53.33 / 26.67 / 20.00</td>
+<td style="text-align:right">40.00 / 43.33 / 16.67</td>
+<td style="text-align:right">53.34 / 43.33 / 3.33</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：原论文 Table 2，PDF 第 6 页；保留原表舍入值。</em></p>
+<p>人评中，EvoScientist 相对四个基线的新颖性平均胜率为 <strong>82.50%</strong>，可行性平均胜率为 <strong>64.17%</strong>。自动评价中，它相对七个基线的四维汇总优势也均为正。<a href="https://arxiv.org/html/2603.08127v2#S5.SS1" target="_blank" rel="noopener noreferrer">第 5.1 节、Tables 1—2</a>。</p>
+<p>这组结果支持：<strong>在这批研究目标和评价标准下，系统生成的提案整体更受评审者偏好。</strong></p>
+<p>优势也有边界。相对 AI Scientist-v2，可行性的胜／负为 50.00%／33.33%；相关性有一半打平。相对商业系统，相关性也出现较多平局。论文因此更充分地展示了提案质量的改善，尚不能据此认定这些方案在真实执行后普遍更有效。</p>
+<p>另外，作者报告使用一致的任务和评价协议，但基线附录没有充分列出各系统的底层模型、token 消耗和完整搜索成本。系统对比中的差异，不能全部归因于记忆机制。</p>
+<h3 id="section-11">主实验二：实验代码是否更容易运行成功</h3>
+<p>代码实验以研究提案为输入，指标是生成代码在沙箱中成功执行并产生有效输出的比例。</p>
+<p>这里展示的主要对照是 <strong>同一系统使用 ESE 前后</strong>，没有给出七个外部系统的完整代码执行对比。<a href="https://arxiv.org/html/2603.08127v2#S5.SS2" target="_blank" rel="noopener noreferrer">第 5.2 节</a>。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/evoscientist/execution-success.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/evoscientist/execution-success.png" alt="四个实验阶段在实验策略演化前后的执行成功率" loading="lazy" decoding="async"></a><figcaption>图 2 · 灰色为未使用 ESE 的结果，蓝色为完整系统。初始实现与消融阶段提升较明显，新方法实现阶段提升有限。来源：原论文 v2 Figure 2，PDF 第 7 页；仅裁去外围页面内容，未改绘。点击查看大图。</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>实验阶段</th>
+<th style="text-align:right">演化前</th>
+<th style="text-align:right">演化后</th>
+<th style="text-align:right">提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始实现</td>
+<td style="text-align:right">29.23%</td>
+<td style="text-align:right">42.93%</td>
+<td style="text-align:right">+13.70 个百分点</td>
+</tr>
+<tr>
+<td>超参数调整</td>
+<td style="text-align:right">48.94%</td>
+<td style="text-align:right">58.62%</td>
+<td style="text-align:right">+9.68 个百分点</td>
+</tr>
+<tr>
+<td>提出的方法</td>
+<td style="text-align:right">20.33%</td>
+<td style="text-align:right">21.57%</td>
+<td style="text-align:right">+1.24 个百分点</td>
+</tr>
+<tr>
+<td>消融实验</td>
+<td style="text-align:right">39.06%</td>
+<td style="text-align:right">55.12%</td>
+<td style="text-align:right">+16.06 个百分点</td>
+</tr>
+<tr>
+<td>四阶段算术平均</td>
+<td style="text-align:right">34.39%</td>
+<td style="text-align:right">44.56%</td>
+<td style="text-align:right">+10.17 个百分点</td>
+</tr>
+</tbody>
+</table></div><p><strong>最关键的观察，是平均提升与核心难点并不一致。</strong> 初始实现和消融阶段改善较明显，实现新方法的阶段仍然很困难。</p>
+<p>我们的解释是，数据处理和训练配置等经验可能更容易迁移，而新方法需要把具体研究设想转成实现，通用经验对它的帮助有限。这个解释与结果相符，但论文没有进一步用实验分离这些原因。</p>
+<p>同时，44.56% 是四阶段成功率的平均值，不能解释为完整科研流程的完成率；运行产生有效输出，也还需要方法一致性和实验协议审计。</p>
+<h3 id="section-12">主实验三：能否产出通过同行评审的论文</h3>
+<p>作者选取六个研究想法，发展为完整论文，投稿至 <strong>ICAIS 2025 的 AI Scientist Track</strong>。论文报告：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>项目</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EvoScientist 投稿</td>
+<td>6 篇</td>
+</tr>
+<tr>
+<td>获录用</td>
+<td>6 篇</td>
+</tr>
+<tr>
+<td>获奖</td>
+<td>1 篇 Best Paper Award；1 篇 AI Reviewer’s Appraisal Award</td>
+</tr>
+<tr>
+<td>该赛道整体录用情况</td>
+<td>26 / 82，约 31.71%</td>
+</tr>
+</tbody>
+</table></div><p>写作环节采用 AI Scientist-v2 的论文写作模块；本文的主要演化机制集中在构思与实验执行。<a href="https://arxiv.org/html/2603.08127v2#S5.SS3" target="_blank" rel="noopener noreferrer">第 4.2、5.3 节及附录 E</a>。</p>
+<p>我们也核对了最佳论文案例的<a href="https://airaxiv.com/papers/view/2510.0018/" target="_blank" rel="noopener noreferrer">公开决策页面</a>，页面显示 <code>Accept</code>。</p>
+<p>这组案例说明，系统能够产生可提交、可评审且获得认可的完整研究产物。不过，<strong>六篇选定论文全部录用，不能直接作为任意任务的端到端成功率</strong>：论文没有完整报告从全部初始尝试到这六篇投稿之间的筛选与失败分母，也没有提供同等预算下的系统级投稿对照。</p>
+<p>作者总结的评审意见还指出，部分产物需要更深入的理论分析、更明确的指标说明和更完整的复现细节。这些意见也构成了理解系统能力的证据。</p>
+<h3 id="section-13">消融与补充分析：两种构思演化分别贡献了什么</h3>
+<p>作者移除不同演化机制，再将删减版本与完整系统比较。下表为 <strong>删减版本输给完整系统的比例</strong>，由 Gemini-3-flash 评价：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>删减设置</th>
+<th style="text-align:right">新颖性：删减版负率</th>
+<th style="text-align:right">可行性：删减版负率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>移除 IDE</td>
+<td style="text-align:right">66.67%</td>
+<td style="text-align:right">50.00%</td>
+</tr>
+<tr>
+<td>移除 IVE</td>
+<td style="text-align:right">43.33%</td>
+<td style="text-align:right">63.33%</td>
+</tr>
+<tr>
+<td>移除全部构思演化</td>
+<td style="text-align:right">80.00%</td>
+<td style="text-align:right">83.33%</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：原论文 Table 3，PDF 第 8 页。</em></p>
+<p>结果与设计目标基本对应：保存有潜力方向，对新颖性更有帮助；保存失败验证经验，对可行性更有帮助。同时移除两者，下降更明显。<a href="https://arxiv.org/html/2603.08127v2#S5.SS4" target="_blank" rel="noopener noreferrer">第 5.4 节</a>。</p>
+<p>但这组消融没有充分回答长期演化的几个问题：随着任务增加，表现是否持续改善；收益是否依赖任务顺序；历史记忆会不会干扰新领域任务。现有结果支持记忆设计在当前设置中的价值，对长期持续进步的证明仍然有限。</p>
+<h2 id="section-14">六、我们自己的思考</h2>
+<h3 id="section-15">课题思考：这个领域在研究什么</h3>
+<p>自主科研的一个核心问题，是系统怎样根据已有证据决定下一步行动。经验积累正好连接了过去的行动与未来的判断。</p>
+<p>这篇论文最有启发的地方，是区分了<strong>方向知识</strong>与<strong>执行知识</strong>，并让实验结果反馈到方向知识中。由此形成的研究问题是：怎样把局部经历转化为可靠、可迁移、适用范围清楚的科研经验？</p>
+<p>值得持续评价的，也就包括经验是否减少无效尝试、是否改善新任务，以及是否帮助系统作出更准确的研究判断。</p>
+<h3 id="section-16">局限问题思考：目前还存在哪些问题</h3>
+<p><strong>第一，经验的证据等级还需要细分。</strong> 排名前三的想法可能尚未验证；代码执行失败可能来自资源限制；方法不如基线可能来自实现或协议问题。这些经验可以指导后续行动，但需要保留各自的适用条件和不确定性。</p>
+<p><strong>第二，实现新方法仍然是明显瓶颈。</strong> 第三阶段成功率从 20.33% 上升到 21.57%，提升有限。系统还需要更可靠地连接提案中的方法、实际代码和实验评价。</p>
+<p><strong>第三，跨任务演化缺少更严格的长期检验。</strong> 当前消融显示记忆有帮助，但还需要明确的历史任务与测试任务划分、不同任务顺序、相近成本对照，以及随经验积累变化的表现曲线。</p>
+<p><strong>第四，完整产出的评价范围较窄。</strong> 六篇投稿是有价值的案例，整体尝试分母仍不清楚。作者也承认，评价集中于能够通过代码和模拟验证的计算研究，物理实验领域的泛化尚待检验。<a href="https://arxiv.org/html/2603.08127v2#S7" target="_blank" rel="noopener noreferrer">原论文第 7 节</a>。</p>
+<h3 id="section-17">解决方案思考：这些问题有哪些解决方向</h3>
+<p>下面四个方向是我们的研究建议，与上述问题逐项对应。</p>
+<ol>
+<li><strong>让记忆同时保存结论与证据状态。</strong> 区分待验证假设、工程失败、负面实验和重复验证结果；记录数据、资源、代码版本与触发条件。评价时检查它能否减少把局部失败过度推广的情况。</li>
+<li><strong>为新方法建立实现核对流程。</strong> 将提案拆为可检查组件，逐项对应代码、关键张量和实验指标；先验证组件行为，再进行完整训练。重点检查第三阶段成功率与方法实现一致性。</li>
+<li><strong>设计可复现的持续学习实验。</strong> 用独立历史任务建立记忆，在后续任务中测试；比较正确记忆、随机记忆、无关记忆和相同长度上下文，并控制搜索预算。这样才能更清楚地识别经验内容的贡献。</li>
+<li><strong>公开全部研究尝试及成本。</strong> 同时报告初始任务、失败过程、完成产物、投稿与录用分母，再加入独立复现和盲评。跨领域应用则逐步接入真实实验反馈，分别验证各阶段的可靠性。</li>
+</ol>
+<p><em>本文基于 Yougang Lyu 等人的 arXiv v2。插图归原作者所有，按 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 引用；图 1 未改绘，图 2 仅裁去外围页面内容。表格按原文摘录，解释、局限判断和后续实验建议为本文分析。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：自主科研系统怎样从经历中学习</a></li><li><a href="#section-2">二、相关文献解读：从组织科研流程到复用研究经验</a></li><li><a href="#section-3">三、研究问题解读：论文实际检验了什么</a></li><li><a href="#section-4">四、方法解读：经验怎样进入下一次研究</a></li><li><a href="#section-9">五、实验设计与结果：优势出现在哪里</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../autosota/"><span>论文阅读</span><strong>AutoSOTA：从论文复现到有效的方法改进</strong><i aria-hidden="true">↗</i></a><a href="../scientistone/"><span>论文阅读</span><strong>ScientistOne：用证据链连接论文、代码与实验</strong><i aria-hidden="true">↗</i></a><a href="../scientisttwo/"><span>论文阅读</span><strong>ScientistTwo：从研究想法到实验反馈</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

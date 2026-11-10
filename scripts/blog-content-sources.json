@@ -1,5 +1,21 @@
 [
   {
+    "slug": "evoscientist",
+    "source": "https://arxiv.org/abs/2603.08127v2",
+    "source_pdf": "https://arxiv.org/pdf/2603.08127v2",
+    "source_pdf_sha256": "4f3bb021aad6510861ab7a65cb9db1a2e16bcd50295695bb60d28293306568d3",
+    "figure_manifest": "assets/img/blog/evoscientist/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1 and 2; human Table 2 and ablation Table 3; distinguish proposal preference, stage-averaged execution success and selected submission outcomes; retain candidate and execution budgets, inference boundaries, and future evaluation proposals.",
+    "related_sources": [
+      "https://arxiv.org/abs/2504.08066",
+      "https://arxiv.org/abs/2502.18864",
+      "https://arxiv.org/abs/2303.11366",
+      "https://arxiv.org/abs/2409.07429",
+      "https://airaxiv.com/papers/view/2510.0018/"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
     "slug": "autosota",
     "source": "https://arxiv.org/abs/2604.05550v2",
     "source_pdf": "https://arxiv.org/pdf/2604.05550v2",

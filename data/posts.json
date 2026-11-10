@@ -1,5 +1,30 @@
 [
   {
+    "slug": "evoscientist",
+    "title_zh": "让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化",
+    "title_en": "Learning from research experience: EvoScientist’s dual memory and cross-task evolution",
+    "summary_zh": "沿构思、实验与经验回写流程，解读双记忆和三种演化机制，区分提案人评、代码成功率与六篇论文录用的证据边界。",
+    "summary_en": "A reading of dual memory and three evolution mechanisms, separating evidence from proposal judgments, code execution, and six accepted papers.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery",
+      "url": "https://arxiv.org/abs/2603.08127v2",
+      "venue": "arXiv · 2026 / v2 · 2026-10-05"
+    },
+    "cover": "assets/img/blog/evoscientist/overview.png"
+  },
+  {
     "slug": "autosota",
     "title_zh": "AutoSOTA：从论文复现到有效的方法改进",
     "title_en": "AutoSOTA: from paper replication to valid method improvements",
