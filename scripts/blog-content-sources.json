@@ -1,5 +1,20 @@
 [
   {
+    "slug": "researchclawbench",
+    "source": "https://arxiv.org/abs/2606.07591v5",
+    "source_pdf": "https://arxiv.org/pdf/2606.07591v5",
+    "source_pdf_sha256": "30389c1af9d445b1031e25da797b9645809d39f6bcb5a17a12fcb037054e94ef",
+    "figure_manifest": "assets/img/blog/researchclawbench/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; PDF Figures 2, 4, 6 with HTML numbering differences noted. Main Tables 5 and 6, task example Table 2, and independently recomputed Table 8 frontier scopes. Distinguish average scores from completion rates, per-task oracle frontier from a deployed system, expert-authored rubrics from human scoring, and discovery potential from validated discovery. Note case weight inconsistency and current-code versus paper-snapshot boundaries.",
+    "related_sources": [
+      "https://arxiv.org/abs/2407.13168",
+      "https://arxiv.org/abs/2410.05080",
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
     "slug": "astabench",
     "source": "https://arxiv.org/abs/2510.21652v2",
     "source_pdf": "https://arxiv.org/pdf/2510.21652v2",

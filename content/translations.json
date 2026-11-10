@@ -69,6 +69,10 @@
     "astabench": {
       "source_sha256": "89f8d79387dacfbfc56c567c12974eed905240eac668555cc22189ce29def2b2",
       "english_sha256": "aadcb5ea20c9fdf69f9bb0cc7ce7a630bf2588856bf64c1599947e40026fc062"
+    },
+    "researchclawbench": {
+      "source_sha256": "94e0d8f6080ca50bb1f25aabfe7a692b4a9c6e2f5e5617b81b42378dadba7ae1",
+      "english_sha256": "d1b222e0adb3a4ccdd2458c8103d3314d22799ee23012cdd8fdd06ccec8f7142"
     }
   }
 }
