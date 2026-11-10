@@ -1,5 +1,30 @@
 [
   {
+    "slug": "astabench",
+    "title_zh": "AstaBench：怎样公平评价科研智能体",
+    "title_en": "AstaBench: how to evaluate research agents fairly",
+    "summary_zh": "从统一任务、受控文献工具到成本与产物核验，理解科研智能体的整体成绩，以及平均步骤得分与完整研究成功率的距离。",
+    "summary_en": "From standardized tasks and controlled literature tools to costs and artifact checks: interpreting overall scores and the gap between partial progress and complete research.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite",
+      "url": "https://arxiv.org/abs/2510.21652v2",
+      "venue": "ICLR 2026 / arXiv v2 · 2026-04-21"
+    },
+    "cover": "assets/img/blog/astabench/main-results.png"
+  },
+  {
     "slug": "evoscientist",
     "title_zh": "让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化",
     "title_en": "Learning from research experience: EvoScientist’s dual memory and cross-task evolution",

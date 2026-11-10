@@ -1,0 +1,274 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AstaBench：怎样公平评价科研智能体 | Linhao Wang</title>
+  <meta name="description" content="从统一任务、受控文献工具到成本与产物核验，理解科研智能体的整体成绩，以及平均步骤得分与完整研究成功率的距离。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AstaBench：怎样公平评价科研智能体">
+  <meta property="og:description" content="从统一任务、受控文献工具到成本与产物核验，理解科研智能体的整体成绩，以及平均步骤得分与完整研究成功率的距离。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/astabench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AstaBench：怎样公平评价科研智能体" data-title-en="AstaBench: how to evaluate research agents fairly" data-language-url="../../en/blog/astabench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 15 分钟</span><span>中文原稿</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>AstaBench：怎样公平评价科研智能体</h1><p class="article-summary">从统一任务、受控文献工具到成本与产物核验，理解科研智能体的整体成绩，以及平均步骤得分与完整研究成功率的距离。</p><div class="post-topics"><span>AI for Science</span><span>科研智能体评测</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/astabench/main-results.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/astabench/main-results.png" alt="AstaBench：怎样公平评价科研智能体" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2510.21652v2" target="_blank" rel="noopener noreferrer">AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite ↗</a><small>ICLR 2026 / arXiv v2 · 2026-04-21</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样评价 AI 能否帮助科研</a></li><li><a href="#section-2">二、相关文献解读：从科学子任务到可比较的评测套件</a></li><li><a href="#section-3">三、研究问题解读：分数怎样才能支持可靠判断</a></li><li><a href="#section-4">四、方法解读：把研究请求变成可重复的评价</a></li><li><a href="#section-9">五、实验设计与结果：覆盖能力、成本与完整性</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>一个科研智能体能写出带引用的综述，另一个能跑通实验，第三个声称可以完成整项研究。怎样把它们放在一起比较？如果工具、文献来源和花费都不同，一个更高的分数究竟说明什么？AstaBench 将这些比较条件纳入评测设计，同时把文献理解、代码执行、数据分析和端到端研究放进同一个评测套件。</p>
+<p>本文解读 Jonathan Bragg 等人的 <strong>AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite</strong>，依据 <a href="https://arxiv.org/abs/2510.21652v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>，更新于 2026 年 4 月 21 日，发表于 <strong>ICLR 2026</strong>。实验结论对应论文中的历史系统配置，不代表今天各产品的实时排名。</p>
+<h2 id="section-1">一、课题解读：怎样评价 AI 能否帮助科研</h2>
+<p>假设我们希望研究一个新的预测方法，通常需要先找论文、理解已有结论，再准备数据、实现方法、运行实验，最后判断证据是否支持假设。这些工作有不同的输入和验收标准。检索任务可能要求找到一组相关论文，数据分析任务则要求从真实数据中得出可以核对的关系。</p>
+<p><strong>科研智能体评测研究的是：怎样把这些能力变成明确、可重复、与使用场景相关的任务。</strong> 难点不仅在于题目是否困难，还在于比较是否公平。一个系统可能因为检索语料更完整而领先，也可能通过增加模型调用提高分数；这些收益与规划或推理能力需要分别理解。</p>
+<p>另一个难点是局部能力与完整研究之间的距离。答对文献问题、运行一个函数、满足部分实验要求，都有实际价值，但不能直接换算成独立完成一项研究的概率。评测需要既提供可诊断的分项成绩，也检查最终任务是否完整完成。</p>
+<h2 id="section-2">二、相关文献解读：从科学子任务到可比较的评测套件</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>已有探索</th>
+<th>留给本篇的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080v3" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>从真实科学论文提取数据驱动任务，检查程序、执行结果与成本</td>
+<td>怎样把代码任务与文献、分析和研究流程一起评价？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2407.01725" target="_blank" rel="noopener noreferrer">DiscoveryBench</a></td>
+<td>给定数据、元信息和目标，评价发现的假设与参考假设是否一致</td>
+<td>数据分析只是科研的一部分，如何接入更广泛的能力图谱？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>用层级 rubric 检查论文复现的实现、执行与结果</td>
+<td>怎样为不同科研任务提供统一接口与比较条件？</td>
+</tr>
+<tr>
+<td><a href="https://github.com/princeton-pli/hal-harness" target="_blank" rel="noopener noreferrer">HAL</a></td>
+<td>统一运行多种智能体与基准，记录轨迹和调用成本</td>
+<td>科研评测还能怎样控制文献访问和工具差异？</td>
+</tr>
+</tbody>
+</table></div><p>这些工作分别强调科学真实性、数据推断、复现要求和评测基础设施。AstaBench 在此基础上组合已有任务、改造部分数据集并加入新任务，同时提供环境、基线智能体与成本报告工具。它的贡献是一套评测体系；不能仅凭包含更多任务，就认为它在每个具体能力维度上都比专门基准更深入。</p>
+<h2 id="section-3">三、研究问题解读：分数怎样才能支持可靠判断</h2>
+<p>我们将论文的目标整理为三个问题；这是本文的阅读归纳。</p>
+<ol>
+<li><strong>覆盖哪些工作，才能较完整地描述科研辅助能力？</strong> 需要跨越找文献、理解证据、写代码、分析数据和执行研究，而不只测一种输出。</li>
+<li><strong>怎样区分智能体能力与比较条件的优势？</strong> 需要固定可访问资源，标明工具与开放程度，并同时报告分数和成本。</li>
+<li><strong>怎样判断局部高分是否意味着真正完成研究？</strong> 需要核对报告、代码和产物，并把平均步骤得分与全项通过率分开。</li>
+</ol>
+<p>这三个问题分别对应任务套件、标准环境与报告机制，以及细粒度评分和完整性检查。这里的“整体”主要指覆盖多种工作类型，不表示每道题都贯穿全部研究阶段。</p>
+<h2 id="section-4">四、方法解读：把研究请求变成可重复的评价</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/astabench/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/astabench/overview.png" alt="AstaBench 将智能体、标准工具、任务及裁判连接到分数与计算成本的比较" loading="lazy" decoding="async"></a><figcaption>图 1 · 从左向右读：智能体借助工具处理任务，再由 rubric 和裁判评价；最后同时观察质量与成本。标准工具用于控制信息访问条件。来源：原论文 v2 Figure 1，PDF 第 3 页；由作者源文件中的原始矢量图渲染，未改绘。</figcaption></figure>
+<h3 id="section-5">第一步：定义输入、交付物与评分方式</h3>
+<p>套件包含四类、十一个基准。下面按 <a href="https://arxiv.org/pdf/2510.21652v2#page=6" target="_blank" rel="noopener noreferrer">Table 2 与附录 E</a>整理规模及验收方式。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>类别与基准</th>
+<th style="text-align:right">测试 / 验证</th>
+<th>输入与交付物</th>
+<th>主要评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文献 · PaperFindingBench</td>
+<td style="text-align:right">267 / 66</td>
+<td>检索请求 → 排序论文列表</td>
+<td>按查询类型使用 F1，或估计召回与 nDCG 的调和平均</td>
+</tr>
+<tr>
+<td>文献 · LitQA2-FullText-Search</td>
+<td style="text-align:right">75 / 10</td>
+<td>生物医学问题 → 相关论文</td>
+<td>recall@30</td>
+</tr>
+<tr>
+<td>文献 · ScholarQA-CS2</td>
+<td style="text-align:right">100 / 100</td>
+<td>复杂问题 → 带引用的长回答</td>
+<td>覆盖、相关性、引用召回与引用精确性四项平均</td>
+</tr>
+<tr>
+<td>文献 · LitQA2-FullText</td>
+<td style="text-align:right">75 / 10</td>
+<td>问题 → 选择答案</td>
+<td>正确率</td>
+</tr>
+<tr>
+<td>文献 · ArxivDIGESTables-Clean</td>
+<td style="text-align:right">100 / 70</td>
+<td>论文集与表格意图 → 综述表</td>
+<td>参考表陈述被生成表支持的比例</td>
+</tr>
+<tr>
+<td>代码 · SUPER-Expert</td>
+<td style="text-align:right">45 / 50</td>
+<td>仓库及实验要求 → 执行结果</td>
+<td>与标注结果精确匹配</td>
+</tr>
+<tr>
+<td>代码 · CORE-Bench-Hard−</td>
+<td style="text-align:right">37 / 35</td>
+<td>代码数据包与分析要求 → 结果报告</td>
+<td>程序化结果评价</td>
+</tr>
+<tr>
+<td>代码 · DS-1000</td>
+<td style="text-align:right">900 / 100</td>
+<td>问题与缺失代码 → 补全代码</td>
+<td>测试通过率</td>
+</tr>
+<tr>
+<td>分析 · DiscoveryBench</td>
+<td style="text-align:right">239 / 25</td>
+<td>数据、元信息与目标 → 假设</td>
+<td>上下文、变量与关系匹配分数的乘积</td>
+</tr>
+<tr>
+<td>研究 · E2E-Bench</td>
+<td style="text-align:right">40 / 10</td>
+<td>研究问题及详细要求 → 报告、代码、轨迹与产物</td>
+<td>按任务 rubric 跨产物检查</td>
+</tr>
+<tr>
+<td>研究 · E2E-Bench-Hard</td>
+<td style="text-align:right">40 / 10</td>
+<td>较难研究任务 → 同类研究产物</td>
+<td>同类 rubric 评分</td>
+</tr>
+</tbody>
+</table></div><p>按表中各行相加，共有 <strong>2,404 个任务实例，其中测试 1,918、验证 486</strong>；这是我们的加总。“2400+”并非全部都是测试题，而且两个 LitQA 任务共享题源。部分基准经过适配，例如 CORE-Bench 去掉需要 GPU 的任务，不能直接与原始完整版本成绩混比。</p>
+<p>评分来源也不同：LitQA、SUPER、CORE-Bench 和 DS-1000 使用程序化评价，其余多项任务使用 LLM 裁判。程序化结果匹配与人类评价科研价值，是不同层面的证据。</p>
+<h3 id="section-6">第二步：固定任务可用的文献与执行环境</h3>
+<p><strong>Asta Environment</strong> 提供两类主要工具。文献工具可以搜索论文、检索片段、读取元数据和引文，并按论文日期限制访问。例如 ScholarQA-CS2 使用 2025 年 5 月 1 日之前的论文，PaperFindingBench 使用 2025 年 6 月 1 日之前的论文。综述表任务还限制到指定论文的片段。</p>
+<p>代码工具是带状态的 Jupyter 环境，变量和文件可跨调用保留，支持 Python 与 shell 操作，在沙箱中执行。单个单元默认超过五分钟就向智能体返回超时消息。工具通过标准接口与智能体解耦，使相同任务可以接入不同架构。</p>
+<p>这一步主要控制<strong>测试时的信息与工具访问</strong>；日期截断本身并不能证明模型训练时没有见过评测材料。<a href="https://arxiv.org/pdf/2510.21652v2#page=7" target="_blank" rel="noopener noreferrer">环境机制见第 4 节</a>。</p>
+<h3 id="section-7">第三步：记录工具、开放程度与成本</h3>
+<p>论文没有把所有系统都强行放入完全相同的工具环境，而是标明三类：<strong>Standard</strong> 只用规定工具；<strong>Custom interface</strong> 可以换接口，但访问等价的受限环境；<strong>Fully custom</strong> 使用超出这些条件的工具。开放程度则分别描述代码与权重开放、代码开放但权重闭源、仅 API 可用，以及只能通过界面使用。</p>
+<p>因此，两行成绩即使出现在同一张表，也要先检查标签是否相同。尤其是使用自定义工具的系统，领先可能同时来自模型、工具、路由和工作流，不能只解释为某一种架构更强。</p>
+<p>成本工具 <code>agent-eval</code> 将调用记录映射到一份冻结的模型价格表，计入适用的缓存折扣；价格表更新时可统一重算历史成本。这样减少 API 降价导致的比较漂移，但报告的是归一化模型调用成本，不是包含开发、人力和实验硬件的完整研究成本。<a href="https://arxiv.org/pdf/2510.21652v2#page=7" target="_blank" rel="noopener noreferrer">定义见第 4.2 节与附录 B</a>。</p>
+<h3 id="section-8">第四步：对研究产物交叉检查，再分别汇总成绩</h3>
+<p>以 E2E-Bench 为例，输入已经给出研究问题和相当详细的操作要求。论文中的任务涉及检验机器学习或 NLP 假设，系统需要交付报告、代码、过程轨迹及数据或结果等产物。因此它对执行能力的检验较强，对独立选题与研究规划的检验较弱。</p>
+<p>每题 rubric 由机器生成并经人工检查、必要时修订。LLM 裁判对每个条目分别读取<strong>报告、代码和产物</strong>，判断满足、不满足或没有证据；只有三方面不存在冲突，且至少一方面支持满足时，才将条目判为通过。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/astabench/artifact-scoring.jpg" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/astabench/artifact-scoring.jpg" alt="端到端任务评分界面，逐条比较报告、代码和产物中的证据" loading="lazy" decoding="async"></a><figcaption>图 2 · 每行是一项 rubric；绿色为满足，红色为不满足，黄色为没有证据。交叉检查后才给出最终判定。原图较密，可点击查看大图。来源：原论文 v2 Figure 10，PDF 第 53 页；采用作者源文件原始图像，未改绘。</figcaption></figure>
+<p>随后分别报告平均条目得分和所有必要条目都通过的任务比例。套件总分则使用宏平均，文献类中的两个 LitQA 派生任务各赋半权，避免重复放大同一题源；总表汇总到四类能力。它不是把所有测试题混在一起算一个正确率。</p>
+<p>配套基线包括一般性的 ReAct、Smolagents Coder 和领域专用系统。<strong>Asta v0</strong> 是按任务类型路由到不同专用系统的编排器，不是一个固定模型独立完成所有任务。部分端到端系统先离线生成产物，再用缓存接口统一评分，属于产物重评而非所有系统都在同一受控沙箱里重新执行。<a href="https://arxiv.org/pdf/2510.21652v2#page=41" target="_blank" rel="noopener noreferrer">评分与系统细节见附录 E.9、F.7 与 F.9</a>。</p>
+<h2 id="section-9">五、实验设计与结果：覆盖能力、成本与完整性</h2>
+<h3 id="section-10">主实验：谁能处理整个套件，付出多少调用成本</h3>
+<p>作者共评价 <strong>57 个智能体配置、22 类架构</strong>；这个数量不表示每个系统都完成了十一个基准。通用系统可尝试全套任务，许多商业或领域系统只在适用的子集上评价。</p>
+<p>下面选取整体结果，分数越高越好、成本越低越好。数据来自 <a href="https://arxiv.org/pdf/2510.21652v2#page=21" target="_blank" rel="noopener noreferrer">Table 4 与完整 Table 11</a>，使用完整表精度整理。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>系统与模型</th>
+<th>工具条件</th>
+<th style="text-align:right">总分，0—100</th>
+<th style="text-align:right">归一化宏平均成本，美元 / 题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asta v0，混合模型</td>
+<td>Fully custom</td>
+<td style="text-align:right">52.96 ± 2.36</td>
+<td style="text-align:right">3.3950</td>
+</tr>
+<tr>
+<td>ReAct，GPT-5</td>
+<td>Standard</td>
+<td style="text-align:right">44.03 ± 3.01</td>
+<td style="text-align:right">0.3090</td>
+</tr>
+<tr>
+<td>ReAct，o3</td>
+<td>Standard</td>
+<td style="text-align:right">39.45 ± 2.64</td>
+<td style="text-align:right">0.1635</td>
+</tr>
+<tr>
+<td>Smolagents Coder，GPT-5</td>
+<td>Custom interface</td>
+<td style="text-align:right">37.54 ± 2.47</td>
+<td style="text-align:right">0.1265</td>
+</tr>
+<tr>
+<td>ReAct，GPT-5 mini</td>
+<td>Standard</td>
+<td style="text-align:right">31.65 ± 2.65</td>
+<td style="text-align:right">0.0366</td>
+</tr>
+<tr>
+<td>Smolagents Coder，Llama-4-Scout</td>
+<td>Custom interface</td>
+<td style="text-align:right">11.05 ± 1.39</td>
+<td style="text-align:right">0.1081</td>
+</tr>
+</tbody>
+</table></div><p>这里的 ± 是 <strong>95% 置信区间</strong>，不是多次独立运行的标准差。附录 D 说明它们由评价样本间的方差估计，聚合时传播标准误，并假设任务独立；相关任务可能使不确定性被低估。宏平均成本也不是按真实用户请求频率加权的部署均价。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/astabench/main-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/astabench/main-results.png" alt="AstaBench 总体与四类任务的分数成本关系及效率前沿" loading="lazy" decoding="async"></a><figcaption>图 3 · 点越靠左上，表示调用成本更低且得分更高；横轴为美元成本的对数刻度，虚线连接相应比较中的效率前沿。不同工具条件仍需结合表格标签解释。来源：原论文 v2 Figure 2，PDF 第 8 页；由作者原始矢量图渲染，未改绘。</figcaption></figure>
+<p><strong>Asta v0 比 ReAct/GPT-5 高约 8.93 分，但宏平均调用成本约为后者的 11 倍，工具条件也不同。</strong> 这个结果支持专用工具和任务编排具有实际价值，不能单独证明某个模块或架构的因果优势。</p>
+<p>同为 Standard 的 ReAct/GPT-5 mini 成本更低，但总分也较低，体现了质量与成本的取舍。Asta v0 也没有在每类任务上领先：代码与执行得分为 47.60，低于 ReAct/GPT-5 的 55.02；数据分析为 33.17，略低于 ReAct/o3 的 33.67。整体领先不等于各项能力都更强。</p>
+<h3 id="section-11">分项结果：文献、代码和数据分析的瓶颈不同</h3>
+<p>文献任务内部就有明显差异。Table 5 中 Paper Finder 在生物医学检索子集上的 recall@30 为 90.7%，在更复杂的 PaperFindingBench 上却只有约 39.7 分；两者的问题与指标不同，不能把差异归结为同一种能力下降。Table 7 中综述表任务最好约 42.9 分，评价的是参考陈述召回，也不是所有单元格正确的概率。</p>
+<p>代码任务中，ReAct/GPT-5 在 DS-1000 上为 78.0 分，在 SUPER-Expert 上为 41.1 分；同样会写代码，并不意味着能恢复和执行研究仓库。DiscoveryBench 的最高分约为 33.7，指标衡量假设与参考答案的匹配，不直接证明发现了新科学知识。<a href="https://arxiv.org/pdf/2510.21652v2#page=18" target="_blank" rel="noopener noreferrer">分项结果见 Tables 5—9</a>。</p>
+<p>这些比较用于定位任务瓶颈，不是相同难度、相同指标下的消融。论文还观察到替换基础模型对不同工作流的收益不同；“新模型更适合某类流程”在文中属于解释假设，尚不能当作已经验证的机制。</p>
+<h3 id="section-12">完整性分析：约 70 分为何不是七成研究成功</h3>
+<p>端到端任务尤其需要同时读两种成绩。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>系统</th>
+<th style="text-align:right">E2E 平均条目得分，0—100</th>
+<th style="text-align:right">Hard 平均条目得分，0—100</th>
+<th style="text-align:right">E2E 全项通过率，0—1</th>
+<th style="text-align:right">Hard 全项通过率，0—1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asta Panda</td>
+<td style="text-align:right">70.47</td>
+<td style="text-align:right">68.21</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.03</td>
+</tr>
+<tr>
+<td>Asta CodeScientist</td>
+<td style="text-align:right">65.35</td>
+<td style="text-align:right">64.50</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.03</td>
+</tr>
+<tr>
+<td>Faker</td>
+<td style="text-align:right">39.17</td>
+<td style="text-align:right">25.37</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.00</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/pdf/2510.21652v2#page=20" target="_blank" rel="noopener noreferrer">Table 10</a> 与 <a href="https://arxiv.org/pdf/2510.21652v2#page=41" target="_blank" rel="noopener noreferrer">Table 20</a>。每个端到端基准有 40 道测试题；全项通过率沿用原表的舍入值，仅覆盖该表列出的三个系统。不能将 0.03 反推成精确的未舍入比例。</em></p>
+<p>平均条目得分表示完成了多少要求，全项通过率要求同一任务的所有必要要求都成立。作者用一个理想化例子解释累积风险：如果十个步骤独立且每步成功概率都为 0.7，全部成功约为 2.8%。这个乘法依赖独立、等概率假设，不能替代实际测量；更直接的证据是 Table 20 中完整通过比例最高仅为 0.05。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/astabench/end-to-end-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/astabench/end-to-end-results.png" alt="端到端任务中不同系统的质量成本关系" loading="lazy" decoding="async"></a><figcaption>图 4 · 两个面板分别对应 E2E-Bench 与 Hard。纵轴仍是平均步骤或条目得分，不是全项通过率；误差线为 95% 置信区间。来源：原论文 v2 Figure 8，PDF 第 31 页；由作者原始矢量图渲染，未改绘。</figcaption></figure>
+<p>Faker 是故意不执行研究、尽量编造报告与产物的基线，却仍得到非零平均条目分。我们据此认为，部分得分不能替代真实执行证据。跨产物评分能减少矛盾，但其强度仍取决于裁判能否读懂关键实现，以及产物是否足以证明执行。</p>
+<h3 id="section-13">裁判验证：自动评分与人工判断有多一致</h3>
+<p>论文没有把 LLM 裁判视为绝对真值。ScholarQA-CS2 的人工比较显示，系统级排名与专家的 Kendall τ 为 <strong>0.467</strong>；排除 Elicit 后为 0.800。后一个数改变了比较对象，不能用来代替整体结果。对于人工判断有明确胜者的实例，一致率为 <strong>68.1%</strong>。</p>
+<p>作者还检查了根据参评系统回答构造 rubric 的偏差：将某系统从要点来源中排除后，三个系统的覆盖得分平均下降约 <strong>2.5 分</strong>。这提示参考要点可能更贴合参与构造它的系统。引用指标本身也不验证论文是否真实存在或引文摘录是否确实来自原文，仍需独立核查。<a href="https://arxiv.org/pdf/2510.21652v2#page=35" target="_blank" rel="noopener noreferrer">详见附录 E.3</a>。</p>
+<p>端到端裁判在开发集抽样的 <strong>50 项 rubric 中，人工判断 92% 正确</strong>；它是小规模条目抽查，不是全部研究任务有 92% 的核验准确率。论文也报告了宽松判分和遗漏方法细节的情况。<a href="https://arxiv.org/pdf/2510.21652v2#page=52" target="_blank" rel="noopener noreferrer">验证见附录 F.9</a>。</p>
+<h2 id="section-14">六、我们自己的思考</h2>
+<h3 id="section-15">课题思考：这个领域在研究什么</h3>
+<p>我们认为，科研智能体评测的核心是建立一条可解释的关系：给定什么资源与预算，系统做了哪些工作，交付了什么证据，这些证据支持什么结论。AstaBench 的价值在于让工具、开放程度和成本成为成绩的一部分，并同时保留不同研究任务的诊断信息。</p>
+<p>它也提醒我们，评测分数有层次：引用与答案质量、代码测试通过、研究步骤完成、整项任务完成，最终还有科学价值。明确层次之后，才能讨论一个改进真正推进了哪项能力。</p>
+<h3 id="section-16">局限问题思考：目前还存在哪些问题</h3>
+<ul>
+<li><strong>控制与真实使用之间仍有差距。</strong> Standard 条件便于比较，但 Fully custom 系统和离线缓存产物未完全遵守相同运行条件；模型调用成本也不能覆盖完整的研究投入。</li>
+<li><strong>自动裁判尚不能代替完整证据审计。</strong> 人工一致性有限，rubric 存在来源偏差，引用真实性和实际执行仍有缺口；Faker 的非零分进一步说明平均分的边界。</li>
+<li><strong>覆盖面与开放研究仍有限。</strong> 任务偏重计算机科学，部分数据经过资源筛选；端到端题目给出详细步骤，对独立选题、长期协作和湿实验能力的说明有限。</li>
+<li><strong>总分可能掩盖关键失败。</strong> 宏平均便于概览，却会合并不同指标、样本量和任务权重；局部要求满足较多时，整项研究仍可能没有完成。</li>
+</ul>
+<h3 id="section-17">解决方案思考：这些问题有哪些解决方向</h3>
+<p>以下是我们的研究建议，不是论文已经完成的实验。</p>
+<ul>
+<li><strong>对应控制与成本：</strong> 分别维护受控能力评测与真实产品评测，固定模型版本及环境快照，公开离线生成轨迹，并同时记录调用费用、硬件时长、开发与人工介入。</li>
+<li><strong>对应裁判可靠性：</strong> 用独立专家和未参评系统构造保留 rubric；对引用原文、执行日志和关键产物进行外部验证，加入更多“说做了但未执行”的对抗案例，并报告分任务的误判率。</li>
+<li><strong>对应覆盖边界：</strong> 扩展到更多学科、长周期研究和人机协作；把给定步骤的执行题与需要自行发现问题、设计验证方案的任务分开评价，并采用持续更新的保留数据检查污染风险。</li>
+<li><strong>对应总分与完整性：</strong> 同时展示预算下的分项成绩、必要条件通过率和完整任务成功率，公开失败发生在哪一环；比较新方法时保留相同工具与预算的对照，再用独立重放验证研究产物。</li>
+</ul>
+<p><em>版本与素材：依据 <a href="https://arxiv.org/pdf/2510.21652v2" target="_blank" rel="noopener noreferrer">AstaBench v2 全文</a> 及作者源文件。Figures 1、2、8、10 归 Jonathan Bragg 等原作者所有，依 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 署名使用；矢量图仅渲染为网页图片，未改绘。表格按原结果整理，规模加总、比较解读和后续方案为本文分析。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样评价 AI 能否帮助科研</a></li><li><a href="#section-2">二、相关文献解读：从科学子任务到可比较的评测套件</a></li><li><a href="#section-3">三、研究问题解读：分数怎样才能支持可靠判断</a></li><li><a href="#section-4">四、方法解读：把研究请求变成可重复的评价</a></li><li><a href="#section-9">五、实验设计与结果：覆盖能力、成本与完整性</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../paperbench/"><span>论文阅读</span><strong>PaperBench：AI 能把一篇论文真正复现出来吗？</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>论文阅读</span><strong>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化</strong><i aria-hidden="true">↗</i></a><a href="../autosota/"><span>论文阅读</span><strong>AutoSOTA：从论文复现到有效的方法改进</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

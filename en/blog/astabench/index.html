@@ -1,0 +1,274 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AstaBench: how to evaluate research agents fairly | Linhao Wang</title>
+  <meta name="description" content="From standardized tasks and controlled literature tools to costs and artifact checks: interpreting overall scores and the gap between partial progress and complete research.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AstaBench: how to evaluate research agents fairly">
+  <meta property="og:description" content="From standardized tasks and controlled literature tools to costs and artifact checks: interpreting overall scores and the gap between partial progress and complete research.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/astabench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AstaBench：怎样公平评价科研智能体" data-title-en="AstaBench: how to evaluate research agents fairly" data-language-url="../../../blog/astabench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>14 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>AstaBench: how to evaluate research agents fairly</h1><p class="article-summary">From standardized tasks and controlled literature tools to costs and artifact checks: interpreting overall scores and the gap between partial progress and complete research.</p><div class="post-topics"><span>AI for Science</span><span>Research agent evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/astabench/main-results.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/astabench/main-results.png" alt="AstaBench: how to evaluate research agents fairly" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2510.21652v2" target="_blank" rel="noopener noreferrer">AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite ↗</a><small>ICLR 2026 / arXiv v2 · 2026-04-21</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: evaluating whether AI can assist research</a></li><li><a href="#section-2">2. Related work: from scientific subtasks to comparable evaluation suites</a></li><li><a href="#section-3">3. Research questions: when do scores support reliable conclusions?</a></li><li><a href="#section-4">4. Method: turning research requests into repeatable evaluation</a></li><li><a href="#section-9">5. Experiments and results: coverage, cost, and completeness</a></li><li><a href="#section-14">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>One research agent writes a cited review, another runs experiments, and a third claims to complete an entire study. How can we compare them? If their tools, literature sources, and spending differ, what does a higher score establish? AstaBench incorporates these conditions into evaluation while bringing literature understanding, code execution, data analysis, and end-to-end research into one suite.</p>
+<p>We discuss <strong>AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite</strong> by Jonathan Bragg and colleagues, using <a href="https://arxiv.org/abs/2510.21652v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>, updated April 21, 2026 and published at <strong>ICLR 2026</strong>. Results describe the historical configurations evaluated in the paper, rather than a live ranking of current products.</p>
+<h2 id="section-1">1. Topic: evaluating whether AI can assist research</h2>
+<p>Investigating a new prediction method usually involves finding papers, understanding existing evidence, preparing data, implementing methods, running experiments, and deciding whether results support a hypothesis. These activities have different inputs and acceptance criteria. Retrieval may require a set of relevant papers, whereas data analysis requires a checkable relationship grounded in actual data.</p>
+<p><strong>Research-agent evaluation asks how to turn these capabilities into explicit, repeatable tasks relevant to use.</strong> Difficulty alone is insufficient: comparisons must also be fair. A system may benefit from a better corpus or improve by making more model calls. These advantages need to be distinguished from planning and reasoning capabilities.</p>
+<p>A second challenge is the gap between local skills and complete research. Answering a literature question, running a function, and meeting some experimental requirements each have value, but cannot directly be converted into the probability of completing a study. Evaluation needs both diagnostic component scores and checks of complete task success.</p>
+<h2 id="section-2">2. Related work: from scientific subtasks to comparable evaluation suites</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Previous exploration</th>
+<th>Question carried forward</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080v3" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>Extract data-driven tasks from real papers and assess programs, execution results, and costs</td>
+<td>How can coding be evaluated alongside literature, analysis, and research workflows?</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2407.01725" target="_blank" rel="noopener noreferrer">DiscoveryBench</a></td>
+<td>Given data, metadata, and a goal, assess alignment between discovered and reference hypotheses</td>
+<td>How does data analysis fit into a broader map of research capabilities?</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Use hierarchical rubrics to check implementation, execution, and replication results</td>
+<td>How can different research tasks share interfaces and comparison conditions?</td>
+</tr>
+<tr>
+<td><a href="https://github.com/princeton-pli/hal-harness" target="_blank" rel="noopener noreferrer">HAL</a></td>
+<td>Run multiple agents and benchmarks through a common harness with trace and cost tracking</td>
+<td>How can scientific evaluation additionally control literature access and tooling?</td>
+</tr>
+</tbody>
+</table></div><p>These efforts emphasize scientific authenticity, data inference, replication requirements, and evaluation infrastructure. AstaBench combines existing tasks, adapts some datasets, adds new tasks, and supplies an environment, baseline agents, and cost reporting. Its contribution is an evaluation system; broader coverage does not establish greater depth on every individual capability than specialized benchmarks.</p>
+<h2 id="section-3">3. Research questions: when do scores support reliable conclusions?</h2>
+<p>We organize the goals into three questions as a synthesis for this reading.</p>
+<ol>
+<li><strong>Which activities give a reasonably complete picture of research assistance?</strong> Evaluation should span literature retrieval, evidence understanding, coding, data analysis, and research execution.</li>
+<li><strong>How can agent capability be separated from favorable comparison conditions?</strong> Fix accessible resources, label tooling and openness, and report both scores and costs.</li>
+<li><strong>Does a high partial score mean research was completed?</strong> Cross-check reports, code, and artifacts, and separate average step scores from all-requirements completion.</li>
+</ol>
+<p>These questions correspond to the task suite, standard environment and reporting, and detailed scoring with completeness checks. “Holistic” principally means coverage of multiple kinds of work; it does not mean that every problem traverses the entire research process.</p>
+<h2 id="section-4">4. Method: turning research requests into repeatable evaluation</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/astabench/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/astabench/overview.png" alt="AstaBench connects agents, standard tools, tasks, and judges to quality and compute-cost comparisons" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Read left to right: agents use tools to solve tasks, rubrics and judges evaluate outputs, and quality is considered alongside cost. Standard tools control information-access conditions. Source: original v2 Figure 1, PDF page 3; rendered from the authors&#39; original vector figure without redrawing.</figcaption></figure>
+<h3 id="section-5">Step 1: define inputs, deliverables, and scoring</h3>
+<p>The suite contains eleven benchmarks in four categories. The following summarizes <a href="https://arxiv.org/pdf/2510.21652v2#page=6" target="_blank" rel="noopener noreferrer">Table 2 and Appendix E</a>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Category and benchmark</th>
+<th style="text-align:right">Test / validation</th>
+<th>Input and deliverable</th>
+<th>Main evaluation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Literature · PaperFindingBench</td>
+<td style="text-align:right">267 / 66</td>
+<td>Search request → ranked papers</td>
+<td>Query-dependent F1 or the harmonic mean of estimated recall and nDCG</td>
+</tr>
+<tr>
+<td>Literature · LitQA2-FullText-Search</td>
+<td style="text-align:right">75 / 10</td>
+<td>Biomedical question → relevant papers</td>
+<td>recall@30</td>
+</tr>
+<tr>
+<td>Literature · ScholarQA-CS2</td>
+<td style="text-align:right">100 / 100</td>
+<td>Complex question → cited long-form answer</td>
+<td>Mean of coverage, relevance, citation recall, and citation precision</td>
+</tr>
+<tr>
+<td>Literature · LitQA2-FullText</td>
+<td style="text-align:right">75 / 10</td>
+<td>Question → selected answer</td>
+<td>Accuracy</td>
+</tr>
+<tr>
+<td>Literature · ArxivDIGESTables-Clean</td>
+<td style="text-align:right">100 / 70</td>
+<td>Papers and table intent → review table</td>
+<td>Fraction of reference-table statements supported by the generated table</td>
+</tr>
+<tr>
+<td>Code · SUPER-Expert</td>
+<td style="text-align:right">45 / 50</td>
+<td>Repository and experiment requirements → execution results</td>
+<td>Exact match against annotated results</td>
+</tr>
+<tr>
+<td>Code · CORE-Bench-Hard−</td>
+<td style="text-align:right">37 / 35</td>
+<td>Code/data capsule and analysis request → results report</td>
+<td>Programmatic results evaluation</td>
+</tr>
+<tr>
+<td>Code · DS-1000</td>
+<td style="text-align:right">900 / 100</td>
+<td>Question and incomplete code → completed code</td>
+<td>Test-passing accuracy</td>
+</tr>
+<tr>
+<td>Analysis · DiscoveryBench</td>
+<td style="text-align:right">239 / 25</td>
+<td>Data, metadata, and goal → hypothesis</td>
+<td>Product of context, variable, and relationship matching scores</td>
+</tr>
+<tr>
+<td>Research · E2E-Bench</td>
+<td style="text-align:right">40 / 10</td>
+<td>Research question and detailed requirements → report, code, trace, and artifacts</td>
+<td>Task-specific cross-artifact rubric checks</td>
+</tr>
+<tr>
+<td>Research · E2E-Bench-Hard</td>
+<td style="text-align:right">40 / 10</td>
+<td>Harder research task → corresponding research artifacts</td>
+<td>The same kind of rubric scoring</td>
+</tr>
+</tbody>
+</table></div><p>Summing the rows gives <strong>2,404 task instances: 1,918 test and 486 validation instances</strong>; this is our calculation. “2400+” does not refer entirely to test problems, and the two LitQA tasks share source questions. Some benchmarks are adapted: CORE-Bench excludes GPU-requiring tasks, so scores should not be directly mixed with the complete original version.</p>
+<p>Scoring sources also differ. LitQA, SUPER, CORE-Bench, and DS-1000 use programmatic evaluation, while several other tasks use LLM judges. Programmatic result matching and human judgment of scientific value provide different kinds of evidence.</p>
+<h3 id="section-6">Step 2: constrain literature access and execution environments</h3>
+<p><strong>Asta Environment</strong> supplies two main tool families. Literature tools search papers and snippets and retrieve metadata and citations, with access restricted by paper date. ScholarQA-CS2, for example, uses papers before May 1, 2025, while PaperFindingBench uses papers before June 1, 2025. Review-table tasks additionally restrict snippet access to specified papers.</p>
+<p>Code tools provide a stateful Jupyter environment, preserving variables and files across calls and supporting Python and shell operations in a sandbox. By default, a cell running for more than five minutes returns a timeout message to the agent. Standard interfaces decouple tools from agent architectures.</p>
+<p>This mainly controls <strong>test-time information and tool access</strong>. A date cutoff does not establish that a model never encountered benchmark materials during training. <a href="https://arxiv.org/pdf/2510.21652v2#page=7" target="_blank" rel="noopener noreferrer">Section 4 describes the environment</a>.</p>
+<h3 id="section-7">Step 3: report tooling, openness, and cost</h3>
+<p>The paper does not force every system into identical tooling. Instead, it labels <strong>Standard</strong> systems using the prescribed tools, <strong>Custom interface</strong> systems using different interfaces to equivalent restricted environments, and <strong>Fully custom</strong> systems using tools beyond those conditions. Openness separately distinguishes open code and weights, open code with closed weights, API-only access, and UI-only access.</p>
+<p>Rows in the same table therefore require checking their labels before comparison. With custom tools, an advantage may jointly reflect models, tools, routing, and workflows, rather than one architecture alone.</p>
+<p>The <code>agent-eval</code> toolkit maps logged model usage to a frozen price snapshot, including applicable caching discounts. Updating the price snapshot permits consistent recalculation of historical costs. This reduces drift from API price changes, but measures normalized model-call cost rather than complete research cost including development, labor, and experimental hardware. <a href="https://arxiv.org/pdf/2510.21652v2#page=7" target="_blank" rel="noopener noreferrer">See Section 4.2 and Appendix B</a>.</p>
+<h3 id="section-8">Step 4: cross-check artifacts and aggregate distinct measures</h3>
+<p>E2E-Bench already supplies a research question and fairly detailed instructions. Tasks involve investigating machine learning or NLP hypotheses and require a report, code, an execution trace, and data or result artifacts. This strongly tests execution while only weakly testing independent problem selection and planning.</p>
+<p>Task-specific rubrics are machine-generated and manually checked and revised. For each criterion, an LLM judge examines the <strong>report, code, and artifacts</strong>, assigning met, failed, or no evidence. A criterion passes only when those facets are consistent and at least one supports fulfillment.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/astabench/artifact-scoring.jpg" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/astabench/artifact-scoring.jpg" alt="End-to-end grading interface comparing evidence in reports, code, and artifacts for each rubric criterion" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Each row is a rubric item: green indicates met, red failed, and yellow no evidence. Cross-artifact checks determine the final verdict. The dense original can be opened at full size. Source: original v2 Figure 10, PDF page 53; original image from the authors&#39; source files, unchanged.</figcaption></figure>
+<p>The evaluation then separately reports average criterion scores and the fraction of tasks meeting every required criterion. Suite scores use macro-averaging, assigning half weight to each LitQA derivative within the literature category to avoid double-counting their shared source. The overall table summarizes four capability categories, rather than pooling all test questions into one accuracy.</p>
+<p>Baselines include general ReAct and Smolagents Coder agents and specialized systems. <strong>Asta v0</strong> routes task types to different specialized solvers; it is not one fixed model handling everything independently. Some end-to-end systems generate artifacts offline and expose cached outputs for standardized grading. This is artifact re-evaluation, rather than every system being rerun in one controlled sandbox. <a href="https://arxiv.org/pdf/2510.21652v2#page=41" target="_blank" rel="noopener noreferrer">See Appendices E.9, F.7, and F.9</a>.</p>
+<h2 id="section-9">5. Experiments and results: coverage, cost, and completeness</h2>
+<h3 id="section-10">Main experiment: who can attempt the full suite, and at what call cost?</h3>
+<p>The authors evaluate <strong>57 agent configurations across 22 architectural classes</strong>. This does not mean every system completed all eleven benchmarks. General agents can attempt the full suite, whereas many commercial and specialized systems are evaluated only on applicable subsets.</p>
+<p>The following selects overall results: higher scores and lower costs are preferable. Values are organized from <a href="https://arxiv.org/pdf/2510.21652v2#page=21" target="_blank" rel="noopener noreferrer">Table 4 and full Table 11</a>, retaining greater precision from the latter.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>System and model</th>
+<th>Tooling</th>
+<th style="text-align:right">Overall score, 0–100</th>
+<th style="text-align:right">Normalized macro-average cost, USD / problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asta v0, mixed models</td>
+<td>Fully custom</td>
+<td style="text-align:right">52.96 ± 2.36</td>
+<td style="text-align:right">3.3950</td>
+</tr>
+<tr>
+<td>ReAct, GPT-5</td>
+<td>Standard</td>
+<td style="text-align:right">44.03 ± 3.01</td>
+<td style="text-align:right">0.3090</td>
+</tr>
+<tr>
+<td>ReAct, o3</td>
+<td>Standard</td>
+<td style="text-align:right">39.45 ± 2.64</td>
+<td style="text-align:right">0.1635</td>
+</tr>
+<tr>
+<td>Smolagents Coder, GPT-5</td>
+<td>Custom interface</td>
+<td style="text-align:right">37.54 ± 2.47</td>
+<td style="text-align:right">0.1265</td>
+</tr>
+<tr>
+<td>ReAct, GPT-5 mini</td>
+<td>Standard</td>
+<td style="text-align:right">31.65 ± 2.65</td>
+<td style="text-align:right">0.0366</td>
+</tr>
+<tr>
+<td>Smolagents Coder, Llama-4-Scout</td>
+<td>Custom interface</td>
+<td style="text-align:right">11.05 ± 1.39</td>
+<td style="text-align:right">0.1081</td>
+</tr>
+</tbody>
+</table></div><p>The ± values are <strong>95% confidence intervals</strong>, rather than standard deviations over independent reruns. Appendix D estimates them from variance across evaluation samples, propagating standard errors under an independence assumption; correlated tasks could make uncertainty underestimated. Macro-average cost is also not a deployment average weighted by actual user-request frequencies.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/astabench/main-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/astabench/main-results.png" alt="AstaBench quality-cost plots and efficiency frontiers overall and across four task categories" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Upper-left points offer higher scores at lower model-call cost. The horizontal dollar-cost axis is logarithmic; dotted lines connect the efficiency frontier in each comparison. Tooling differences still require consulting the table labels. Source: original v2 Figure 2, PDF page 8; rendered from the authors&#39; original vector figure without redrawing.</figcaption></figure>
+<p><strong>Asta v0 scores approximately 8.93 points above ReAct/GPT-5, but has approximately 11 times its macro-average call cost and different tooling.</strong> This supports the practical value of specialized tools and orchestration without isolating a causal advantage from any individual component or architecture.</p>
+<p>Under the same Standard tooling label, ReAct/GPT-5 mini costs less but also scores lower, illustrating a quality-cost trade-off. Asta v0 does not lead every category: its code-and-execution score is 47.60 versus 55.02 for ReAct/GPT-5, and its data-analysis score is 33.17 versus 33.67 for ReAct/o3. An overall lead does not imply stronger capabilities in every area.</p>
+<h3 id="section-11">Category results: literature, coding, and analysis have different bottlenecks</h3>
+<p>Even literature tasks differ substantially. In Table 5, Paper Finder achieves 90.7% recall@30 on the biomedical search subset but approximately 39.7 on the more complex PaperFindingBench. Different questions and metrics prevent interpreting this as a decline in one identical capability. The best review-table score in Table 7 is approximately 42.9, measuring reference-statement recall rather than the probability that every table cell is correct.</p>
+<p>For coding, ReAct/GPT-5 scores 78.0 on DS-1000 but 41.1 on SUPER-Expert: generating code does not establish the ability to recover and execute research repositories. DiscoveryBench peaks at approximately 33.7; hypothesis matching against reference answers does not itself establish new scientific knowledge. <a href="https://arxiv.org/pdf/2510.21652v2#page=18" target="_blank" rel="noopener noreferrer">See Tables 5–9</a>.</p>
+<p>These comparisons identify bottlenecks; they are not ablations with identical difficulty and metrics. The paper also observes that replacing the underlying model has different effects across workflows. The suggestion that newer models suit particular workflows is an explanatory hypothesis rather than a validated mechanism.</p>
+<h3 id="section-12">Completeness: why approximately 70 points does not mean most studies succeed</h3>
+<p>End-to-end results particularly require reading both measures together.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>System</th>
+<th style="text-align:right">E2E mean criterion score, 0–100</th>
+<th style="text-align:right">Hard mean criterion score, 0–100</th>
+<th style="text-align:right">E2E all-criteria completion, 0–1</th>
+<th style="text-align:right">Hard all-criteria completion, 0–1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asta Panda</td>
+<td style="text-align:right">70.47</td>
+<td style="text-align:right">68.21</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.03</td>
+</tr>
+<tr>
+<td>Asta CodeScientist</td>
+<td style="text-align:right">65.35</td>
+<td style="text-align:right">64.50</td>
+<td style="text-align:right">0.05</td>
+<td style="text-align:right">0.03</td>
+</tr>
+<tr>
+<td>Faker</td>
+<td style="text-align:right">39.17</td>
+<td style="text-align:right">25.37</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.00</td>
+</tr>
+</tbody>
+</table></div><p><em>Sources: <a href="https://arxiv.org/pdf/2510.21652v2#page=20" target="_blank" rel="noopener noreferrer">Table 10</a> and <a href="https://arxiv.org/pdf/2510.21652v2#page=41" target="_blank" rel="noopener noreferrer">Table 20</a>. Each end-to-end benchmark has 40 test problems. Completion rates retain the original table's rounding and cover only its three listed systems. The value 0.03 should not be reverse-engineered into an exact unrounded proportion.</em></p>
+<p>An average criterion score measures how many requirements were met; complete success requires all necessary requirements to hold in the same task. The authors illustrate compounding with an idealized example: ten independent steps, each succeeding with probability 0.7, yield approximately 2.8% complete success. This multiplication assumes independence and equal probabilities and cannot replace measurement. The more direct evidence is Table 20, where the highest reported complete-success fraction is only 0.05.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/astabench/end-to-end-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/astabench/end-to-end-results.png" alt="Quality-cost comparisons for end-to-end research tasks" loading="lazy" decoding="async"></a><figcaption>Figure 4 · Panels show E2E-Bench and Hard. The vertical axis still measures mean step or criterion scores, rather than all-criteria completion. Error bars indicate 95% confidence intervals. Source: original v2 Figure 8, PDF page 31; rendered from the authors&#39; original vector figure without redrawing.</figcaption></figure>
+<p>Faker deliberately avoids doing the research and tries to fabricate reports and artifacts, yet receives nonzero mean criterion scores. Our interpretation is that partial scores cannot replace evidence of actual execution. Cross-artifact grading reduces contradictions, but its strength depends on whether the judge understands crucial implementation details and whether artifacts establish execution.</p>
+<h3 id="section-13">Judge validation: agreement with human assessment</h3>
+<p>The paper does not treat LLM judges as unquestionable ground truth. For ScholarQA-CS2, system-level ranking agreement with experts has <strong>Kendall's τ of 0.467</strong>, rising to 0.800 after excluding Elicit. The latter changes the comparison set and cannot replace the overall result. Instance-level agreement is <strong>68.1%</strong> where human judgments identify a clear winner.</p>
+<p>The authors also test bias from building rubrics using evaluated systems' answers. Withholding a system from the ingredient pool causes an average coverage-score drop of approximately <strong>2.5 points</strong> for three systems. Reference ingredients can therefore favor their contributing systems. Citation metrics also do not themselves verify that papers exist or that quoted passages actually appear in the sources; these require independent checks. <a href="https://arxiv.org/pdf/2510.21652v2#page=35" target="_blank" rel="noopener noreferrer">See Appendix E.3</a>.</p>
+<p>For end-to-end judging, a human judged <strong>92% of a development-set sample of 50 rubric items correct</strong>. This is a small criterion-level check, rather than proof of 92% verification accuracy over complete studies. The paper reports overly generous judgments and missed methodological nuances. <a href="https://arxiv.org/pdf/2510.21652v2#page=52" target="_blank" rel="noopener noreferrer">See Appendix F.9</a>.</p>
+<h2 id="section-14">6. Our reflections</h2>
+<h3 id="section-15">Topic reflection: what is this field studying?</h3>
+<p>For us, research-agent evaluation should establish an interpretable chain: given particular resources and budgets, what work did a system perform, what evidence did it deliver, and what conclusions does that evidence support? AstaBench makes tooling, openness, and cost part of the assessment while preserving diagnostics across research activities.</p>
+<p>It also highlights levels of measurement: citation and answer quality, passing code tests, completing research steps, completing an entire task, and ultimately scientific value. Identifying the level makes it possible to discuss which capability an improvement actually advances.</p>
+<h3 id="section-16">Limitation reflection: what remains unresolved?</h3>
+<ul>
+<li><strong>Controlled evaluation differs from actual use.</strong> Standard tooling supports comparison, but Fully custom systems and offline artifacts do not share all runtime conditions. Model-call expenses also omit parts of research cost.</li>
+<li><strong>Automatic judges do not replace complete evidence audits.</strong> Human agreement is limited, rubrics have source bias, and citation authenticity and actual execution remain incompletely checked. Faker's nonzero scores further show the limits of averages.</li>
+<li><strong>Coverage and open research remain limited.</strong> Tasks lean toward computer science and include resource-filtered datasets. Detailed end-to-end instructions provide limited evidence about independent problem selection, long-term collaboration, or wet-lab work.</li>
+<li><strong>Overall scores can hide critical failures.</strong> Macro-averaging combines metrics, sample sizes, and task weights. Many local requirements can be satisfied while the complete study remains unfinished.</li>
+</ul>
+<h3 id="section-17">Solution reflection: which directions could address these issues?</h3>
+<p>The following are our proposals, rather than experiments already completed by the paper.</p>
+<ul>
+<li><strong>For control and cost:</strong> maintain separate controlled-capability and real-product evaluations, freeze model versions and environments, release offline generation traces, and record call expenses alongside hardware time, development, and human intervention.</li>
+<li><strong>For judge reliability:</strong> build held-out rubrics with independent experts and unevaluated systems; externally verify source passages, execution logs, and crucial artifacts. Add more adversarial cases claiming work that was never executed and report task-specific judgment errors.</li>
+<li><strong>For coverage:</strong> expand disciplines, long-term projects, and human collaboration. Separately evaluate prescribed-step execution and independent problem discovery and experimental design, using refreshed held-out data to examine contamination risks.</li>
+<li><strong>For aggregation and completeness:</strong> report budget-specific component scores, necessary-condition fulfillment, and whole-task success, identifying failure locations. Compare new methods under matching tools and budgets and independently replay research artifacts.</li>
+</ul>
+<p><em>Version and materials: based on the <a href="https://arxiv.org/pdf/2510.21652v2" target="_blank" rel="noopener noreferrer">AstaBench v2 full paper</a> and the authors' source files. Original Figures 1, 2, 8, and 10 belong to Jonathan Bragg and colleagues and are attributed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Vector figures were rendered as web images without redrawing. Tables organize the reported results; count sums, interpretation, and proposed directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: evaluating whether AI can assist research</a></li><li><a href="#section-2">2. Related work: from scientific subtasks to comparable evaluation suites</a></li><li><a href="#section-3">3. Research questions: when do scores support reliable conclusions?</a></li><li><a href="#section-4">4. Method: turning research requests into repeatable evaluation</a></li><li><a href="#section-9">5. Experiments and results: coverage, cost, and completeness</a></li><li><a href="#section-14">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../paperbench/"><span>Paper reading</span><strong>PaperBench: can AI truly replicate a research paper?</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>Paper reading</span><strong>Learning from research experience: EvoScientist’s dual memory and cross-task evolution</strong><i aria-hidden="true">↗</i></a><a href="../autosota/"><span>Paper reading</span><strong>AutoSOTA: from paper replication to valid method improvements</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

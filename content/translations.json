@@ -65,6 +65,10 @@
     "evoscientist": {
       "source_sha256": "fbcda9326dd94965429359f83833601100b837a3cb4d8f295e27d03b8f5921cd",
       "english_sha256": "7c62c4310b33c85390bec46183cf9ac24d3a228cb2e61bfb7da74f69bca0148e"
+    },
+    "astabench": {
+      "source_sha256": "89f8d79387dacfbfc56c567c12974eed905240eac668555cc22189ce29def2b2",
+      "english_sha256": "aadcb5ea20c9fdf69f9bb0cc7ce7a630bf2588856bf64c1599947e40026fc062"
     }
   }
 }

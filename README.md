@@ -15,7 +15,7 @@ The development server serves the generated HTML in this repository at `http://1
 
 - Chinese homepage: `/`; blog: `/blog/`.
 - English homepage: `/en/`; blog: `/en/blog/`.
-- Each of the 15 articles has a complete Chinese and English reading page, including translated captions, tables, and contents.
+- Each of the 17 articles has a complete Chinese and English reading page, including translated captions, tables, and contents.
 - The language button keeps the current article, section anchor, and archive search/filter. Theme preferences are stored locally.
 - Article and archive covers appear beside titles on larger screens and adapt for smaller screens.
 - ScientistTwo is pinned with the corresponding Chinese or English poster. The poster gallery offers PNG, one-page PDF, editable HTML, and complete asset/provenance bundles.
@@ -51,6 +51,6 @@ Original template documentation: `README.zh-CN.md`. License: `LICENSE.md`.
 
 ## 中文说明
 
-这是中英双语个人主页，包含 15 篇完整的中文原稿及英文译文。中英文版分别使用对应海报；正文标题旁展示插图，ScientistTwo 海报在博客和文章顶部置顶。手机端采用上下布局。
+这是中英双语个人主页，包含 17 篇完整的中文原稿及英文译文。中英文版分别使用对应海报；正文标题旁展示插图，ScientistTwo 海报在博客和文章顶部置顶。手机端采用上下布局。
 
 日常修改应编辑 `content/posts/`、`data/` 与生成脚本，再运行 `npm run build` 和 `npm run check`。中文正文保持原有内容；英文版包含目录、图注与表格。不要仅修改生成的 HTML。

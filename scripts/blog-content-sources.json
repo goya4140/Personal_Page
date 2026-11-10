@@ -1,5 +1,21 @@
 [
   {
+    "slug": "astabench",
+    "source": "https://arxiv.org/abs/2510.21652v2",
+    "source_pdf": "https://arxiv.org/pdf/2510.21652v2",
+    "source_pdf_sha256": "5bf79b03472bfb22b7826c62206bd0dfafaa849920888210c1ae31c0eed2df33",
+    "source_archive_sha256": "65ba8942b24cb3454405c20c87b5a61d0aa8c1453c1cb68b953d8f109826b59f",
+    "figure_manifest": "assets/img/blog/astabench/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1, 2, 8, 10; eleven benchmarks and test/validation counts; overall main results before category, end-to-end completion and judge validation analyses; tool controls, macro scores, normalized cost, CIs and partial versus all-criteria success distinguished.",
+    "related_sources": [
+      "https://arxiv.org/abs/2410.05080v3",
+      "https://arxiv.org/abs/2407.01725",
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://github.com/princeton-pli/hal-harness"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
     "slug": "evoscientist",
     "source": "https://arxiv.org/abs/2603.08127v2",
     "source_pdf": "https://arxiv.org/pdf/2603.08127v2",
