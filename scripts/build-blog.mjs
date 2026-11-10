@@ -20,6 +20,27 @@ const head = (p, article=false) => {
  return article ? html.replaceAll('href="assets/','href="../assets/').replaceAll('src="assets/','src="../assets/') : html;
 };
 const md = new MarkdownIt({html:false,linkify:false,typographer:false});
+// Ordinary Markdown links become accessible in-context question popovers.
+md.core.ruler.push('reading_note_links', state => {
+ for (const inline of state.tokens.filter(t => t.type === 'inline')) {
+  const children = inline.children || [];
+  for (let i = 0; i < children.length; i++) {
+   const token = children[i], href = token.attrGet('href') || '';
+   if (token.type !== 'link_open' || !href.startsWith('#reading-note-')) continue;
+   const id = href.slice('#reading-note-'.length);
+   if (!state.env.notes?.some(note => note.id === id)) throw new Error(`Unknown reading note: ${id}`);
+   token.type = 'reading_note_open'; token.meta = {id};
+   const close = children.slice(i + 1).find(t => t.type === 'link_close');
+   if (!close) throw new Error(`Unclosed reading note: ${id}`);
+   close.type = 'reading_note_close';
+  }
+ }
+});
+md.renderer.rules.reading_note_open = (tokens,i) => {
+ const id = `reading-note-${tokens[i].meta.id}`;
+ return `<button type="button" class="reading-note-trigger" popovertarget="${esc(id)}" aria-controls="${esc(id)}" aria-expanded="false" aria-haspopup="dialog">`;
+};
+md.renderer.rules.reading_note_close = () => '</button>';
 function math(tex, display=false) { return katex.renderToString(tex, {displayMode:display,throwOnError:true,trust:false,strict:'ignore'}); }
 md.inline.ruler.before('escape','math_inline',(state,silent)=>{
  const start=state.pos; if(!state.src.startsWith('\\(', start)) return false;

@@ -5,8 +5,11 @@ export async function renderBlogs({md,home,posts,esc,bi,header,footer,head}) {
  for(const p of posts){
   const zh=await readFile(`content/posts/${p.slug}.md`,'utf8');
   const en=await readFile(`content/posts/en/${p.slug}.md`,'utf8');
+  let notes=[];
+  try { notes=JSON.parse(await readFile(`content/annotations/${p.slug}.json`,'utf8')); }
+  catch(error) { if(error.code!=='ENOENT')throw error; }
   const minutes=s=>Math.max(1,Math.ceil((s.match(/[\u3400-\u9fff]/g)||[]).length/380+(s.match(/[A-Za-z]+/g)||[]).length/220));
-  sources.set(p.slug,{zh,en,minutes:{zh:minutes(zh),en:minutes(en)}});
+  sources.set(p.slug,{zh,en,notes,minutes:{zh:minutes(zh),en:minutes(en)}});
   p.cover=p.cover||zh.match(/!\[[^\]]*\]\(([^\s)]+)/)?.[1]?.replace(/^\.\.\//,'');
  }
  for(const locale of ['zh','en']){
@@ -35,12 +38,19 @@ export async function renderBlogs({md,home,posts,esc,bi,header,footer,head}) {
   await mkdir(dir||'.',{recursive:true});
   await rm(`${dir}blog`,{recursive:true,force:true});await mkdir(`${dir}blog`,{recursive:true});
   for(const p of posts){
-   const env={locale}, tokens=md.parse(sources.get(p.slug)[locale],env), headings=[];
+   const notes=sources.get(p.slug).notes;
+   const env={locale,notes}, tokens=md.parse(sources.get(p.slug)[locale],env), headings=[];
    for(let i=0;i<tokens.length;i++)if(tokens[i].type==='heading_open'){
     const id=`section-${headings.length+1}`;tokens[i].attrSet('id',id);
     headings.push({id,level:Number(tokens[i].tag.slice(1)),title:tokens[i+1].content.replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/[*`]/g,'')});
    }
    const body=md.renderer.render(tokens,md.options,env);
+   const notePanels=notes.map(note=>{
+    if(!/^[a-z][a-z0-9-]*$/.test(note.id))throw new Error(`Invalid note id: ${note.id}`);
+    const id=`reading-note-${note.id}`,copy=note[locale];
+    if(!copy?.question||!copy.answer||!copy.detail)throw new Error(`Incomplete ${locale} note: ${note.id}`);
+    return `<aside id="${id}" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="${id}-title" tabindex="-1"><div class="reading-note-top"><span>${t('阅读问答','READING Q&A')}</span><button type="button" class="reading-note-close" popovertarget="${id}" popovertargetaction="hide" aria-label="${t('关闭解释','Close explanation')}">×</button></div><p class="reading-note-title" id="${id}-title">${esc(copy.question)}</p><div class="reading-note-answer">${md.render(copy.answer,{locale})}</div><details class="reading-note-detail"><summary>${esc(copy.detail_label)}</summary><div class="reading-note-answer">${md.render(copy.detail,{locale})}</div></details></aside>`;
+   }).join('');
    const toc=headings.filter(h=>h.level<=2).map(h=>`<li><a href="#${h.id}">${esc(h.title)}</a></li>`).join('');
    const depth=en?2:1, base='../'.repeat(depth), switchUrl=en?`../../blog/${p.slug}.html`:`../en/blog/${p.slug}.html`;
    const gallery=p.posters?`${base}${p.posters}${en?'?lang=en':''}`:'';
@@ -48,7 +58,7 @@ export async function renderBlogs({md,home,posts,esc,bi,header,footer,head}) {
    const paper=p.paper?`<div class="article-paper"><span>${t('阅读论文','Paper')}</span><a href="${esc(p.paper.url)}" target="_blank" rel="noopener noreferrer">${esc(p.paper.title)} ↗</a>${p.paper.venue?`<small>${esc(p.paper.venue)}</small>`:''}</div>`:'';
    const poster=p.posters?`<section class="pinned-poster" aria-label="${t('置顶海报速览','Pinned poster overview')}"><div class="poster-heading"><strong>${t('一图回顾','At a glance')}</strong><a href="${gallery}">${t('中英文海报与完整文件','Both posters & complete files')} ↗</a></div><a href="${base}assets/posters/${p.slug}/${locale}/preview.png" target="_blank" rel="noopener"><img src="${base}assets/posters/${p.slug}/${locale}/preview.png" alt="${esc(title(p))} — ${t('中文海报','English poster')}" width="3072" height="1536"></a><p><a href="${base}assets/posters/${p.slug}/${locale}/poster.pdf" target="_blank" rel="noopener">PDF ↗</a><span>${t('点击海报放大；原论文插图保留原始标注。','Click the poster to enlarge; source figures retain their original labels.')}</span></p></section>`:'';
    const related=posts.filter(o=>o.slug!==p.slug).map(o=>({o,score:o.tags_zh.filter(tag=>p.tags_zh.includes(tag)).length})).sort((a,b)=>b.score-a.score).slice(0,3).map(({o})=>`<a href="${o.slug}.html"><span>${kind(o)}</span><strong>${esc(title(o))}</strong><i aria-hidden="true">↗</i></a>`).join('');
-   const html=`<!doctype html><html lang="${en?'en':'zh-CN'}" data-locale="${locale}">${pageHead(p,true)}<body class="theme-luka blog-page article-page" data-page="article" data-title-zh="${esc(p.title_zh)}" data-title-en="${esc(p.title_en)}" data-language-url="${switchUrl}"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">${t('跳至正文','Skip to content')}</a>${nav(1)}<main class="article-main"><a class="article-back" href="../blog.html">← ${t('全部文章','All writing')}</a><header class="article-header"><div class="post-meta"><span class="post-kind">${kind(p)}</span><span>${t('约 '+minutes(p)+' 分钟',minutes(p)+' min read')}</span><span>${t('中文原稿','English translation')}</span>${p.date?`<time datetime="${p.date}">${p.date}</time>`:''}</div><div class="article-heading-layout${hero?' has-art':''}"><div><h1>${esc(title(p))}</h1><p class="article-summary">${esc(summary(p))}</p>${topics(p)}</div>${hero}</div>${paper}</header>${poster}<div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>${t('本文目录','On this page')}</summary><ol>${toc}</ol></details><article class="article-prose" id="article-content" lang="${en?'en':'zh-CN'}">${body}</article><div class="article-note">${t('整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。','From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.')}</div></div><aside class="article-toc" aria-label="${t('本文目录','Table of contents')}"><h2>${t('本文目录','On this page')}</h2><ol>${toc}</ol><a href="../blog.html">← Blog</a></aside></div><section class="related-writing"><h2>${t('继续阅读','Keep reading')}</h2>${related}</section></main>${footer}<script src="${base}assets/js/homepage.js"></script><script src="${base}assets/js/article.js"></script></body></html>`;
+   const html=`<!doctype html><html lang="${en?'en':'zh-CN'}" data-locale="${locale}">${pageHead(p,true)}<body class="theme-luka blog-page article-page" data-page="article" data-title-zh="${esc(p.title_zh)}" data-title-en="${esc(p.title_en)}" data-language-url="${switchUrl}"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">${t('跳至正文','Skip to content')}</a>${nav(1)}<main class="article-main"><a class="article-back" href="../blog.html">← ${t('全部文章','All writing')}</a><header class="article-header"><div class="post-meta"><span class="post-kind">${kind(p)}</span><span>${t('约 '+minutes(p)+' 分钟',minutes(p)+' min read')}</span><span>${t('中文原稿','English translation')}</span>${p.date?`<time datetime="${p.date}">${p.date}</time>`:''}</div><div class="article-heading-layout${hero?' has-art':''}"><div><h1>${esc(title(p))}</h1><p class="article-summary">${esc(summary(p))}</p>${topics(p)}</div>${hero}</div>${paper}</header>${poster}<div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>${t('本文目录','On this page')}</summary><ol>${toc}</ol></details><article class="article-prose" id="article-content" lang="${en?'en':'zh-CN'}">${body}</article><div class="article-note">${t('整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。','From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.')}</div></div><aside class="article-toc" aria-label="${t('本文目录','Table of contents')}"><h2>${t('本文目录','On this page')}</h2><ol>${toc}</ol><a href="../blog.html">← Blog</a></aside></div><section class="related-writing"><h2>${t('继续阅读','Keep reading')}</h2>${related}</section></main>${footer}${notePanels}<script src="${base}assets/js/homepage.js"></script><script src="${base}assets/js/article.js"></script></body></html>`;
    await writeFile(`${dir}blog/${p.slug}.html`,html);
   }
   const first=posts.find(p=>p.pinned)||posts[0], depth=en?1:0;

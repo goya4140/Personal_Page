@@ -32,5 +32,21 @@ for(const p of posts){
   const html=fs.readFileSync(`dist/${prefix}blog/${p.slug}/index.html`,'utf8');
   assert(html.includes(`<article class="article-prose" id="article-content" lang="${language}">`));
  }
+ const notesFile=`content/annotations/${p.slug}.json`;
+ if(fs.existsSync(notesFile)){
+  const notes=JSON.parse(fs.readFileSync(notesFile,'utf8'));
+  assert.equal(new Set(notes.map(n=>n.id)).size,notes.length,`Duplicate reading note: ${p.slug}`);
+  for(const note of notes){
+   for(const field of ['question','answer','detail_label','detail'])assert(note.zh?.[field]&&note.en?.[field],`Missing translated note ${p.slug}/${note.id}/${field}`);
+   assert(!/[\u3400-\u9fff]/u.test(JSON.stringify(note.en)),`Untranslated note: ${p.slug}/${note.id}`);
+   assert.deepEqual(urls(note.zh.detail),urls(note.en.detail),`Translated note sources: ${p.slug}/${note.id}`);
+   assert.deepEqual(numbersInTables(note.zh.detail),numbersInTables(note.en.detail),`Translated note table: ${p.slug}/${note.id}`);
+   for(const prefix of ['','en/']){
+    const html=fs.readFileSync(`dist/${prefix}blog/${p.slug}/index.html`,'utf8');
+    assert.equal(html.split(`id="reading-note-${note.id}"`).length-1,1,`Missing or duplicate note panel: ${p.slug}/${note.id}`);
+    assert(html.includes(`aria-controls="reading-note-${note.id}"`),`Unlinked note: ${p.slug}/${note.id}`);
+   }
+  }
+ }
 }
 console.log(`Checked ${posts.length} translation pairs, table numbers, source links, and ${references} local references.`);

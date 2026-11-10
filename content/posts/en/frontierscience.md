@@ -39,7 +39,7 @@ The public gold set contains 160 questions across Olympiad and Research. The lar
 | Olympiad | 100 | Competition-style scientific reasoning, usually with a definite short answer | Equivalence of numbers, expressions, or names |
 | Research | 60 | Open-ended subtasks that may arise during PhD research | A task-specific 10-point rubric |
 
-The public Research set contains 20 questions each in physics, chemistry, and biology. Authors include doctoral candidates, postdoctoral researchers, and professors. Problems must supply the background, variables, and assumptions required for reasoning. This already bounds the evaluation: models mainly solve given problems rather than choose research directions themselves.
+The public Research set contains 20 questions each in physics, chemistry, and biology. Authors include doctoral candidates, postdoctoral researchers, and professors. Problems must supply the background, variables, and assumptions required for reasoning. This already bounds the evaluation: [models mainly solve given problems rather than choose research directions themselves](#reading-note-task-scope).
 
 ### Step 2: check question quality through independent review
 
