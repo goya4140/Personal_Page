@@ -1,5 +1,30 @@
 [
   {
+    "slug": "autoscirub",
+    "title_zh": "AutoSciRub：先明确证据要求，再推进自主科研",
+    "title_en": "AutoSciRub: specify evidence before improving research",
+    "summary_zh": "沿目标骨架、文献与数据依据、准则合成和定向修订流程，解读跨系统收益，以及内部核验、可评分提交与完整科研成功的区别。",
+    "summary_en": "From goal skeletons and evidence grounding to targeted revision: cross-system gains and the distinctions between internal verification, scorable submissions, and complete research success.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "Learning to Evaluate Before Improving: Automatic Rubric Induction for Automatic Research Agents",
+      "url": "https://arxiv.org/abs/2608.31076v1",
+      "venue": "arXiv · 2026 / v1 · 2026-08-31 · Work in progress"
+    },
+    "cover": "assets/img/blog/autoscirub/overview.png"
+  },
+  {
     "slug": "exp-bench",
     "title_zh": "EXP-Bench：AI 能把研究实验完整做对吗？",
     "title_en": "EXP-Bench: can AI complete a research experiment correctly?",

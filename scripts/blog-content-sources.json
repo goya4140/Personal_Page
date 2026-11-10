@@ -1,5 +1,22 @@
 [
   {
+    "slug": "autoscirub",
+    "source": "https://arxiv.org/abs/2608.31076v1",
+    "source_pdf": "https://arxiv.org/pdf/2608.31076v1",
+    "source_pdf_sha256": "5b395ea3888d07cd59f725138451ed5d7c6ee42cc9912f14bf48aa0c82629dfc",
+    "source_archive_sha256": "29922694439a8c9ceaace2dc3916cb20f432e5565eccdad4f16b580cc0a09846",
+    "figure_manifest": "assets/img/blog/autoscirub/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 2, 3, 4a, 5 and 6a; main ResearchClawBench and sampled AstaBench results before cumulative ablation, rubric-quality and revision analysis; single research execution versus three judge scores, unmatched compute/workspaces, same-agent verifier, overall_pass semantics, carried-forward checkpoints, scorable submission counts versus full scientific success distinguished.",
+    "related_sources": [
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://arxiv.org/abs/2606.07591v5",
+      "https://arxiv.org/abs/2510.21652v2",
+      "https://arxiv.org/abs/2303.17651v2",
+      "https://github.com/zjunlp/AutoSciRub"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
     "slug": "exp-bench",
     "source": "https://arxiv.org/abs/2505.24785v2",
     "source_pdf": "https://arxiv.org/pdf/2505.24785v2",
