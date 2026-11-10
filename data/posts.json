@@ -1,5 +1,30 @@
 [
   {
+    "slug": "paperbench",
+    "title_zh": "PaperBench：AI 能把一篇论文真正复现出来吗？",
+    "title_en": "PaperBench: can AI truly replicate a research paper?",
+    "summary_zh": "从代码实现、独立执行到结果匹配，理解论文复现的层级评分，以及科研智能体持续推进实验的瓶颈。",
+    "summary_en": "From implementation and independent execution to matching results: hierarchical replication scores and the limits of sustained experimental progress.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "PaperBench: Evaluating AI’s Ability to Replicate AI Research",
+      "url": "https://arxiv.org/abs/2504.01848",
+      "venue": "2025"
+    },
+    "cover": "assets/img/blog/paperbench/overview.png"
+  },
+  {
     "slug": "frontierscience",
     "title_zh": "FrontierScience：从科学解题到研究子问题评测",
     "title_en": "FrontierScience: from science problem solving to research subtasks",
@@ -289,30 +314,6 @@
     "paper": {
       "title": "Self-Refine: Iterative Refinement with Self-Feedback",
       "url": "https://arxiv.org/abs/2303.17651"
-    }
-  },
-  {
-    "slug": "paperbench",
-    "title_zh": "PaperBench：怎样评价一次论文复现",
-    "title_en": "PaperBench: evaluating research replication",
-    "summary_zh": "将长时程复现拆为可评分的层级子任务，理解 rubric、产物证据与自动 judge 的关系。",
-    "summary_en": "How hierarchical rubrics connect research-replication artifacts to scalable assessment.",
-    "tags_zh": [
-      "科研智能体",
-      "评价与奖励",
-      "Rubric"
-    ],
-    "tags_en": [
-      "Research agents",
-      "Evaluation",
-      "Rubrics"
-    ],
-    "kind": "reading",
-    "date": null,
-    "paper": {
-      "title": "PaperBench: Evaluating AI’s Ability to Replicate AI Research",
-      "url": "https://arxiv.org/abs/2504.01848",
-      "venue": "2025"
     }
   }
 ]
