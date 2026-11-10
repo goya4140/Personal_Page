@@ -57,6 +57,10 @@
     "paperbench": {
       "source_sha256": "689c0c79524b36ccecc8ff53fd780667beb0ee0b3f4feb6554580b4c885932d5",
       "english_sha256": "b309dc48741c0537ab062f9e7af150793fda82ac33fde0a0ced4e89c0d3b833a"
+    },
+    "autosota": {
+      "source_sha256": "b5c9843bed766868af810ca753f85156c50f040f8b1466ee89a1e0e0485ca09f",
+      "english_sha256": "e3e357762106083a28391beb0ac53669a5bff5f433e790b63fac0dad913497b6"
     }
   }
 }

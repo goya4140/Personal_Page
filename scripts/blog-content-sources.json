@@ -1,0 +1,16 @@
+[
+  {
+    "slug": "autosota",
+    "source": "https://arxiv.org/abs/2604.05550v2",
+    "source_pdf": "https://arxiv.org/pdf/2604.05550v2",
+    "source_pdf_sha256": "9b36a77e45f5df117a9de4a74c03ceadd48ffc1c2df9c41efc1884d00581657a",
+    "figure_manifest": "assets/img/blog/autosota/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 2, 6, 8a and 8b; main experiment and selection denominators before outcome classification and case studies; distinguish measured versus reported baselines, SEM, invalid optimization wording, retrospective classes and inference cost.",
+    "related_sources": [
+      "https://arxiv.org/abs/2506.13131",
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://arxiv.org/abs/2504.08066"
+    ],
+    "imported_on": "2026-11-10"
+  }
+]

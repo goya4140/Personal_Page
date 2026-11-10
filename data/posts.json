@@ -1,5 +1,30 @@
 [
   {
+    "slug": "autosota",
+    "title_zh": "AutoSOTA：从论文复现到有效的方法改进",
+    "title_en": "AutoSOTA: from paper replication to valid method improvements",
+    "summary_zh": "沿资源恢复、实验执行与反思优化流程，解读八个 Agent 的分工、105/125 的结果，以及有效性监督和计算成本的边界。",
+    "summary_en": "An illustrated reading of resource recovery, execution, and iterative optimization, examining eight agents, the 105/125 result, validity supervision, and compute costs.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "AutoSOTA: An End-to-End Automated Research System for State-of-the-Art AI Model Discovery",
+      "url": "https://arxiv.org/abs/2604.05550v2",
+      "venue": "arXiv · 2026 / v2 · 2026-05-25"
+    },
+    "cover": "assets/img/blog/autosota/overview.png"
+  },
+  {
     "slug": "paperbench",
     "title_zh": "PaperBench：AI 能把一篇论文真正复现出来吗？",
     "title_en": "PaperBench: can AI truly replicate a research paper?",
