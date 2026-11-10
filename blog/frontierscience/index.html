@@ -1,0 +1,167 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FrontierScience：从科学解题到研究子问题评测 | Linhao Wang</title>
+  <meta name="description" content="从专家出题、独立复审到 10 分制 rubric，理解竞赛成绩与研究题表现的差异，以及评测分数能说明什么。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="FrontierScience：从科学解题到研究子问题评测">
+  <meta property="og:description" content="从专家出题、独立复审到 10 分制 rubric，理解竞赛成绩与研究题表现的差异，以及评测分数能说明什么。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/frontierscience/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="FrontierScience：从科学解题到研究子问题评测" data-title-en="FrontierScience: from science problem solving to research subtasks" data-language-url="../../en/blog/frontierscience/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 8 分钟</span><span>中文原稿</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>FrontierScience：从科学解题到研究子问题评测</h1><p class="article-summary">从专家出题、独立复审到 10 分制 rubric，理解竞赛成绩与研究题表现的差异，以及评测分数能说明什么。</p><div class="post-topics"><span>AI for Science</span><span>科研能力评测</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/frontierscience/main-results.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/frontierscience/main-results.png" alt="FrontierScience：从科学解题到研究子问题评测" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2601.21165v1" target="_blank" rel="noopener noreferrer">FrontierScience: Evaluating AI&#39;s Ability to Perform Expert-Level Scientific Tasks ↗</a><small>arXiv · 2026 / v1 · 2026-01-29</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：科学能力应该怎样评价</a></li><li><a href="#section-2">二、相关文献解读：此前在测量什么</a></li><li><a href="#section-3">三、研究问题解读：论文希望回答什么</a></li><li><a href="#section-4">四、方法解读：从专家出题到自动评分</a></li><li><a href="#section-8">五、实验设计与结果：先看整体表现，再看推理投入</a></li><li><a href="#section-11">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>AI 能解答越来越难的科学题，但这能说明它适合承担哪些研究工作？FrontierScience 将竞赛式解题与开放的研究子问题放在两条轨道上评价。沿着专家出题、复审、评分和模型比较，我们可以看清这套评测提供了什么证据，以及它尚未覆盖什么。</p>
+<p>本文依据 <a href="https://arxiv.org/abs/2601.21165v1" target="_blank" rel="noopener noreferrer">2026 年 1 月 29 日的 arXiv v1</a>。下文模型名称和成绩均指论文当时的实验设置。</p>
+<h2 id="section-1">一、课题解读：科学能力应该怎样评价</h2>
+<p>假设我们想研究一种材料，可能需要完成不同层次的工作：根据条件计算物理量，解释实验现象，提出值得研究的问题，再设计实验并根据反馈调整方向。</p>
+<p>这些工作需要分别评价。回答知识题可以提供局部证据；判断 AI 能否支持研究，还要检查它能否组织多步推理、满足约束，并给出充分论证。</p>
+<p><strong>这个领域的核心问题是：一个评测分数，究竟对应科研过程中的哪一种能力？</strong> 题目是否足够难是一方面，成绩能否帮助我们判断实际研究表现，是另一项需要验证的关系。</p>
+<h2 id="section-2">二、相关文献解读：此前在测量什么</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要评价对象</th>
+<th>留下的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2311.12022" target="_blank" rel="noopener noreferrer">GPQA</a></td>
+<td>专家编写的高难度科学选择题</td>
+<td>选对答案能在多大程度上反映独立推导能力？</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2402.14008" target="_blank" rel="noopener noreferrer">OlympiadBench</a></td>
+<td>数学、物理等竞赛级问题，包含开放答案</td>
+<td>已公开题目可能带来污染；竞赛题也未覆盖研究中的开放判断</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>理解论文、实现代码并执行复现实验</td>
+<td>完整复现同时涉及推理、工程与执行，需要进一步定位各部分能力</td>
+</tr>
+</tbody>
+</table></div><p>FrontierScience 选择了一个中间层次：保留答案较明确的科学题，同时加入需要多步解释、论证与判断的研究子问题。它希望让科学推理评测更难、更原创，并提供更细的诊断信息。</p>
+<h2 id="section-3">三、研究问题解读：论文希望回答什么</h2>
+<p>我们将论文目标归纳为三个阅读问题，后面的方法和实验围绕它们展开。这是本文的整理，并非作者逐字列出的研究问题。</p>
+<ol>
+<li><strong>怎样构造足够难、原创且可核验的科学题？</strong> 需要同时检查难度、条件完整性与答案正确性。</li>
+<li><strong>开放式研究回答怎样评分？</strong> 需要识别推理和解释中的具体缺失，而不只判断最终答案。</li>
+<li><strong>当前模型的能力差异在哪里？</strong> 需要比较两类任务的整体表现，再检查增加推理投入能改善多少。</li>
+</ol>
+<h2 id="section-4">四、方法解读：从专家出题到自动评分</h2>
+<h3 id="section-5">第一步：把能力拆成两条评测轨道</h3>
+<p>公开的 gold 集共有 160 题，分为 Olympiad 和 Research。更大的原始题池并未全部公开，作者保留部分题目以追踪公开集的潜在污染。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>轨道</th>
+<th style="text-align:right">公开题数</th>
+<th>任务形式</th>
+<th>评分依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Olympiad</td>
+<td style="text-align:right">100</td>
+<td>竞赛式科学推理，通常有明确短答案</td>
+<td>数值、表达式或名称是否等价</td>
+</tr>
+<tr>
+<td>Research</td>
+<td style="text-align:right">60</td>
+<td>博士研究过程中可能遇到的开放子问题</td>
+<td>每题专门设计的 10 分制评分细则</td>
+</tr>
+</tbody>
+</table></div><p>Research 的公开题集覆盖物理、化学和生物，各 20 题。出题者包括博士生、博士后和教授，题目要求提供完成推理所需的背景、变量与假设。这里已经划定了评价范围：模型主要解决给定问题，而不是自行决定研究方向。</p>
+<h3 id="section-6">第二步：用独立复审检查题目质量</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/frontierscience/task-pipeline.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/frontierscience/task-pipeline.png" alt="FrontierScience 题目构建流程：出题、审核、讨论分歧与修订" loading="lazy" decoding="async"></a><figcaption>图 1 · 题目构建流程。专家编写题目后，由独立专家检查事实、可核验性、客观性与难度；出现分歧时讨论，再修订定稿。来源：原论文 Figure 3，PDF 第 4 页。第三个框在图中仍标为 REVIEW，正文及图注将该阶段称为 Resolution。仅裁去页面外围内容，未改绘；点击查看大图。</figcaption></figure>
+<p>审核不仅要看题目难不难，还要检查条件是否充分、答案是否正确、问题是否原创。Research 至少经过两次独立审核，之后还有整体复审。无法解决的分歧可以导致题目被丢弃。</p>
+<p>这里值得学习的是：<strong>难题也需要质量控制。</strong> 缺少条件或存在歧义，同样可能让模型失败，却不能据此判断其推理能力不足。</p>
+<h3 id="section-7">第三步：把开放回答拆成可检查的评分项</h3>
+<p>Research 每题配有总分 10 分的 rubric。它把回答拆成若干具体要求，并可设置部分分。例如，原文的化学样例分别检查合成方法的限制、电子结构、谱学表现及反应性解释，使“提到了概念”与“建立了正确联系”获得不同评价。</p>
+<p>两条轨道都使用 GPT-5 high 作为模型评分器：Olympiad 比较回答与参考答案是否等价；Research 则按 rubric 累加分数，<strong>达到 7/10 分记为通过</strong>。评分器能扩大评测规模，但评分规则和评分器自身的可靠性也需要检查。<a href="https://arxiv.org/html/2601.21165v1#S2.SS3" target="_blank" rel="noopener noreferrer">评分方法与提示词见原文第 2.3 节及附录 B</a>。</p>
+<h2 id="section-8">五、实验设计与结果：先看整体表现，再看推理投入</h2>
+<h3 id="section-9">主实验：模型在两条轨道上的整体表现</h3>
+<p>作者比较多种前沿模型。Olympiad 成绩平均自 20 次独立试验，Research 平均自 30 次；Research 的指标是回答获得至少 7 分的比例，而不是平均 rubric 分数。这些成绩也不是多次作答后挑选最好答案的结果。</p>
+<p>评测不使用浏览。GPT-5.2 使用 xhigh 推理投入，其他推理模型使用 high，因此跨模型比较并没有完全统一计算条件。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/frontierscience/main-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/frontierscience/main-results.png" alt="FrontierScience 主实验：不同模型在 Olympiad 和 Research 上的整体成绩" loading="lazy" decoding="async"></a><figcaption>图 2 · 主实验。左侧为 Olympiad 准确率，右侧为 Research 通过率；后者以至少 7/10 分计通过。两侧分别平均自 20 次和 30 次独立试验。来源：原论文 Figure 6，PDF 第 7 页；保留原图数值与误差线，仅裁去页面外围内容。点击查看大图。</figcaption></figure>
+<p>下表摘录 Figure 6 中的四组结果，保留一位小数。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>模型</th>
+<th style="text-align:right">Olympiad 准确率</th>
+<th style="text-align:right">Research 通过率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.2</td>
+<td style="text-align:right"><strong>77.1%</strong></td>
+<td style="text-align:right"><strong>25.2%</strong></td>
+</tr>
+<tr>
+<td>Gemini 3 Pro</td>
+<td style="text-align:right">76.1%</td>
+<td style="text-align:right">12.4%</td>
+</tr>
+<tr>
+<td>Claude Opus 4.5</td>
+<td style="text-align:right">71.4%</td>
+<td style="text-align:right">17.5%</td>
+</tr>
+<tr>
+<td>GPT-5</td>
+<td style="text-align:right">69.7%</td>
+<td style="text-align:right"><strong>25.2%</strong></td>
+</tr>
+</tbody>
+</table></div><p>最有信息量的是排名变化：Gemini 3 Pro 的竞赛成绩接近 GPT-5.2，但研究题表现并不接近；GPT-5 则在 Research 上与 GPT-5.2 并列。这支持我们分别检查两类能力，而不只用一项科学题总分判断模型是否适合研究工作。</p>
+<p>同时，两条轨道使用不同任务和判分方式，分数差不能直接解释为某种能力损失。这组实验展示了模型差异和评测尚未饱和，但<strong>还没有证明这些分数能够准确预测真实科研产出</strong>。</p>
+<h3 id="section-10">补充分析：增加推理投入能改善多少</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/frontierscience/reasoning-effort.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/frontierscience/reasoning-effort.png" alt="GPT-5.2 与 o3 在不同推理投入下的 Olympiad 和 Research 成绩" loading="lazy" decoding="async"></a><figcaption>图 3 · 推理投入比较。比较同一模型的 low、medium、high，以及 GPT-5.2 的 xhigh 设置。GPT-5.2 在两条轨道上均提高；o3 的 Research 曲线没有完全单调上升。来源：原论文 Figure 8，PDF 第 8 页；仅裁去页面外围内容，未改绘。点击查看大图。</figcaption></figure>
+<p>原图中，GPT-5.2 从 low 增加到 xhigh 后的变化如下：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>轨道</th>
+<th style="text-align:right">Low</th>
+<th style="text-align:right">Xhigh</th>
+<th style="text-align:right">变化（百分点）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Olympiad</td>
+<td style="text-align:right">67.5%</td>
+<td style="text-align:right">77.1%</td>
+<td style="text-align:right">+9.6</td>
+</tr>
+<tr>
+<td>Research</td>
+<td style="text-align:right">18.2%</td>
+<td style="text-align:right">25.2%</td>
+<td style="text-align:right">+7.0</td>
+</tr>
+</tbody>
+</table></div><p>更多推理在这些设置下有帮助，但 Research 仍留下较大空间。o3 的结果也提醒我们，收益需要逐模型、逐任务检查；图中小幅回落本身不足以证明更高投入必然有害。</p>
+<p>论文主要提供模型比较与推理投入比较，没有通过组件消融单独量化专家复审或某种 rubric 设计对评测质量的贡献。对于这套评测本身的有效性，还需要额外验证。</p>
+<h2 id="section-11">六、我们自己的思考</h2>
+<h3 id="section-12">课题思考：这个领域在研究什么</h3>
+<p>我们认为，这个领域在建立两种联系：一是把抽象的科学能力拆成可观察的任务；二是确认这些任务成绩是否对应真实研究表现。FrontierScience 对第一种联系给出了有用设计，第二种联系仍需要与项目和实验结果对照。</p>
+<h3 id="section-13">局限问题思考：目前还存在哪些问题</h3>
+<ul>
+<li><strong>评价范围仍有限。</strong> 给定问题的求解，与发现有价值的问题之间仍有距离；文本回答也未覆盖实验操作、多模态观察与持续研究决策。</li>
+<li><strong>评分标准仍需独立验证。</strong> 附录要求评分器严格服从 rubric；规则若遗漏合理路径，回答可能被不恰当地扣分。论文也没有建立这套题集的人类表现基线。</li>
+<li><strong>分数受到构建与资源设置影响。</strong> 出题过程中会修改或丢弃内部模型容易解决的题目。加上推理投入差异，成绩不能直接当作日常科研成功概率，排名也需要保留这些条件。</li>
+</ul>
+<h3 id="section-14">解决方案思考：这些问题有哪些解决方向</h3>
+<p>以下是我们认为值得尝试的方向，分别对应上述局限。</p>
+<ul>
+<li><strong>把题目成绩连接到完整项目。</strong> 检查高分模型是否也更能完成实验、复现结果，或提高候选方案质量，验证分数对实际工作是否有预测作用。</li>
+<li><strong>独立评价 rubric。</strong> 让专家盲评回答，加入不同但正确的解法以及看似合理的错误解法，测量误判与漏判，并建立专业匹配的人类基线。</li>
+<li><strong>控制筛题和推理预算。</strong> 在相近成本下比较模型，使用独立于被测模型的出题流程，并报告不同学科、评分阈值和重复运行下的变化。</li>
+</ul>
+<p>这些是后续研究设想。我们最想继续追问的是：一套评测除了制造难题，能否帮助判断模型适合承担科研中的哪一步。</p>
+<p><em>本文基于 <a href="https://arxiv.org/abs/2601.21165v1" target="_blank" rel="noopener noreferrer">FrontierScience arXiv v1</a>。插图归 Miles Wang 等原作者所有，按 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 引用；图表仅裁去页面外围内容，未改绘或更改数据。表格按原文图示摘录；解释与后续研究方向为本文分析。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：科学能力应该怎样评价</a></li><li><a href="#section-2">二、相关文献解读：此前在测量什么</a></li><li><a href="#section-3">三、研究问题解读：论文希望回答什么</a></li><li><a href="#section-4">四、方法解读：从专家出题到自动评分</a></li><li><a href="#section-8">五、实验设计与结果：先看整体表现，再看推理投入</a></li><li><a href="#section-11">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../scientific-discovery-evaluation/"><span>论文阅读</span><strong>SDE：答对科学题，能否做好科学研究</strong><i aria-hidden="true">↗</i></a><a href="../scientistone/"><span>论文阅读</span><strong>ScientistOne：用证据链连接论文、代码与实验</strong><i aria-hidden="true">↗</i></a><a href="../scientisttwo/"><span>论文阅读</span><strong>ScientistTwo：从研究想法到实验反馈</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "frontierscience": {
+      "source_sha256": "7f4db93838e558f18d5e137df3c73ad46724c0cc4e3e8fba9eeb917b87049142",
+      "english_sha256": "865cea566e5c1dee460f9f4514605b414db985cce3493c60f996c19437f6be63"
+    },
     "scientistone": {
       "source_sha256": "a58d2814754cca9541c0997774a0c0bce51028622683127b8f99cb69b3965e44",
       "english_sha256": "fd94a9e34f2af5f15d9ea09ff9633d9f0adac8e07f48ca2f62bb3f3d4099cbcb"

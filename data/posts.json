@@ -1,5 +1,30 @@
 [
   {
+    "slug": "frontierscience",
+    "title_zh": "FrontierScience：从科学解题到研究子问题评测",
+    "title_en": "FrontierScience: from science problem solving to research subtasks",
+    "summary_zh": "从专家出题、独立复审到 10 分制 rubric，理解竞赛成绩与研究题表现的差异，以及评测分数能说明什么。",
+    "summary_en": "An illustrated reading of expert task construction, independent review, rubric grading, and the gap between competition scores and research-subtask performance.",
+    "tags_zh": [
+      "AI for Science",
+      "科研能力评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Scientific capability evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "FrontierScience: Evaluating AI's Ability to Perform Expert-Level Scientific Tasks",
+      "url": "https://arxiv.org/abs/2601.21165v1",
+      "venue": "arXiv · 2026 / v1 · 2026-01-29"
+    },
+    "cover": "assets/img/blog/frontierscience/main-results.png"
+  },
+  {
     "slug": "scientistone",
     "title_zh": "ScientistOne：用证据链连接论文、代码与实验",
     "title_en": "ScientistOne: linking papers, code, and experiments through evidence",
