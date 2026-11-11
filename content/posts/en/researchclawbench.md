@@ -52,11 +52,9 @@ Systems receive [task descriptions, related literature, and data](#reading-note-
 
 ### Step 2: Conduct Research with Tools and Submit Artifacts
 
-Existing research or coding agents use their own frameworks. The authors also provide **ResearchHarness**, a lightweight ReAct loop for models to inspect observations, call tools, execute analyses, and iterate.
+Existing research and coding agents use their own frameworks. The paper also runs 17 base models in a common tool environment, **ResearchHarness**. Its single-agent ReAct loop works as follows: **the model chooses an action → the harness runs the tool → results or errors return to the model → the model continues the analysis or submits its work**. Tools cover web and scholarly search, PDF and image inspection, file editing, shell commands, and persistent terminals for longer jobs. Earlier interactions can be compacted into a summary, while code, data, and figures remain available in the workspace. [Section 3.3 and Table 4](https://arxiv.org/html/2606.07591v5#S3.SS3) · [Runtime loop](https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/agent_base/react_agent.py#L1329-L1425)
 
-It includes web and scholarly search, text/PDF/image inspection, file editing, shell execution, persistent terminals, and context compaction. ResearchHarness scores therefore include the assistance of a tool environment; they are not measurements of isolated single-response model ability.
-
-Expected deliverables include analysis code, intermediate results, figures, and a final report. The paper acknowledges that evaluation currently concentrates on the final report rather than a comprehensive audit of individual research steps. [Section 3.3](https://arxiv.org/html/2606.07591v5#S3.SS3).
+The public ResearchClawBench adapter disables user questions and checks for `report/report.md` when the model tries to finish with a plain-text response. The model delivers its analysis through the report and associated artifacts. **Report presence is a submission condition. Scientific quality is judged afterward against the hidden expert rubric.** The paper focuses on reports and images, with detailed research steps still awaiting a comprehensive audit. [Public adapter](https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/benchmarks/ResearchClawBench/adapter.py#L10-L81) · [Section 3.4](https://arxiv.org/html/2606.07591v5#S3.SS4)
 
 ### Step 3: Decompose the Reference into Weighted Scientific Requirements
 
@@ -126,13 +124,15 @@ The direct finding is that **mean outputs remain substantially below the referen
 
 Overall ranking hides task variation. Claude Code leads on only 12 of 40 tasks. In the model group, different models lead different domains: Claude-Opus-4.6 leads astronomy, Earth science, energy, and mathematics; GLM-5.1 leads chemistry; Qwen3.7-Max leads physics. [Sections 4.1–4.2 and Table 5](https://arxiv.org/html/2606.07591v5#S4).
 
-Framework comparisons must retain model differences. Claude Code uses Claude-Opus-4.6, while most other agents use GPT-5.4. Their gaps combine model and framework effects. Although the paper describes a unified protocol, it does not fully specify per-system hardware, token limits, and execution budgets needed for a strict equal-cost framework ranking.
+**ResearchHarness results.** The paper uses the same suite of 40 tasks and has GPT-5.1 judge reports against expert-authored rubrics after each run. **Claude-Opus-4.7 leads the ResearchHarness group with 20.7 points.** Selecting the best observed result in that group for each task after evaluation yields a mean of **26.5 points**, below the **50-point** anchor for reference-paper-level evidence. The first figure is a single configuration's mean. The second pools the best result across configurations for each task. [Sections 4.1–4.2 and Table 5](https://arxiv.org/html/2606.07591v5#S4)
+
+**Comparison with the same base model.** Claude-Opus-4.6 scores **19.9** in ResearchHarness and **21.5** in Claude Code, a gap of **1.6 points** between the tested configurations. Estimating the effect of the harness itself would require matching tools and budgets with the base model held fixed, or ablating individual ResearchHarness components. [Table 5](https://arxiv.org/html/2606.07591v5#S4)
 
 ### Supporting Analysis 1: Per-Task Frontiers and Report Quality
 
 The **frontier mean** selects the highest observed system score for each task after evaluation, then averages those scores. It is a composite upper envelope of observed results. No deployed selector is shown to predict those winners, and it is not a single system's repeated-run average.
 
-The v5 introduction reports an agent frontier mean of **24.6**, while Section 4.2 reports **25.8**. Recomputing Appendix Table 8 gives approximately **24.56** without the added EvoScientist v0.1.1 configuration and **25.84** with all eight configurations, matching the two rounded values. The model frontier mean is reported as **26.5**. These values require explicit configuration scope.
+The v5 introduction reports an agent frontier mean of **24.6**, while Section 4.2 reports **25.8**. Recomputing Appendix Table 8 gives approximately **24.56** without the added EvoScientist v0.1.1 configuration and **25.84** with all eight configurations, matching the two rounded values. The two agent figures use different sets of configurations.
 
 Report presentation and scientific evidence also need separate evaluation. Table 6 adds comprehensiveness, depth, instruction following, and professionalism. Three examples are extracted here:
 
