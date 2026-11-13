@@ -52,7 +52,7 @@ The **Researcher Agent, RA**, uses literature alongside an **Ideation Memory** c
 
 It performs a propose–review–refine tree search. Each node stores an idea and review feedback, which informs subsequent refinements.
 
-The implementation searches up to **21 candidate ideas** and retrieves the **two most relevant ideation-memory items**. Its final proposal is therefore the product of exploration and selection. [Sections 3.3 and 4.5](https://arxiv.org/html/2603.08127v2#S3.SS3).
+The experiments use Semantic Scholar for literature search and Gemini-2.5-Pro for idea generation. Ideation memories are embedded with `mxbai-embed-large`, and the **two** closest items to the research goal are retrieved by cosine similarity. The idea tree explores up to **21 candidates** with **three parallel workers**. [Idea retrieval and search](https://arxiv.org/html/2603.08127v2#S3.SS3) · [Experimental configuration](https://arxiv.org/html/2603.08127v2#S4.SS5)
 
 ### Step 2: Select and Expand a Proposal
 
@@ -77,7 +77,7 @@ EA retrieves the most relevant item from an **Experimentation Memory** storing d
 
 Each stage searches, executes, and revises code while retaining logs, status, and metrics. The best-performing implementation carries the process forward.
 
-Maximum attempt budgets are **20, 12, 12, and 18**. EA retrieves **one experimentation-memory item**. These budgets matter when interpreting performance: the system benefits from multiple searches and repair attempts. [Sections 3.4 and 4.5](https://arxiv.org/html/2603.08127v2#S3.SS4).
+EA uses Claude-4.5-Haiku for code generation, with **four parallel workers** and attempt limits of **20, 12, 12, and 18** across the stages. The query also changes with the stage. RA retrieves ideation memories using the user’s research goal, while EA uses the full proposal to retrieve the **single** closest experimentation-memory item. [Experiment search](https://arxiv.org/html/2603.08127v2#S3.SS4) · [Experimental configuration](https://arxiv.org/html/2603.08127v2#S4.SS5)
 
 ### Step 4: Distill Three Types of Reusable Experience
 
@@ -95,7 +95,7 @@ This connects execution back to ideation, but requires careful interpretation. *
 
 The appendix prompts request evidence, trigger conditions, and countermeasures. They also group validated and inconclusive outcomes under `NOT_FAILED`, so that label alone does not establish validation. [Section 3.5 and Appendix D](https://arxiv.org/html/2603.08127v2#S3.SS5).
 
-The described evolution operates through **external memory updates and retrieval-augmented prompts**. The paper does not describe training the foundation-model weights or automatically redesigning the complete agent architecture.
+Consider an illustrative low-resource classification proposal. If it ranks highly but the execution report shows that training could not run within budget, IDE can retain the hypothesis for further testing, while IVE can record the conditions of the failed attempt. If the search already produced usable preprocessing code, ESE can still extract that engineering strategy. On the next task, RA and EA retrieve entries relevant to the new goal or proposal and add them to their prompts. The paper’s “evolution” takes place in this external memory across tasks. [Memory flow](https://arxiv.org/html/2603.08127v2#S3.SS2) · [Three update mechanisms](https://arxiv.org/html/2603.08127v2#S3.SS5)
 
 ## 5. Experimental Design and Results: Where Do the Benefits Appear?
 
@@ -125,7 +125,7 @@ The human results below report **EvoScientist's win/tie/lose percentages**:
 
 Across these comparisons, the average human novelty win rate is **82.50%**, and feasibility win rate is **64.17%**. Automated evaluation also reports positive aggregate advantages against all seven baselines. [Section 5.1, Tables 1–2](https://arxiv.org/html/2603.08127v2#S5.SS1).
 
-These findings support **stronger evaluator preference for the generated proposals under the tested goals and criteria**.
+Appendix C.3 reports that the model judge and human evaluators agreed on the overall outcome for **108 of 120** idea pairs. For feasibility specifically, they agreed on **83.3% (100 of 120)**. These figures describe agreement between judges. Actual runs are needed to check the design and resource assumptions behind a feasibility judgment. [Judge agreement analysis](https://arxiv.org/html/2603.08127v2#A3.SS3)
 
 The advantages are uneven: against AI Scientist-v2, feasibility wins are 50.00% versus 33.33% losses, and relevance ties reach 50.00%. Commercial comparisons also show many relevance ties. Better proposal judgments do not establish that the proposed methods are generally more effective after execution.
 

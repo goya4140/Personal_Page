@@ -75,15 +75,18 @@
     "source_pdf": "https://arxiv.org/pdf/2603.08127v2",
     "source_pdf_sha256": "4f3bb021aad6510861ab7a65cb9db1a2e16bcd50295695bb60d28293306568d3",
     "figure_manifest": "assets/img/blog/evoscientist/sources.json",
-    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1 and 2; human Table 2 and ablation Table 3; distinguish proposal preference, stage-averaged execution success and selected submission outcomes; retain candidate and execution budgets, inference boundaries, and future evaluation proposals.",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1 and 2; human Table 2 and ablation Table 3; distinguish proposal preference, stage-averaged execution success and selected submission outcomes; retain candidate and execution budgets, inference boundaries, and future evaluation proposals. Expanded model and search settings, an explicitly illustrative cross-task memory example, and the Appendix C.3 judge-agreement figures.",
     "related_sources": [
       "https://arxiv.org/abs/2504.08066",
       "https://arxiv.org/abs/2502.18864",
       "https://arxiv.org/abs/2303.11366",
       "https://arxiv.org/abs/2409.07429",
-      "https://airaxiv.com/papers/view/2510.0018/"
+      "https://airaxiv.com/papers/view/2510.0018/",
+      "https://arxiv.org/html/2603.08127v2#S4.SS5",
+      "https://arxiv.org/html/2603.08127v2#A3.SS3"
     ],
-    "imported_on": "2026-11-10"
+    "imported_on": "2026-11-10",
+    "updated_on": "2026-11-13"
   },
   {
     "slug": "autosota",
