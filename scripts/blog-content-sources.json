@@ -1,5 +1,20 @@
 [
   {
+    "slug": "autoscientists",
+    "source": "https://arxiv.org/abs/2605.28655v2",
+    "source_pdf": "https://arxiv.org/pdf/2605.28655v2",
+    "source_pdf_sha256": "a7acbb210898b7e85fdd6365066f06e2e08ce6aef8385bd8e3b0d7b54bbcc1a7",
+    "figure_manifest": "assets/img/blog/autoscientists/sources.json",
+    "scope": "Bilingual six-section reading with original Figures 1 and 3, BioML-Bench and GPT matched experimental resources, matched trial counts versus measured wall-clock, aggregate ProteinGym results, and reorganization controls.",
+    "related_sources": [
+      "https://github.com/karpathy/autoresearch",
+      "https://arxiv.org/abs/2502.18864",
+      "https://arxiv.org/abs/2603.08127v2",
+      "https://arxiv.org/html/2605.28655v2#A2.SS1"
+    ],
+    "imported_on": "2026-11-14"
+  },
+  {
     "slug": "autoscirub",
     "source": "https://arxiv.org/abs/2608.31076v1",
     "source_pdf": "https://arxiv.org/pdf/2608.31076v1",

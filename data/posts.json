@@ -1,5 +1,30 @@
 [
   {
+    "slug": "autoscientists",
+    "title_zh": "AutoScientists：科研智能体怎样组队，决定下一次实验",
+    "title_en": "AutoScientists: how research agents form teams and choose the next experiment",
+    "summary_zh": "从共享实验日志、提案互评和停滞后改组，理解自组织团队在相同实验资源下如何搜索，以及试验次数与实际耗时的区别。",
+    "summary_en": "Shared logs, proposal critique, and team reorganization during experimental search, with a comparison of trial counts, wall-clock time, and budgets.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-14",
+    "paper": {
+      "title": "AutoScientists: Self-Organizing Agent Teams for Long-Running Scientific Experimentation",
+      "url": "https://arxiv.org/abs/2605.28655v2",
+      "venue": "arXiv · 2026 / v2 · 2026-11-10"
+    },
+    "cover": "assets/img/blog/autoscientists/overview.png"
+  },
+  {
     "slug": "autoscirub",
     "title_zh": "AutoSciRub：先明确证据要求，再推进自主科研",
     "title_en": "AutoSciRub: specify evidence before improving research",

@@ -1,0 +1,109 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoScientists：科研智能体怎样组队，决定下一次实验 | Linhao Wang</title>
+  <meta name="description" content="从共享实验日志、提案互评和停滞后改组，理解自组织团队在相同实验资源下如何搜索，以及试验次数与实际耗时的区别。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AutoScientists：科研智能体怎样组队，决定下一次实验">
+  <meta property="og:description" content="从共享实验日志、提案互评和停滞后改组，理解自组织团队在相同实验资源下如何搜索，以及试验次数与实际耗时的区别。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/autoscientists/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AutoScientists：科研智能体怎样组队，决定下一次实验" data-title-en="AutoScientists: how research agents form teams and choose the next experiment" data-language-url="../../en/blog/autoscientists/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 8 分钟</span><span>中文原稿</span><time datetime="2026-11-14">2026-11-14</time></div><div class="article-heading-layout has-art"><div><h1>AutoScientists：科研智能体怎样组队，决定下一次实验</h1><p class="article-summary">从共享实验日志、提案互评和停滞后改组，理解自组织团队在相同实验资源下如何搜索，以及试验次数与实际耗时的区别。</p><div class="post-topics"><span>AI for Science</span><span>科研智能体</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/autoscientists/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/autoscientists/overview.png" alt="AutoScientists：科研智能体怎样组队，决定下一次实验" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2605.28655v2" target="_blank" rel="noopener noreferrer">AutoScientists: Self-Organizing Agent Teams for Long-Running Scientific Experimentation ↗</a><small>arXiv · 2026 / v2 · 2026-11-10</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：长程实验怎样分配下一次尝试</a></li><li><a href="#section-2">二、相关文献解读：从单线搜索到团队协调</a></li><li><a href="#section-3">三、研究问题解读：组织方式能改善哪些结果</a></li><li><a href="#section-4">四、方法解读：智能体如何围绕实验结果重新组队</a></li><li><a href="#section-5">五、实验设计与结果：相同实验预算能推进多少</a></li><li><a href="#section-10">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>如果九个科研 Agent 共享一组算力，它们应该各自尝试，还是先交流再决定跑什么？AutoScientists 把这道题变成了一个实验：让智能体共享结果、在开跑前互评提案，并在搜索停滞时重新组队。在 BioML-Bench 上，这套系统把平均榜单百分位从单 Agent 对照的 <strong>66.07 提高到 74.40</strong>。GPT 实验则显示，到达同一个验证指标需要的试验更少。两组对照匹配了实验资源，但多 Agent 系统用了更多 LLM token。<a href="https://arxiv.org/html/2605.28655v2#S4" target="_blank" rel="noopener noreferrer">原论文第 4–5 节</a></p>
+<p>本文依据 Shanghua Gao、Ada Fang 和 Marinka Zitnik 于 2026 年 11 月 10 日修订的 <a href="https://arxiv.org/abs/2605.28655v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>。</p>
+<h2 id="section-1">一、课题解读：长程实验怎样分配下一次尝试</h2>
+<p>设想一组研究者要在有限预算内改进图像分类模型。团队可以试数据增强、换网络结构，也可以改优化器。连续几次调整增强参数都没有收益时，值得问的是：该继续细调，还是把下一次训练留给另一条路线？如果另一位成员已经试过类似配置，先读他的实验记录就可能省下一次训练。</p>
+<p>长程计算实验的难点在于，<strong>哪些方向值得探索，会随新结果而改变</strong>。系统要维持多个候选方向，同时让失败和成功都能影响下一轮资源分配。几次小幅改进也需要重新核验，因为训练随机性可能让一次偶然高分变成整个团队接下来使用的基线。</p>
+<h2 id="section-2">二、相关文献解读：从单线搜索到团队协调</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>如何组织研究</th>
+<th>适合与本篇对照的地方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/karpathy/autoresearch" target="_blank" rel="noopener noreferrer">Autoresearch</a></td>
+<td>单 Agent 修改训练程序、运行、保留改进，再继续迭代</td>
+<td>直接基线。可以比较达到同一验证损失需要多少次试验</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.18864" target="_blank" rel="noopener noreferrer">AI co-scientist</a></td>
+<td>多个角色生成、评议和比较科学假设</td>
+<td>本篇也在执行前讨论，但评议之后可以保留多条并行实验路线</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">EvoScientist</a></td>
+<td>将构思与实验经验分别写入持久记忆，供后续任务检索</td>
+<td>EvoScientist 关注经验跨任务复用。AutoScientists 主要考察一次长运行中，多个团队怎样共享证据和改变分工</td>
+</tr>
+</tbody>
+</table></div><h2 id="section-3">三、研究问题解读：组织方式能改善哪些结果</h2>
+<p>按论文的实验安排，我们把问题归纳为三项：</p>
+<ol>
+<li>相近的实验资源下，自组织团队能否训练出表现更好的模型，并用更少的试验达到同一验证目标？</li>
+<li>当起点已经是一套表现较强的程序时，多条研究路线能否继续找到有效修改？</li>
+<li>分析员、互评、重新组队和共享实验记录各有什么作用？哪些证据能区分它们的贡献？<a href="https://arxiv.org/html/2605.28655v2#S4" target="_blank" rel="noopener noreferrer">论文第 4 节及附录 B</a></li>
+</ol>
+<h2 id="section-4">四、方法解读：智能体如何围绕实验结果重新组队</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/autoscientists/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/autoscientists/overview.png" alt="AutoScientists 从任务输入、组队和实验，到停滞后的重组与最终交付" loading="lazy" decoding="async"></a><figcaption>图 1 · 左侧给出任务、数据和指标，中间展示团队形成、实验与停滞后的重新组队。共享状态连接各轮，右侧是最佳模型、模型卡和研究发现。下方曲线是流程示意。来源：原论文 v2 Figure 1，PDF 第 2 页，原图未改绘。</figcaption></figure>
+<p><strong>第一步，讨论方向并形成团队。</strong> 输入包含任务、数据、评价协议，以及可选的起始代码。各 Agent 阅读当前最优程序和论坛记录，提出并评议方向。讨论末尾由该轮最后一位 Agent 汇总名单，之后各 Agent 在下一次周期性唤醒时读取名单。可用的 Agent 数量在启动前设定，论文默认 <strong>3 个分析员、6 个实验 Agent</strong>。确定性的监控程序负责唤醒，方向和成员分工由 Agent 讨论形成。<a href="https://arxiv.org/html/2605.28655v2#S3.SS2" target="_blank" rel="noopener noreferrer">论文第 3.2、4.1 节与附录 A</a></p>
+<p><strong>第二步，用共享状态选择实验。</strong> 分析员读实验日志，把未充分探索的方向和具体提案写进团队队列。实验 Agent 认领提案，修改当前最佳程序、训练并写回指标。共享状态保存<strong>当前最佳程序、实验日志、论坛、队列和失败记录</strong>。其他团队可以据此检查重复提案、质疑实验设计，也可以借用一条有效方向。评论与日志让队伍即使分开工作，也能看到彼此的证据。<a href="https://arxiv.org/html/2605.28655v2#S3.SS2" target="_blank" rel="noopener noreferrer">论文第 3.2 节与附录 A.4–A.7</a></p>
+<p><strong>第三步，核验小幅改进，停滞时重新分工。</strong> 作者用重复种子估计同一程序的波动范围。候选改善大于设定噪声带时可直接更新最佳程序。小幅改善在第二个随机种子上也优于当前最佳，才获保留。论文用最近约 <strong>10 次</strong>实验未改善作为停滞示例。团队可以重开讨论，提议合并、拆分或调整研究方向，调整需要受影响团队认可。最终交付最佳程序、模型卡和研究发现报告，实验日志保留探索过程。<a href="https://arxiv.org/html/2605.28655v2#A1.SS6" target="_blank" rel="noopener noreferrer">论文第 3.2 节与附录 A.6</a></p>
+<h2 id="section-5">五、实验设计与结果：相同实验预算能推进多少</h2>
+<h3 id="section-6">主实验一：BioML-Bench 的模型表现</h3>
+<p>24 个任务覆盖生物医学影像（4）、药物发现（9）、蛋白质工程（6）和单细胞组学（5）。主要对照 Autoresearch 与 AutoScientists 使用同一个 Claude Code / Claude Sonnet 4.6 后端。两者每任务用 <strong>1 张 H100</strong>，影像任务给 <strong>16 小时</strong>，其余给 <strong>4 小时</strong>。部分其他基线的影像结果沿用原基准报告，其余对应任务重新运行。影像、药物与单细胞按保留测试集评价，蛋白质工程按基准的交叉验证协议评分。<a href="https://arxiv.org/html/2605.28655v2#A6.SS1" target="_blank" rel="noopener noreferrer">论文第 4.1–4.2 节及附录 F.1</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/autoscientists/biomlbench.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/autoscientists/biomlbench.png" alt="六个系统在 BioML-Bench 的平均榜单百分位、达到中位数以上及获奖牌比例" loading="lazy" decoding="async"></a><figcaption>图 2 · 从左到右为平均榜单百分位、超过榜单中位数的比例和获得任意奖牌的比例。误差线为均值标准误。来源：原论文 v2 Figure 3，PDF 第 6 页，原图未改绘。</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>任务组</th>
+<th style="text-align:right">Autoresearch 平均百分位</th>
+<th style="text-align:right">AutoScientists 平均百分位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全部（24）</td>
+<td style="text-align:right">66.07</td>
+<td style="text-align:right">74.40</td>
+</tr>
+<tr>
+<td>生物医学影像（4）</td>
+<td style="text-align:right">39.60</td>
+<td style="text-align:right">45.75</td>
+</tr>
+<tr>
+<td>药物发现（9）</td>
+<td style="text-align:right">46.16</td>
+<td style="text-align:right">64.52</td>
+</tr>
+<tr>
+<td>蛋白质工程（6）</td>
+<td style="text-align:right">96.97</td>
+<td style="text-align:right">96.97</td>
+</tr>
+<tr>
+<td>单细胞组学（5）</td>
+<td style="text-align:right">86.00</td>
+<td style="text-align:right">88.00</td>
+</tr>
+</tbody>
+</table></div><p>全体任务平均提高 <strong>8.33 个百分点</strong>。药物发现的差距最大，蛋白质工程两者持平。AutoScientists 完成了 <strong>24/24</strong> 个任务，其中 <strong>75.0%</strong> 超过公开榜单中位数。<strong>74.40 是平均榜单百分位</strong>，完成率和超过中位数的比例各有单独定义。由于每任务只有一张 GPU，BioML-Bench 上的训练顺序执行，结果主要反映团队如何选择接下来跑什么。<a href="https://arxiv.org/html/2605.28655v2#S4.SS2" target="_blank" rel="noopener noreferrer">论文图 3、表 1 与第 5 节</a></p>
+<h3 id="section-7">主实验二：GPT 训练优化需要多少次试验</h3>
+<p>每次试验在一张 H100 上训练 <strong>5 分钟</strong>，反复使用验证集 bits per byte（val_bpb，越低越好）指导搜索。两组从同一程序出发时，AutoScientists 用 <strong>34 次</strong>达到约 <strong>0.978</strong>，Autoresearch 用 <strong>65 次</strong>。文中的 <strong>1.9 倍</strong>由实验次数之比得来。固定为 <strong>50 次</strong>时，双方分别达到 <strong>0.9777</strong> 和 <strong>0.9790</strong>。<a href="https://arxiv.org/html/2605.28655v2#A2.SS1" target="_blank" rel="noopener noreferrer">论文图 4 与附录表 S2</a></p>
+<p>两组再从同一个 <strong>0.9777</strong> 的较强程序和同一份失败记录起跑，AutoScientists 在 <strong>93 次</strong>中接受 <strong>7 次</strong>改进，最终到 <strong>0.9730</strong>。Autoresearch 在 <strong>100 次</strong>中接受 <strong>0 次</strong>，保留起点。这里的得分来自搜索过程中反复查询的验证集。另一个多 GPU 实验固定团队，只改变 GPU 数量，把每次实验的实测耗时从 <strong>9.7 分钟</strong>（1 张）降到 <strong>4.4 分钟</strong>（4 张）。它回答的是并行硬件能节省多少时间。<a href="https://arxiv.org/html/2605.28655v2#S4.SS3" target="_blank" rel="noopener noreferrer">论文第 4.3 节与附录 B.3</a></p>
+<h3 id="section-8">主实验三：ProteinGym 上的方法迁移</h3>
+<p>作者从已有的 Kermut 方法出发，在一个开发测定上搜索，随后冻结所获得的方法，按官方协议在 <strong>217 项测定</strong>上评估。作者报告平均 Spearman 相关系数从 <strong>0.657 升至 0.700</strong>，即绝对提高 <strong>0.043</strong>、相对提高约 <strong>6.5%</strong>。同时，MSE 增加了 <strong>0.006</strong>。这个结果展示了排序质量的提高，同时揭示了排序与数值预测误差之间的取舍。217 项汇总包含开发测定。实验报告的是计算基准上的预测表现。<a href="https://arxiv.org/html/2605.28655v2#S4.SS4" target="_blank" rel="noopener noreferrer">论文第 4.4 节与表 2</a></p>
+<h3 id="section-9">消融：不同任务依赖不同协作环节</h3>
+<p>在表 3 的四个代表任务中，完整配置的主指标都最好。去掉分析员时，TDC-hERG 的 AUROC 从 <strong>0.867</strong> 降到 <strong>0.738</strong>。固定队伍时，GPT 验证损失从 <strong>0.9777</strong> 升到 <strong>0.9833</strong>。附录进一步保留初始自组织、只禁止中途改组，结果为 <strong>0.9806</strong>。当初始队伍也与完整配置一致但仍禁止改组时，结果为 <strong>0.9794</strong>。这两个补充对照把初始分工与中途改组拆开。附录 D 的完整轨迹与消融轨迹长度不同，末端值应结合运行预算解读。独立 Agent 对照同时去掉反馈与共享状态，因此它的差值包含两类改动。<a href="https://arxiv.org/html/2605.28655v2#S4.SS5" target="_blank" rel="noopener noreferrer">论文表 3 与附录 B.2、D</a></p>
+<h2 id="section-10">六、我们自己的思考</h2>
+<h3 id="section-11">课题思考：这个领域在研究什么</h3>
+<p>这项工作把科研 Agent 的一个具体决策变成了可以对照的实验：<strong>下一笔计算预算该投到哪个假设上？</strong> 当日志能跨团队流动时，一次失败也可能改变其他成员的选择。与 EvoScientist 一起读，可以看到两种时间尺度：AutoScientists 考察一次搜索中如何使用刚得到的反馈，EvoScientist 则把经验保存到下一项研究。</p>
+<h3 id="section-12">局限问题思考：目前还存在哪些问题</h3>
+<p><strong>实验预算和总成本是两种账。</strong> 主对照匹配训练硬件与计算窗口，讨论、互评和改组消耗的 LLM token 更高。<strong>反复优化验证指标会改变证据的含义。</strong> GPT 的改进来自搜索用的验证集，单个最佳点也可能受种子和搜索轨迹影响。<strong>消融的结论依赖任务和配置。</strong> 论文提供了补充对照和部分独立运行，仍需更多配对重复来判断哪种条件下改组值得付出协调成本。<a href="https://arxiv.org/html/2605.28655v2#S5" target="_blank" rel="noopener noreferrer">论文第 5 节及附录 C、D、F</a></p>
+<h3 id="section-13">解决方案思考：这些问题有哪些解决方向</h3>
+<p>可以用相同底模和起点按两种预算各做一次对照：一组匹配 GPU 时间，另一组匹配 GPU 与 LLM 的总成本，同时报告达到目标所需的试验次数与耗时。搜索期间保留独立的最终测试集，用预先规定的种子复核冠军程序。最后，用相同初始队伍配对比较「允许改组」和「固定队伍」，记录每次改组前后的重复试验率与收益，检验改组是否把预算转移到了更有产出的方向。</p>
+<p><em>插图来自 Gao、Fang 和 Zitnik 的 AutoScientists v2，按 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 引用。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：长程实验怎样分配下一次尝试</a></li><li><a href="#section-2">二、相关文献解读：从单线搜索到团队协调</a></li><li><a href="#section-3">三、研究问题解读：组织方式能改善哪些结果</a></li><li><a href="#section-4">四、方法解读：智能体如何围绕实验结果重新组队</a></li><li><a href="#section-5">五、实验设计与结果：相同实验预算能推进多少</a></li><li><a href="#section-10">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../autoscirub/"><span>论文阅读</span><strong>AutoSciRub：先明确证据要求，再推进自主科研</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>论文阅读</span><strong>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化</strong><i aria-hidden="true">↗</i></a><a href="../autosota/"><span>论文阅读</span><strong>AutoSOTA：从论文复现到有效的方法改进</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "autoscientists": {
+      "source_sha256": "4631822db113bbd16ec698a009842dd625c519ac88ab7799101750153cb6c8ed",
+      "english_sha256": "972d24af7627e7bac6f3b6ce90a1bc1cc0ef2daee40541b25d73f63dd801d4cf"
+    },
     "frontierscience": {
       "source_sha256": "df107111ea6a8c38a43eb81d0df685f4890c6754a1455368d8b2637a1eaeb262",
       "english_sha256": "184692b7ba119dc2493b670a703c511e4ec707203b89404e97c2cb6f692dfc47"
