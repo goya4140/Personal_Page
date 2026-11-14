@@ -1,0 +1,45 @@
+{
+  "source": "https://arxiv.org/pdf/2601.21165v1",
+  "source_pdf_sha256": "a11077ec358612db1098b715c7631fd249e4b909afda5716fb573ffcc0663cfe",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Miles Wang et al. FrontierScience: Evaluating AI's Ability to Perform Expert-Level Scientific Tasks (2026)",
+  "figures": [
+    {
+      "file": "task-pipeline.png",
+      "pdf_page": 4,
+      "figure": 3,
+      "clip_points": [
+        106.8,
+        89.6,
+        504.8,
+        201.6
+      ],
+      "operation": "Cropped surrounding page material; original figure and data unchanged; rendered at 180 dpi"
+    },
+    {
+      "file": "main-results.png",
+      "pdf_page": 7,
+      "figure": 6,
+      "clip_points": [
+        106.8,
+        286.8,
+        504.8,
+        429.6
+      ],
+      "operation": "Cropped surrounding page material; original figure and data unchanged; rendered at 180 dpi"
+    },
+    {
+      "file": "reasoning-effort.png",
+      "pdf_page": 8,
+      "figure": 8,
+      "clip_points": [
+        106.8,
+        274.8,
+        504.8,
+        424.0
+      ],
+      "operation": "Cropped surrounding page material; original figure and data unchanged; rendered at 180 dpi"
+    }
+  ]
+}

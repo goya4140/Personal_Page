@@ -1,0 +1,55 @@
+{
+  "source": "https://arxiv.org/pdf/2609.19644v1",
+  "license": "CC BY 4.0",
+  "attribution": "Jaehyun Nam et al. ScientistTwo (2026)",
+  "figures": [
+    {
+      "file": "overview.png",
+      "pdf_page": 4,
+      "figure": 3,
+      "clip_points": [
+        61,
+        83,
+        535,
+        246
+      ],
+      "operation": "Cropped surrounding page content; original figure unchanged; rendered at 4x"
+    },
+    {
+      "file": "experiment-flow.png",
+      "pdf_page": 7,
+      "figure": 5,
+      "clip_points": [
+        61,
+        80,
+        535,
+        158
+      ],
+      "operation": "Cropped surrounding page content; original figure unchanged; rendered at 4x"
+    },
+    {
+      "file": "review-loop.png",
+      "pdf_page": 9,
+      "figure": 7,
+      "clip_points": [
+        61,
+        80,
+        535,
+        205
+      ],
+      "operation": "Cropped surrounding page content; original figure unchanged; rendered at 4x"
+    },
+    {
+      "file": "idea-refinement.png",
+      "pdf_page": 13,
+      "figure": 9,
+      "clip_points": [
+        61,
+        79,
+        535,
+        270
+      ],
+      "operation": "Cropped surrounding page content; original figure unchanged; rendered at 4x"
+    }
+  ]
+}

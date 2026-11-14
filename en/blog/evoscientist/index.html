@@ -1,0 +1,313 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning from research experience: EvoScientist’s dual memory and cross-task evolution | Linhao Wang</title>
+  <meta name="description" content="A reading of dual memory and three evolution mechanisms, separating evidence from proposal judgments, code execution, and six accepted papers.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Learning from research experience: EvoScientist’s dual memory and cross-task evolution">
+  <meta property="og:description" content="A reading of dual memory and three evolution mechanisms, separating evidence from proposal judgments, code execution, and six accepted papers.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/evoscientist/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化" data-title-en="Learning from research experience: EvoScientist’s dual memory and cross-task evolution" data-language-url="../../../blog/evoscientist/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>11 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>Learning from research experience: EvoScientist’s dual memory and cross-task evolution</h1><p class="article-summary">A reading of dual memory and three evolution mechanisms, separating evidence from proposal judgments, code execution, and six accepted papers.</p><div class="post-topics"><span>AI for Science</span><span>Research agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/evoscientist/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/evoscientist/overview.png" alt="Learning from research experience: EvoScientist’s dual memory and cross-task evolution" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery ↗</a><small>arXiv · 2026 / v2 · 2026-10-05</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the Topic: How Can Research Systems Learn from Experience?</a></li><li><a href="#section-2">2. Understanding Related Work: From Research Workflows to Reusable Experience</a></li><li><a href="#section-3">3. Understanding the Research Questions: What Does the Paper Test?</a></li><li><a href="#section-4">4. Understanding the Method: How Does Experience Reach the Next Project?</a></li><li><a href="#section-9">5. Experimental Design and Results: Where Do the Benefits Appear?</a></li><li><a href="#section-14">6. Our Reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>Research experience often becomes valuable in the next project: which directions deserve attention, which conditions previously caused failure, and which engineering practices can be reused. EvoScientist attempts to preserve this experience and make it available to subsequent research tasks.</p>
+<p>This article reads <strong>EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery</strong>, by Yougang Lyu and colleagues, using <a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>, updated October 5, 2026.</p>
+<p><strong>Its central design separates experience about research directions from experience about experimental execution.</strong> Experimental outcomes can also update the knowledge used for future ideation. The results support some benefits, while revealing a persistent difficulty in implementing proposed new methods.</p>
+<h2 id="section-1">1. Understanding the Topic: How Can Research Systems Learn from Experience?</h2>
+<p>Consider a team trying to improve a model under limited data. It must review literature, formulate a hypothesis, design experiments, implement code, and decide what to do after observing the results.</p>
+<p>Two kinds of experience emerge. <strong>Research experience</strong> concerns hypotheses, assumptions, promising directions, and the meaning of negative results. <strong>Engineering experience</strong> concerns preprocessing, stable training, debugging, and resource-compatible configurations.</p>
+<p>An autonomous research system needs to extract useful knowledge from these experiences, retrieve it for an appropriate task, and recognize whether it remains applicable. Saving logs alone does not accomplish this.</p>
+<p>Evaluation should therefore distinguish proposal quality, reliable experimental execution, and improvement on future tasks.</p>
+<h2 id="section-2">2. Understanding Related Work: From Research Workflows to Reusable Experience</h2>
+<p>Four works provide useful entry points.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main contribution</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.08066" target="_blank" rel="noopener noreferrer">AI Scientist-v2</a></td>
+<td>Agentic tree search connecting experiments, analysis, and writing</td>
+<td>Provides a foundation for research workflows and experimental search</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.18864" target="_blank" rel="noopener noreferrer">AI co-scientist</a></td>
+<td>Hypothesis generation, criticism, comparison, and refinement</td>
+<td>Motivates iterative ideation and tournament selection</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">Reflexion</a></td>
+<td>Stores linguistic reflections on feedback to guide later attempts</td>
+<td>Demonstrates adaptation through textual experience</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2409.07429" target="_blank" rel="noopener noreferrer">Agent Workflow Memory</a></td>
+<td>Induces reusable workflows from previous execution</td>
+<td>Treats trajectories as resources for future action</td>
+</tr>
+</tbody>
+</table></div><p>These works advance workflow automation, idea search, and experience reuse. EvoScientist connects them through two memories supporting <strong>researchers' direction judgments and engineers' experimental execution</strong>.</p>
+<p>It also feeds experimental failures back into the memory used to propose future research directions. <a href="https://arxiv.org/html/2603.08127v2#S2" target="_blank" rel="noopener noreferrer">Sections 2–3</a>.</p>
+<h2 id="section-3">3. Understanding the Research Questions: What Does the Paper Test?</h2>
+<p>The authors explicitly evaluate four questions in Section 4.1, paraphrased here:</p>
+<ol>
+<li><strong>Idea quality:</strong> How good are the generated ideas in novelty, feasibility, relevance, and clarity?</li>
+<li><strong>Execution reliability:</strong> How reliably can the system generate and execute experimental code?</li>
+<li><strong>Complete research outputs:</strong> Can it produce complete papers recognized through peer review?</li>
+<li><strong>Evolution's contribution:</strong> How much does learning from historical experience improve idea quality?</li>
+</ol>
+<p>These questions use different evidence: model and expert judgments, execution outcomes, and selected submission cases. Their results need to be interpreted separately. <a href="https://arxiv.org/html/2603.08127v2#S4" target="_blank" rel="noopener noreferrer">Section 4</a>.</p>
+<h2 id="section-4">4. Understanding the Method: How Does Experience Reach the Next Project?</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/evoscientist/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/evoscientist/overview.png" alt="Overview of EvoScientist linking the Researcher, Engineer, and Evolution Manager through two memories" loading="lazy" decoding="async"></a><figcaption>Figure 1 · The Researcher develops proposals, the Engineer executes experiments, and the Evolution Manager updates two persistent memories. Source: original v2 Figure 1, PDF page 4; reproduced without modification. Click to enlarge.</figcaption></figure>
+<h3 id="section-5">Step 1: Retrieve Direction Experience and Explore Ideas</h3>
+<p>The system receives a research goal identifying a model or task problem to address.</p>
+<p>The <strong>Researcher Agent, RA</strong>, uses literature alongside an <strong>Ideation Memory</strong> containing promising and unsuccessful directions.</p>
+<p>It performs a propose–review–refine tree search. Each node stores an idea and review feedback, which informs subsequent refinements.</p>
+<p>The experiments use Semantic Scholar for literature search and Gemini-2.5-Pro for idea generation. Ideation memories are embedded with <code>mxbai-embed-large</code>, and the <strong>two</strong> closest items to the research goal are retrieved by cosine similarity. The idea tree explores up to <strong>21 candidates</strong> with <strong>three parallel workers</strong>. <a href="https://arxiv.org/html/2603.08127v2#S3.SS3" target="_blank" rel="noopener noreferrer">Idea retrieval and search</a> · <a href="https://arxiv.org/html/2603.08127v2#S4.SS5" target="_blank" rel="noopener noreferrer">Experimental configuration</a></p>
+<h3 id="section-6">Step 2: Select and Expand a Proposal</h3>
+<p>An <strong>Elo-based tournament</strong> compares candidates using novelty, feasibility, relevance, and clarity.</p>
+<p>Candidates are compared pairwise and their ratings updated. The top-ranked idea becomes a full proposal containing background, related work, the method, an experimental plan, and expected results. The top three ideas inform direction-memory updates.</p>
+<p><strong>A strong tournament ranking indicates promise; experimental validation remains necessary.</strong></p>
+<h3 id="section-7">Step 3: Retrieve Engineering Experience and Run Four Experimental Stages</h3>
+<p>The proposal goes to the <strong>Engineer Agent, EA</strong>.</p>
+<p>EA retrieves the most relevant item from an <strong>Experimentation Memory</strong> storing data-processing and training strategies, then proceeds through four stages:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Stage</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial implementation</td>
+<td>Establish working experimental code</td>
+</tr>
+<tr>
+<td>Hyperparameter tuning</td>
+<td>Improve the initial configuration</td>
+</tr>
+<tr>
+<td>Proposed method</td>
+<td>Implement the research proposal's new method</td>
+</tr>
+<tr>
+<td>Ablation</td>
+<td>Examine component contributions</td>
+</tr>
+</tbody>
+</table></div><p>Each stage searches, executes, and revises code while retaining logs, status, and metrics. The best-performing implementation carries the process forward.</p>
+<p>EA uses Claude-4.5-Haiku for code generation, with <strong>four parallel workers</strong> and attempt limits of <strong>20, 12, 12, and 18</strong> across the stages. The query also changes with the stage. RA retrieves ideation memories using the user’s research goal, while EA uses the full proposal to retrieve the <strong>single</strong> closest experimentation-memory item. <a href="https://arxiv.org/html/2603.08127v2#S3.SS4" target="_blank" rel="noopener noreferrer">Experiment search</a> · <a href="https://arxiv.org/html/2603.08127v2#S4.SS5" target="_blank" rel="noopener noreferrer">Experimental configuration</a></p>
+<h3 id="section-8">Step 4: Distill Three Types of Reusable Experience</h3>
+<p>The <strong>Evolution Manager Agent, EMA</strong>, summarizes history and updates the two memories through three mechanisms.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Mechanism</th>
+<th>Evidence used</th>
+<th>Knowledge retained</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Idea Direction Evolution, IDE</td>
+<td>Top-three candidate ideas</td>
+<td>Hypotheses, assumptions, requirements, and minimal validation plans</td>
+</tr>
+<tr>
+<td>Idea Validation Evolution, IVE</td>
+<td>Proposal and execution report</td>
+<td>Failure judgments, conditions, evidence, and countermeasures</td>
+</tr>
+<tr>
+<td>Experiment Strategy Evolution, ESE</td>
+<td>Exploration trajectories and strong implementations</td>
+<td>Preprocessing, architecture, and training configurations</td>
+</tr>
+</tbody>
+</table></div><p>IVE records failure when no executable implementation is found within budget, or when the completed method performs worse than its baselines.</p>
+<p>This connects execution back to ideation, but requires careful interpretation. <strong>An implementation failure can reflect limited resources or engineering capability. A negative comparison can reflect implementation, tuning, or evaluation choices.</strong> Memories need sufficiently specific failure conditions.</p>
+<p>The appendix prompts request evidence, trigger conditions, and countermeasures. They also group validated and inconclusive outcomes under <code>NOT_FAILED</code>, so that label alone does not establish validation. <a href="https://arxiv.org/html/2603.08127v2#S3.SS5" target="_blank" rel="noopener noreferrer">Section 3.5 and Appendix D</a>.</p>
+<p>Consider an illustrative low-resource classification proposal. If it ranks highly but the execution report shows that training could not run within budget, IDE can retain the hypothesis for further testing, while IVE can record the conditions of the failed attempt. If the search already produced usable preprocessing code, ESE can still extract that engineering strategy. On the next task, RA and EA retrieve entries relevant to the new goal or proposal and add them to their prompts. The paper’s “evolution” takes place in this external memory across tasks. <a href="https://arxiv.org/html/2603.08127v2#S3.SS2" target="_blank" rel="noopener noreferrer">Memory flow</a> · <a href="https://arxiv.org/html/2603.08127v2#S3.SS5" target="_blank" rel="noopener noreferrer">Three update mechanisms</a></p>
+<h2 id="section-9">5. Experimental Design and Results: Where Do the Benefits Appear?</h2>
+<h3 id="section-10">Main Evaluation 1: Idea Quality</h3>
+<p>The evaluation uses <strong>30 research goals</strong>, covering translation, speech recognition, healthcare agents, Text-to-SQL, RAG, model efficiency, and alignment.</p>
+<p>Seven systems are compared: Virtual Scientist, AI-Researcher, InternAgent, AI Scientist-v2, Hypogenic, Novix, and K-Dense.</p>
+<p>Evaluation includes:</p>
+<ul>
+<li><strong>Automated judgments:</strong> Gemini-3-flash scores idea pairs, with presentation order swapped to reduce positional bias.</li>
+<li><strong>Expert judgments:</strong> Three PhD-level AI experts evaluate <strong>120 pairs: 30 goals across four comparison groups</strong> involving stronger baselines.</li>
+</ul>
+<p>Feasibility concerns rigorous, testable research design and realistic resources. Clarity emphasizes actionability. These judgments do not directly measure experimental success. <a href="https://arxiv.org/html/2603.08127v2#S4" target="_blank" rel="noopener noreferrer">Section 4 and Appendix C</a>.</p>
+<p>The human results below report <strong>EvoScientist's win/tie/lose percentages</strong>:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Baseline</th>
+<th style="text-align:right">Novelty</th>
+<th style="text-align:right">Feasibility</th>
+<th style="text-align:right">Relevance</th>
+<th style="text-align:right">Clarity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InternAgent</td>
+<td style="text-align:right">66.67 / 23.33 / 10.00</td>
+<td style="text-align:right">96.67 / 3.33 / 0</td>
+<td style="text-align:right">90.00 / 0 / 10.00</td>
+<td style="text-align:right">93.33 / 6.67 / 0</td>
+</tr>
+<tr>
+<td>AI Scientist-v2</td>
+<td style="text-align:right">73.33 / 10.00 / 16.67</td>
+<td style="text-align:right">50.00 / 16.67 / 33.33</td>
+<td style="text-align:right">43.33 / 50.00 / 6.67</td>
+<td style="text-align:right">53.33 / 20.00 / 26.67</td>
+</tr>
+<tr>
+<td>Novix</td>
+<td style="text-align:right">93.33 / 0 / 6.67</td>
+<td style="text-align:right">56.67 / 6.66 / 36.67</td>
+<td style="text-align:right">36.67 / 60.00 / 3.33</td>
+<td style="text-align:right">73.33 / 10.00 / 16.67</td>
+</tr>
+<tr>
+<td>K-Dense</td>
+<td style="text-align:right">96.67 / 3.33 / 0</td>
+<td style="text-align:right">53.33 / 26.67 / 20.00</td>
+<td style="text-align:right">40.00 / 43.33 / 16.67</td>
+<td style="text-align:right">53.34 / 43.33 / 3.33</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: Table 2, PDF page 6; original rounding retained.</em></p>
+<p>Across these comparisons, the average human novelty win rate is <strong>82.50%</strong>, and feasibility win rate is <strong>64.17%</strong>. Automated evaluation also reports positive aggregate advantages against all seven baselines. <a href="https://arxiv.org/html/2603.08127v2#S5.SS1" target="_blank" rel="noopener noreferrer">Section 5.1, Tables 1–2</a>.</p>
+<p>Appendix C.3 reports that the model judge and human evaluators agreed on the overall outcome for <strong>108 of 120</strong> idea pairs. For feasibility specifically, they agreed on <strong>83.3% (100 of 120)</strong>. These figures describe agreement between judges. Actual runs are needed to check the design and resource assumptions behind a feasibility judgment. <a href="https://arxiv.org/html/2603.08127v2#A3.SS3" target="_blank" rel="noopener noreferrer">Judge agreement analysis</a></p>
+<p>The advantages are uneven: against AI Scientist-v2, feasibility wins are 50.00% versus 33.33% losses, and relevance ties reach 50.00%. Commercial comparisons also show many relevance ties. Better proposal judgments do not establish that the proposed methods are generally more effective after execution.</p>
+<p>The paper reports consistent tasks and evaluation protocols, but does not fully enumerate baseline model choices, token use, and search costs. The system-level differences therefore cannot all be attributed to memory.</p>
+<h3 id="section-11">Main Evaluation 2: Code Execution</h3>
+<p>Code evaluation takes research proposals as input and measures successful sandbox execution producing valid outputs.</p>
+<p>The principal comparison is <strong>the same system before and after ESE</strong>, rather than a complete execution comparison against the seven external systems. <a href="https://arxiv.org/html/2603.08127v2#S5.SS2" target="_blank" rel="noopener noreferrer">Section 5.2</a>.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/evoscientist/execution-success.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/evoscientist/execution-success.png" alt="Execution success before and after experiment strategy evolution across four stages" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Gray bars represent the system without ESE; blue bars represent the full system. Initial implementation and ablation improve more than proposed-method implementation. Source: original v2 Figure 2, PDF page 7; surrounding page content cropped, with the chart unchanged. Click to enlarge.</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Stage</th>
+<th style="text-align:right">Before</th>
+<th style="text-align:right">After</th>
+<th style="text-align:right">Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initial implementation</td>
+<td style="text-align:right">29.23%</td>
+<td style="text-align:right">42.93%</td>
+<td style="text-align:right">+13.70 pp</td>
+</tr>
+<tr>
+<td>Hyperparameter tuning</td>
+<td style="text-align:right">48.94%</td>
+<td style="text-align:right">58.62%</td>
+<td style="text-align:right">+9.68 pp</td>
+</tr>
+<tr>
+<td>Proposed method</td>
+<td style="text-align:right">20.33%</td>
+<td style="text-align:right">21.57%</td>
+<td style="text-align:right">+1.24 pp</td>
+</tr>
+<tr>
+<td>Ablation</td>
+<td style="text-align:right">39.06%</td>
+<td style="text-align:right">55.12%</td>
+<td style="text-align:right">+16.06 pp</td>
+</tr>
+<tr>
+<td>Arithmetic mean across stages</td>
+<td style="text-align:right">34.39%</td>
+<td style="text-align:right">44.56%</td>
+<td style="text-align:right">+10.17 pp</td>
+</tr>
+</tbody>
+</table></div><p><strong>The aggregate improvement leaves a clear bottleneck:</strong> initial implementation and ablation improve substantially, while implementing the proposed method remains difficult.</p>
+<p>Our interpretation is that preprocessing and training experience may transfer more readily than the work required to translate a new research idea into code. This is consistent with the results, but the paper does not experimentally isolate those causes.</p>
+<p>The <strong>44.56%</strong> figure is an average across stages. It is not an end-to-end research completion rate. Successful execution also requires additional checks for methodological fidelity and protocol correctness.</p>
+<h3 id="section-12">Main Evaluation 3: Complete Research Outputs</h3>
+<p>The authors develop six selected ideas into papers submitted to the <strong>ICAIS 2025 AI Scientist Track</strong>:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Item</th>
+<th>Reported outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Submitted papers</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Accepted papers</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Awards</td>
+<td>1 Best Paper Award; 1 AI Reviewer's Appraisal Award</td>
+</tr>
+<tr>
+<td>Track-wide acceptance</td>
+<td>26 / 82, approximately 31.71%</td>
+</tr>
+</tbody>
+</table></div><p>Manuscript preparation uses the AI Scientist-v2 writing module; the proposed evolution mechanisms focus on ideation and execution. <a href="https://arxiv.org/html/2603.08127v2#S5.SS3" target="_blank" rel="noopener noreferrer">Sections 4.2 and 5.3, Appendix E</a>.</p>
+<p>We also checked the best-paper case's <a href="https://airaxiv.com/papers/view/2510.0018/" target="_blank" rel="noopener noreferrer">public decision page</a>, which displays <code>Accept</code>.</p>
+<p>These cases demonstrate complete, reviewable outputs receiving recognition. However, <strong>six accepted selected submissions do not establish a general end-to-end success rate</strong>. The paper does not fully report the selection and failure denominator preceding those submissions, or provide a matched-budget submission comparison.</p>
+<p>The authors' review synthesis also identifies needs for deeper theoretical analysis, clearer metrics, and more complete reproducibility documentation. These comments are part of the evidence about system capabilities.</p>
+<h3 id="section-13">Ablations and Supporting Analysis: Contributions of Ideation Evolution</h3>
+<p>The authors remove evolution mechanisms and compare each variant against the full system. Values below are <strong>the ablated variant's loss rates</strong>, judged by Gemini-3-flash:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Variant</th>
+<th style="text-align:right">Novelty loss rate</th>
+<th style="text-align:right">Feasibility loss rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Remove IDE</td>
+<td style="text-align:right">66.67%</td>
+<td style="text-align:right">50.00%</td>
+</tr>
+<tr>
+<td>Remove IVE</td>
+<td style="text-align:right">43.33%</td>
+<td style="text-align:right">63.33%</td>
+</tr>
+<tr>
+<td>Remove all ideation evolution</td>
+<td style="text-align:right">80.00%</td>
+<td style="text-align:right">83.33%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: Table 3, PDF page 8.</em></p>
+<p>The pattern broadly matches the design: promising-direction memory particularly supports novelty, while failure-validation memory particularly supports feasibility. Removing both produces larger declines. <a href="https://arxiv.org/html/2603.08127v2#S5.SS4" target="_blank" rel="noopener noreferrer">Section 5.4</a>.</p>
+<p>These ablations support the value of memory in the evaluated setting. They leave open whether improvement persists over long task sequences, depends on task order, or suffers from interference across domains.</p>
+<h2 id="section-14">6. Our Reflections</h2>
+<h3 id="section-15">Topic Reflection: What Is This Field Studying?</h3>
+<p>Autonomous research requires decisions about what to do next based on available evidence. Experience connects past actions to future judgments.</p>
+<p>The useful distinction here is between <strong>direction knowledge</strong> and <strong>execution knowledge</strong>, with experimental outcomes updating direction knowledge. This raises a broader question: how can local experiences become reliable, transferable scientific knowledge with explicit conditions of applicability?</p>
+<p>Evaluation should examine whether experience reduces wasted attempts, improves new tasks, and produces better research decisions.</p>
+<h3 id="section-16">Limitation Reflection: What Remains Unresolved?</h3>
+<p><strong>First, memories need clearer evidence levels.</strong> Highly ranked ideas may remain untested. Execution failures can reflect resource constraints. Negative comparisons can reflect implementation or protocol choices. Memories should retain these conditions and uncertainties.</p>
+<p><strong>Second, implementing new methods remains difficult.</strong> Stage-three success rises only from 20.33% to 21.57%. Connecting proposal, code, and evaluation requires stronger support.</p>
+<p><strong>Third, long-term evolution needs stricter evaluation.</strong> Useful tests would specify historical versus future tasks, vary task order, control costs, and measure performance as experience accumulates.</p>
+<p><strong>Fourth, complete-output evaluation has limited scope.</strong> The six submissions are valuable cases, but the overall attempt denominator remains unclear. The authors also acknowledge that generalization beyond computational research to physical experimentation remains open. <a href="https://arxiv.org/html/2603.08127v2#S7" target="_blank" rel="noopener noreferrer">Section 7</a>.</p>
+<h3 id="section-17">Solution Reflection: What Directions Could Address These Issues?</h3>
+<p>The following are our proposed research directions, corresponding to the four limitations:</p>
+<ol>
+<li><strong>Store evidence status alongside each memory.</strong> Separate untested hypotheses, engineering failures, negative experiments, and replicated findings. Retain datasets, resources, code versions, and trigger conditions, then test whether this reduces overgeneralization.</li>
+<li><strong>Audit implementation against the proposal.</strong> Break methods into checkable components, map them to code, key tensors, and metrics, and validate component behavior before full training. Measure both stage-three execution success and implementation fidelity.</li>
+<li><strong>Run reproducible continual-learning evaluations.</strong> Build memory from independent historical tasks, then evaluate future tasks using relevant, random, irrelevant, and length-matched context under controlled search budgets. This helps isolate the contribution of experience content.</li>
+<li><strong>Report all attempts and their costs.</strong> Include initial tasks, failures, completed artifacts, submissions, and acceptance denominators. Add independent reproduction and blind evaluation, and introduce real experimental feedback when extending to other domains.</li>
+</ol>
+<p><em>Based on arXiv v2 by Yougang Lyu and colleagues. Figures belong to the original authors and are reproduced under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Figure 1 is unchanged; Figure 2 crops only surrounding page content. Tables are extracted from the paper. Interpretations, limitations, and proposed experiments are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the Topic: How Can Research Systems Learn from Experience?</a></li><li><a href="#section-2">2. Understanding Related Work: From Research Workflows to Reusable Experience</a></li><li><a href="#section-3">3. Understanding the Research Questions: What Does the Paper Test?</a></li><li><a href="#section-4">4. Understanding the Method: How Does Experience Reach the Next Project?</a></li><li><a href="#section-9">5. Experimental Design and Results: Where Do the Benefits Appear?</a></li><li><a href="#section-14">6. Our Reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>Paper reading</span><strong>AutoSciRub: specify evidence before improving research</strong><i aria-hidden="true">↗</i></a><a href="../autosota/"><span>Paper reading</span><strong>AutoSOTA: from paper replication to valid method improvements</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

@@ -1,0 +1,32 @@
+{
+  "paper": "EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery",
+  "authors": "Yougang Lyu et al.",
+  "version": "arXiv:2603.08127v2",
+  "source": "https://arxiv.org/abs/2603.08127v2",
+  "source_pdf": "https://arxiv.org/pdf/2603.08127v2",
+  "source_pdf_sha256": "4f3bb021aad6510861ab7a65cb9db1a2e16bcd50295695bb60d28293306568d3",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "retrieved_on": "2026-11-10",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "1",
+      "pdf_page": 4,
+      "width": 1042,
+      "height": 574,
+      "sha256": "93cbf214e298284687838706829d457931972f8eb379ec16a307d580575fad0f",
+      "operation": "Original image from versioned arXiv HTML; no cropping, redrawing, or data modification",
+      "source_image": "https://arxiv.org/html/2603.08127v2/framework.png"
+    },
+    {
+      "file": "execution-success.png",
+      "figure": "2",
+      "pdf_page": 7,
+      "width": 744,
+      "height": 462,
+      "sha256": "2156613116b7655dc6f534f324e43fb54a776d22cdb30926693c0c7f8276fbf2",
+      "operation": "Rendered crop from the source PDF using PyMuPDF at 3x; clip [52,84,300,238] PDF points; only surrounding page content removed; no redrawing or data modification"
+    }
+  ]
+}

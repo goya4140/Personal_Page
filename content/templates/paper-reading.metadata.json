@@ -1,0 +1,16 @@
+{
+  "slug": "replace-with-paper-slug",
+  "title_zh": "填写中文标题",
+  "title_en": "Replace with English title",
+  "summary_zh": "填写简短导读",
+  "summary_en": "Replace with English summary",
+  "tags_zh": ["填写大方向", "填写小方向", "论文阅读"],
+  "tags_en": ["Broad field", "Subfield", "Paper reading"],
+  "kind": "reading",
+  "date": null,
+  "paper": {
+    "title": "填写论文原名",
+    "url": "填写已核验的论文链接",
+    "venue": "填写已核验的年份或发表信息"
+  }
+}

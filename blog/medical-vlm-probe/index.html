@@ -1,0 +1,116 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>从一张 CT 开始，理解 Medical VLM 与 Probe | Linhao Wang</title>
+  <meta name="description" content="把病灶是否存在、模型如何回答，以及 Probe 读出了什么分开理解，建立医学 VLM 可解释性研究的入门框架。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="从一张 CT 开始，理解 Medical VLM 与 Probe">
+  <meta property="og:description" content="把病灶是否存在、模型如何回答，以及 Probe 读出了什么分开理解，建立医学 VLM 可解释性研究的入门框架。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/medical-vlm-probe/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="从一张 CT 开始，理解 Medical VLM 与 Probe" data-title-en="Understanding Medical VLMs and probes, one CT slice at a time" data-language-url="../../en/blog/medical-vlm-probe/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">科研笔记</span><span>约 15 分钟</span><span>中文原稿</span><time datetime="2026-10-29">2026-10-29</time></div><div class="article-heading-layout"><div><h1>从一张 CT 开始，理解 Medical VLM 与 Probe</h1><p class="article-summary">把病灶是否存在、模型如何回答，以及 Probe 读出了什么分开理解，建立医学 VLM 可解释性研究的入门框架。</p><div class="post-topics"><span>医学 AI</span><span>可解释性</span><span>Probe</span></div></div></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、先和我一起看看，Medical VLM 能接到什么任务</a></li><li><a href="#section-2">二、认识几位接下来会遇到的“主角”</a></li><li><a href="#section-3">三、如果模型答对了，我们还想多了解一点什么</a></li><li><a href="#section-4">四、先想自己想知道什么，再认识解释方法</a></li><li><a href="#section-5">五、我们一起训练一个 Probe，看看它究竟读了什么</a></li><li><a href="#section-6">六、先看第一个问题：它们为什么会答得不一样</a></li><li><a href="#section-7">七、再往前一步：一个囊肿分数，能告诉我们多少</a></li><li><a href="#section-8">八、最后试着动一动它，看看原模型会怎样</a></li><li><a href="#section-9">接下来，我们从看懂几张图开始</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>从一张肾脏 CT 切片出发，先明确图像、问题、回答与参考标注，再逐步理解 Medical VLM、隐藏表示和 Probe。</p>
+<p>为了把问题讲清楚，下面假设这张 CT 同时有肾肿瘤和肾囊肿，模型的回答也都是举例。它们还不是我们的实验结果。肿瘤和囊肿可以共存，囊肿也不能直接叫作另一种恶性肿瘤，这个区别我们一直保留。</p>
+<p>整理日期：2026-10-29。以下案例用于解释研究问题，不是临床判断或正式实验结论。</p>
+<h2 id="section-1">一、先和我一起看看，Medical VLM 能接到什么任务</h2>
+<p>我们先拆开这个名字。VLM 是 Vision-Language Model，意思是把图像和语言联系起来的模型。这里讨论的 Medical VLM，主要指能够接收医学图像和文字要求，再用文字回答我们的模型。</p>
+<p>拿同一张 CT 来看，你可以问它：“这一张里有没有肾囊肿？”这时，我们希望得到一个明确的有无判断。你也可以问：“图中有哪些异常？”这时，它就需要把看到的异常描述出来。</p>
+<p>如果要求它“写一份影像报告”，输出就会更长，可能包括所见和结论。再往前走，我们还可以要求它指出异常所在的位置，给出坐标或框。这些任务分别涉及病灶存在性判断、医学视觉问答、报告生成和定位。</p>
+<p>你看，同一张图，交给模型的问题不同，我们评价它的方式也会跟着变。能把报告写得通顺，还需要继续检查病灶有没有说对、位置有没有指出来；定位能力也要单独评价。逐像素分割则需要相应的输出设计和验证。</p>
+<p>所以，之后我们每次看一个实验，都可以先在纸上写下四件事：</p>
+<ul>
+<li>给模型看什么？</li>
+<li>请它回答什么？</li>
+<li>答案可以是什么样？</li>
+<li>我们拿什么作为参考答案？</li>
+</ul>
+<p>这四件事确定下来，一项任务就清楚多了。你以后看到“任务协议”这个词，想到的就是这些具体约定。</p>
+<p>还有一个容易忽略的小区别，我们现在就顺手弄清楚。给模型一张 CT 切片，它能看到的只是这一层；给它整套检查，它获得的信息会更多。因此，“这一层有没有囊肿”和“这位患者有没有囊肿”要分开。患者可能在其他层面有囊肿，当前这张却没有。</p>
+<p>我们的第一轮研究就从这个小范围开始：<strong>看一张切片，回答这一张里有没有指定病灶。</strong> 范围清楚，答案和标注才容易对上。</p>
+<h2 id="section-2">二、认识几位接下来会遇到的“主角”</h2>
+<p>现在再来看模型名字，你会更容易知道它们各自站在哪里。</p>
+<p>先认识 <strong>Qwen3-VL</strong>。它是通用图文模型，我们已经用它跑过自然图像上的 Probe 流程。它帮助我们熟悉怎样把图像送进去、怎样保存输出和内部表示。等拿它看医学图像时，医学能力还需要专门检验。<a href="https://arxiv.org/abs/2511.21631" target="_blank" rel="noopener noreferrer">模型介绍</a></p>
+<p>再认识 <strong>LLaVA-Med</strong>。读它的工作，可以看到一条医学适配路线：研究者怎样利用生物医学图像和语言数据，让图文助手逐步接触这个领域。你可以先从它理解“为什么通用模型还需要医学数据”，不必一开始就逐层研究结构。<a href="https://arxiv.org/abs/2306.00890" target="_blank" rel="noopener noreferrer">原论文</a></p>
+<p>我们目前准备实际使用的是 <strong>MedGemma 1.5 4B</strong>。它面向医学图文生成。选择它，让我们能够围绕一个具体模型把流程走通，再观察它在我们任务上的表现。<a href="https://developers.google.com/health-ai-developer-foundations/medgemma/model-card" target="_blank" rel="noopener noreferrer">官方说明</a></p>
+<p>至于它们内部怎样工作，你先沿着这条简化路线理解就够了：</p>
+<p><strong>图像变成数字特征 → 图像信息和问题在模型中交互 → 模型逐步生成回答。</strong></p>
+<p>在这个过程中，模型会产生许多数值。我们以后经常提到的“隐藏表示”，就是模型在某个计算位置产生的一份数字记录。它不像报告那样能直接读懂，也没有规定某一格专门存“囊肿”、另一格专门存“肿瘤”。相关信息可能分布在许多数值之间。</p>
+<p>先记住它的用途就好：我们可以从指定位置取出这样一份记录，看看它和图里的病灶、模型最后的回答有什么关系。这就是进入我们课题的一扇门。</p>
+<p>模型认识了，接下来还要看看数据。因为我们总得有个依据，知道模型这次到底答对没有。</p>
+<p>有些数据把<strong>影像和医生报告</strong>放在一起。比如 MIMIC-CXR 提供胸片及对应报告，可以支持图文、报告等研究。不过，一份报告对应一次检查，其中可能有多张影像。使用时，我们还要弄清楚报告里的描述能够对应到哪张图。<a href="https://physionet.org/content/mimic-cxr/2.1.0/" target="_blank" rel="noopener noreferrer">数据介绍</a></p>
+<p>另一些数据提供<strong>影像和区域标注</strong>。我们选的 KiTS23，就有肾脏、肿瘤和囊肿的分割标注。你可以把它想成一张与原图对齐的区域图：哪些像素属于肾脏，哪些属于肿瘤，哪些属于囊肿，都分别标出来。<a href="https://kits-challenge.org/kits23/" target="_blank" rel="noopener noreferrer">数据介绍</a></p>
+<p>有了这些标注，我们就能进一步整理出“这一层有没有囊肿”的参考答案。也就是说，这套有无问答需要我们从原来的分割数据里构建出来。到这里，你就能理解为什么前面的计划里会有“数据构建”这一步了。</p>
+<p>实际提问时，我们把原图和问题交给模型，自己保留区域标注来检查答案。标注涂色图可以陪我们核对病灶，正式的看图任务则使用没有涂色提示的原图。</p>
+<h2 id="section-3">三、如果模型答对了，我们还想多了解一点什么</h2>
+<p>继续看那张假设的 CT。我们问：“这一张有没有囊肿？”模型回答：“有。”和标注一致，这是我们愿意看到的结果。</p>
+<p>这时可以先把结果记下来，再留一个小问题：它这次的判断，依靠了哪些信息？</p>
+<p>可能是囊肿本身的形态，也可能与周围组织、另一种异常的共现规律有关，问题的措辞也可能产生影响。这些都先作为可能性放在这里。一个“有”字，还不能让我们分清每种信息起了多大作用。</p>
+<p>再想另一种情况：图上有囊肿，模型却回答“没有”。如果我们只记录一次错误，就知道它这题没答好。可要进一步改进它，我们会希望找到更具体的原因：相关信息在处理图像时就没有形成足够的表示，还是某些信息已经可以利用，最后的回答却没有体现出来？</p>
+<p>你走到这里，会慢慢发现，可解释性研究关心的事情很具体：<strong>我们想把图像证据、内部计算和最后的答案联系起来，理解一次判断是怎样发生的。</strong></p>
+<p>在医学任务里，这种联系尤其值得认真检查。模型提到的异常、部位和结论，都要能够与当前图像及独立参考核对。了解它依赖什么，也能帮助我们判断一种改进究竟改善了哪部分能力。解释方法给出的结果，同样需要用对照来验证。</p>
+<p>你之前提到，平时用 coding agent 好像很少看到这种分析。我能理解这个印象：使用代码 Agent 时，我们更常接触补丁、测试和运行结果。研究者分析代码模型时，也会用 Probe 检查语法、结构、语义等信息。例如 <a href="https://arxiv.org/abs/2108.11308" target="_blank" rel="noopener noreferrer">What do pre-trained code models know about code?</a> 就做了这类研究。</p>
+<p>所以，我们现在做的是把一种内部分析的研究方式，放到医学图像与病灶判断这个具体问题上。了解了这个出发点，再认识方法，就会更容易看懂它们各自在帮什么忙。</p>
+<h2 id="section-4">四、先想自己想知道什么，再认识解释方法</h2>
+<p>我们先从最直观的愿望开始：想知道模型的回答和图上哪些地方有关。</p>
+<p>这时，你会遇到空间归因和一些注意力分析方法。它们尝试把与指定输出有关的区域或连接展示出来。比如经典的 Grad-CAM，就利用梯度形成定位图；它原本围绕 CNN 等模型提出，换到新的模型结构时，还要确认适用的模块和输出。<a href="https://arxiv.org/abs/1610.02391" target="_blank" rel="noopener noreferrer">原论文</a></p>
+<p>看到热图时，可以先把它当作观察线索，再和原图、病灶标注一起看。颜色亮在哪里，和模型是否必须依赖那里，还需要进一步检验。注意力权重也有类似的解释边界。<a href="https://aclanthology.org/N19-1357/" target="_blank" rel="noopener noreferrer">相关讨论</a></p>
+<p>如果你接着想知道：“模型的内部记录里，有没有能用来预测囊肿的信息？”我们就会用到 <strong>Probe</strong>。它能把难以直接阅读的数值记录，变成可以和病灶标签比较的预测。我们的课题会先从这一步入手。</p>
+<p>再往下，如果你开始追问：“这部分信息会不会影响原模型的决定？”就可以考虑<strong>干预</strong>。我们有针对性地改变输入或内部表示，再看原模型如何响应，同时比较随机改动、改动强度等对照。Amnesic Probing 提供的就是一种移除可读信息、再观察行为的思路。<a href="https://aclanthology.org/2021.tacl-1.10/" target="_blank" rel="noopener noreferrer">原论文</a></p>
+<p>你前面给我的 <a href="https://aclanthology.org/2023.emnlp-main.20/" target="_blank" rel="noopener noreferrer">POPE 论文</a>，也可以放到这张地图里。它帮助我们用比较稳定的存在性问答观察模型行为，并检查频率、共现等偏差。先从行为上找到现象，之后再借助内部读出和干预追问原因，就有了比较自然的研究顺序。</p>
+<p>这几个方向现在先认识到这里。接下来，我们把 Probe 单独拿出来，一起走一遍它的实际过程。</p>
+<h2 id="section-5">五、我们一起训练一个 Probe，看看它究竟读了什么</h2>
+<p>假设已经整理好一批 CT 切片，每张都有独立的“有囊肿”或“无囊肿”标注。</p>
+<p>我们让同一个 Medical VLM 看每张图，接收同样的问题。在它生成回答之前，从固定位置保存一份隐藏表示。随后保持原模型不动，另行训练一个简单分类器，让它根据这些表示预测囊肿有无。这个额外训练的分类器，就是这里的 Probe。</p>
+<p>你可以先把它理解为一个读出工具。我们给它带标签的例子，让它学习：这份数值记录中的哪些变化模式，与囊肿标签有关。</p>
+<p>于是，同一张图就有了两个可以观察的判断。原模型沿着自己的生成过程回答“有”或“没有”；Probe 根据额外训练出的规则，给出自己的预测。我们把两者分别保存，再和同一份独立标注比较。</p>
+<p>这里有个小地方值得停一下。图上有囊肿，哪怕原模型答“没有”，这张图的存在性标签也仍然是“有”。如果我们另做“模型有没有答对”的研究，那才需要再记录一个回答正确性标签。把这两个标签分开，以后的实验会清楚很多。</p>
+<p>训练时还要按患者分组：一部分病例用来训练，一部分用来选择设置，最后用没有参与选择的病例评价。同一患者的相邻层往往很相似，分开管理，才方便观察读出规则对新患者是否也成立。</p>
+<p>如果 Probe 在新病例上仍然预测得好，我们就获得了一条具体证据：这份表示能够支持当前读出方法预测病灶。</p>
+<p>这已经是值得继续研究的发现。同时，Probe 也接受过额外监督，它自身的学习能力、数据中的相关线索，都可能参与这个结果。Control Tasks 的工作提醒我们，要配合控制任务理解 Probe 的表现。我们会借鉴它的思路，加入随机标签等负控制，先检查这个读出结果是否可靠。<a href="https://aclanthology.org/D19-1275/" target="_blank" rel="noopener noreferrer">原论文</a></p>
+<p>理解了这一步，再回头看模型和 Probe 的答案，你很可能会遇到一个值得追下去的分歧。</p>
+<h2 id="section-6">六、先看第一个问题：它们为什么会答得不一样</h2>
+<p>还是那张假设的 CT。标注说有囊肿，原模型说没有，Probe 却预测有。</p>
+<p>你可以先把这个例子记下来。它提示我们，两种判断方式之间可能存在差别。接下来要做的，是看看这种差别能不能在一批独立病例上稳定出现。</p>
+<p>解释时，我们给自己留一点余地。Probe 有额外训练，可能学到了更适合当前标签的规则，也可能利用了与原模型不同的线索。因此，这时还不适合直接说“原模型知道答案却没有说”。我们先把观察做扎实。</p>
+<p>第一个实验就可以这样开始：</p>
+<blockquote>
+<p><strong>拿同一批独立病例，逐一比较参考标注、原模型答案和 Probe 预测，看看它们怎样一致、怎样分歧。</strong></p>
+</blockquote>
+<p>Probe 对而模型错的情况要看，模型对而 Probe 错的情况也要看。两者都对、两者都错，同样保留下来。这样一张完整的对照表，会比只挑几个有趣例子更能帮助我们理解问题。</p>
+<p>顺着这个思路，你也能看出我们现有数据还缺什么。如果切片只按肿瘤和囊肿共存条件筛选，数据就会偏向阳性。如果每道题的参考答案都是“有”，一个总是回答“有”的工具也会拿到很高的正确率。要真正检查有无判断，还得补上不同病灶组合，尤其是相应的阴性切片。</p>
+<p>把这些准备做好，我们就能看清第一步结果。即使 Probe 没有比原模型更好，记录下来的错误和分歧也能帮助我们决定后面应当往哪里追问。</p>
+<h2 id="section-7">七、再往前一步：一个囊肿分数，能告诉我们多少</h2>
+<p>假设第一步已经确认，Probe 可以在新病例上预测囊肿。接下来，我们就可以看看它给出的分数，和原模型会不会答对有什么关系。</p>
+<p>先把“分数高”理解为这个读出器更倾向预测阳性就好。它还不能直接当作病灶信号强度，更不能当作原模型使用该证据的权重。</p>
+<p>现在设想两个病例，囊肿 Probe 分数相近，原模型却一个答对、一个答错。这样的例子能引起好奇；要把好奇变成研究，我们还要再问得具体一点：<strong>有没有其他信息，能在新病例上稳定帮助我们预测这种回答差异？</strong></p>
+<p>在我们的数据里，肿瘤就是一个自然会想到的候选因素。一张图可以同时有肿瘤和囊肿，同一份隐藏表示也可能与两类病灶都有关。所以，我们可以在这同一份表示上，再训练一个预测肿瘤的 Probe。</p>
+<p>第二个实验就顺着这个疑问展开：</p>
+<blockquote>
+<p><strong>先只用囊肿分数预测原模型会不会正确回答，再加入同一表示上的肿瘤读出，看看对独立病例的预测能否改善。</strong></p>
+</blockquote>
+<p>我们还会把病灶大小、切片位置等因素放进分析。这样就能进一步检查：新增读出提供了什么信息，它是否只是在代替某种已经能够测量的病例难度。</p>
+<p>如果加入这些因素后，肿瘤读出的增益消失了，我们就收窄原先的解释。如果仍然有稳定增益，说明单一囊肿分数还没有反映出全部与回答行为有关的信息。</p>
+<p>至于这种关系的方向，我们留给数据。其他病灶可能伴随更多错误，也可能伴随更少错误，或者根本没有稳定关系。我们暂时把“肿瘤抢走注意力”这样的直觉放在候选解释里，等证据慢慢补上。</p>
+<p>走到这里，我们已经能研究“什么信息有助于预测原模型的回答”。接下来，还可以更进一步，看看我们读出的这部分表示，对原模型当前决策究竟有没有作用。</p>
+<h2 id="section-8">八、最后试着动一动它，看看原模型会怎样</h2>
+<p>前面两步主要在观察和比较。为了进一步检验作用，我们可以尝试一次范围很明确的干预。</p>
+<p>一个简单 Probe 学会预测囊肿后，我们能找到它所依赖的一种数值变化方向。你先把“方向”理解为许多数值一起变化的一种模式。我们从选定的隐藏表示里减去这个方向的分量，再把改动后的表示送入原模型原来的输出层，观察同一个回答位置的 Yes/No 决策怎样变化。</p>
+<p>这借鉴了 Amnesic Probing 的思路。首轮只做一个学得方向的消融，具体实现需要另行确定投影与对照设置。现在先把要比较的事情想清楚：</p>
+<blockquote>
+<p><strong>保留原表示、减去囊肿读出方向、做匹配的随机改动，原模型当前决策分别会受到怎样的影响？</strong></p>
+</blockquote>
+<p>这里一定要带着随机对照一起看。随便改动模型内部，也可能让回答变差。只有比较了方向和强度，并检查其他病灶读出有没有一同受损，我们才更容易分清观察到的变化意味着什么。</p>
+<p>我们还会另外训练一个检查用分类器，看看改动后是否仍然能够通过其他变化模式预测囊肿。这样可以避免只看原来的 Probe：减掉它依赖的方向后，它的分数发生变化是预期中的事情，不能单凭这一点说所有囊肿信息都被去掉了。</p>
+<p>如果目标方向的影响明显超过匹配随机改动，又没有一般性的破坏，我们就获得了这部分表示影响当前决策的证据。如果没有这样的差异，就把假设收窄，继续检查当前读出方向能说明什么。</p>
+<p>即使观察到了作用，我们还会保留一个后续问题：这个方向里，究竟有多少来自真实囊肿视觉特征？要回答它，还需要独立定位与能够核验的空间干预。研究可以一层层往下走，每一步先把自己能支持的结论讲清楚。</p>
+<p>现在再读你被分到的那句话，应该就能找到其中每一部分的来处了：</p>
+<blockquote>
+<p><strong>医学 VLM 中能被 Probe 读出的病灶信息，在多大程度上反映原模型当前的病灶存在性决策？</strong></p>
+</blockquote>
+<p>我们先检查能不能读出，再检查一个分数能反映多少回答差异，最后尝试检验读出方向与原生决策的作用联系。三个问题接在一起，就是我们这次研究的起点。</p>
+<h2 id="section-9">接下来，我们从看懂几张图开始</h2>
+<p>第一轮动手时，我们可以先把原 CT、对应区域标注和整理出的有无答案摆在一起。看看病灶落在哪里，为什么这一层记为阳性，另一层记为阴性。确认这些以后，再给模型同样的问题，观察它怎样回答。</p>
+<p>等你亲手对上几张图，“图上有没有”“模型答什么”“Probe 预测什么”就会成为三件很具体的事。再梳理数据格式、提取位置和执行步骤，就能将每个概念对应到具体的实验操作。</p>
+<p>我们就从这里开始，一次弄清一个问题，再带着已经理解的部分往前走。</p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、先和我一起看看，Medical VLM 能接到什么任务</a></li><li><a href="#section-2">二、认识几位接下来会遇到的“主角”</a></li><li><a href="#section-3">三、如果模型答对了，我们还想多了解一点什么</a></li><li><a href="#section-4">四、先想自己想知道什么，再认识解释方法</a></li><li><a href="#section-5">五、我们一起训练一个 Probe，看看它究竟读了什么</a></li><li><a href="#section-6">六、先看第一个问题：它们为什么会答得不一样</a></li><li><a href="#section-7">七、再往前一步：一个囊肿分数，能告诉我们多少</a></li><li><a href="#section-8">八、最后试着动一动它，看看原模型会怎样</a></li><li><a href="#section-9">接下来，我们从看懂几张图开始</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../deeprare/"><span>论文阅读</span><strong>DeepRare：罕见病诊断中的工具、证据与可追溯推理</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>论文阅读</span><strong>AutoScientists：科研智能体怎样组队，决定下一次实验</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>论文阅读</span><strong>AutoSciRub：先明确证据要求，再推进自主科研</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

@@ -1,0 +1,200 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoSOTA：从论文复现到有效的方法改进 | Linhao Wang</title>
+  <meta name="description" content="沿资源恢复、实验执行与反思优化流程，解读八个 Agent 的分工、105/125 的结果，以及有效性监督和计算成本的边界。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AutoSOTA：从论文复现到有效的方法改进">
+  <meta property="og:description" content="沿资源恢复、实验执行与反思优化流程，解读八个 Agent 的分工、105/125 的结果，以及有效性监督和计算成本的边界。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/autosota/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AutoSOTA：从论文复现到有效的方法改进" data-title-en="AutoSOTA: from paper replication to valid method improvements" data-language-url="../../en/blog/autosota/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 13 分钟</span><span>中文原稿</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>AutoSOTA：从论文复现到有效的方法改进</h1><p class="article-summary">沿资源恢复、实验执行与反思优化流程，解读八个 Agent 的分工、105/125 的结果，以及有效性监督和计算成本的边界。</p><div class="post-topics"><span>AI for Science</span><span>科研智能体</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/autosota/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/autosota/overview.png" alt="AutoSOTA：从论文复现到有效的方法改进" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2604.05550v2" target="_blank" rel="noopener noreferrer">AutoSOTA: An End-to-End Automated Research System for State-of-the-Art AI Model Discovery ↗</a><small>arXiv · 2026 / v2 · 2026-05-25</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样把论文改进变成可执行的研究过程</a></li><li><a href="#section-2">二、相关文献解读：从程序优化、论文复现到自主研究</a></li><li><a href="#section-3">三、研究问题解读：系统需要跨过哪几道关</a></li><li><a href="#section-4">四、方法解读：从输入论文到导出改进仓库</a></li><li><a href="#section-9">五、实验设计与结果：先看整体效果，再看改进来源</a></li><li><a href="#section-13">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>拿到一篇机器学习论文和作者代码之后，真正困难的工作往往才开始：数据在哪里，环境怎样配置，哪个数字需要复现，改进后又怎样确认比较仍然公平？AutoSOTA 把这些工作组织成自动执行、反馈和优化的闭环。本文沿着这条流程阅读它的方法，也检查“105 个新 SOTA”这一结论具体由什么证据支撑。</p>
+<p>本文解读 Yu Li 等人的 <strong>AutoSOTA: An End-to-End Automated Research System for State-of-the-Art AI Model Discovery</strong>，依据 <a href="https://arxiv.org/abs/2604.05550v2" target="_blank" rel="noopener noreferrer">arXiv v2</a>，更新日期为 2026 年 5 月 25 日。它是一篇预印本；下文将作者报告、我们的阅读归纳和后续实验建议分开说明。</p>
+<h2 id="section-1">一、课题解读：怎样把论文改进变成可执行的研究过程</h2>
+<p>假设我们希望改进一个时间序列预测模型。一个合理的起点是先运行作者代码，确认自己得到的误差接近论文，然后分析模型的不足，提出修改并重新测试。实际执行时，代码可能依赖旧版库，训练脚本可能遗漏参数，数据下载链接也可能失效。即使最终分数变好了，还需要排除测试集泄漏、评价脚本变化和额外计算带来的影响。</p>
+<p><strong>自动化经验研究关注的是：AI 能否连续完成这些工作，并用可核验的实验反馈决定下一步。</strong> 这里至少有三类能力：把文献对应到具体资源，把脆弱的软件变成可运行实验，以及在明确约束下寻找有效改进。</p>
+<p>因此，评价这类系统需要同时关心执行与判断。能运行代码，尚不足以说明复现正确；某项指标提高，也需要交代比较对象、成本和适用范围。所谓“推进 SOTA”，尤其需要说明是在原论文的特定任务和指标上超过基线，还是经过了更广泛的前沿方法比较。</p>
+<h2 id="section-2">二、相关文献解读：从程序优化、论文复现到自主研究</h2>
+<p>下面三项原始工作提供了直接相关的观察角度。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要探索</th>
+<th>与本篇的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">AlphaEvolve</a></td>
+<td>让语言模型修改程序，通过评价器反馈和演化搜索继续改进</td>
+<td>说明可执行评价可以驱动算法搜索；AutoSOTA 进一步承担论文资源恢复和实验环境准备</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>从论文出发复现研究，用层级 rubric 检查实现、执行与结果</td>
+<td>强调复现应当拆成可检查的要求；这里复用官方仓库，任务起点与从零复现不同</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.08066" target="_blank" rel="noopener noreferrer">AI Scientist-v2</a></td>
+<td>连接假设、实验树搜索、分析和论文写作</td>
+<td>展示更完整的研究工作流；AutoSOTA 主要聚焦已有方法的可执行改进</td>
+</tr>
+</tbody>
+</table></div><p>我们的理解是，AutoSOTA 将“研究想法”和“真实研究软件”之间的衔接放到了中心位置。它需要处理的是整个论文仓库及外部依赖，而不是只有一个已经配好环境、评价器也已固定的函数。但这些工作并未在本文实验中被放到同一任务与预算下比较，不能据此排列系统强弱。</p>
+<h2 id="section-3">三、研究问题解读：系统需要跨过哪几道关</h2>
+<p>为便于阅读，我们把论文目标归纳为三个问题；这是本文的整理，并非作者逐字列出的研究问题。</p>
+<ol>
+<li><strong>怎样从论文得到明确、可执行的实验任务？</strong> 找到代码、数据和模型，并选定需要复现及优化的指标。</li>
+<li><strong>怎样让长时间的实验持续推进？</strong> 处理环境故障、重复调试、上下文丢失和资源调度，保留可回退的实验状态。</li>
+<li><strong>怎样得到有效且可比较的改进？</strong> 让候选方案超出反复调参，同时防止修改评价规则、数据或输出制造虚假收益。</li>
+</ol>
+<p>论文第 2 节把问题展开为资源与目标、实验评价、代码优化、反思与构想四个环节；第 3 节则围绕三个宏观模块组织八个 Agent，把代码修改视为连接构想与实验的执行步骤。这两个层次可以一起理解。</p>
+<h2 id="section-4">四、方法解读：从输入论文到导出改进仓库</h2>
+<p>系统输入是论文以及需要恢复的相关研究资源，输出是可执行的改进代码仓库和对应运行环境。下面按实际工作流程解释各角色的输入、操作与交付物。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/autosota/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/autosota/overview.png" alt="AutoSOTA 总览，包含资源与目标、实验评价、代码优化及反思构想之间的连接" loading="lazy" decoding="async"></a><figcaption>图 1 · 先看右侧流程：论文进入资源与目标模块，实验执行和反思构想循环交互，代码修改连接两者。八个 Agent 分别负责资源、目标、初始化、监控、修复、构想、调度与有效性监督。来源：原论文 v2 Figure 2，PDF 第 6 页；采用 arXiv HTML 原始图像，未改绘。</figcaption></figure>
+<h3 id="section-5">第一步：恢复资源，并明确要达到什么结果</h3>
+<p><strong>AgentResource</strong> 从论文元信息、PDF 和项目页定位官方仓库，排除明显的占位仓库，再查找并下载数据、预训练模型等外部依赖。产物是带有论文、代码及资源信息的任务包。</p>
+<p><strong>AgentObjective</strong> 将复现要求拆成树状 rubric。父节点可代表结果匹配、方法实现或环境配置，子节点继续拆成能判断通过与否的要求。系统以广度优先方式扩展节点，用权重阈值和最大深度限制规模；随着节点变细，按需加入摘要、方法与图表，再加入代码细节。</p>
+<p>这里有一个关键实现边界：作者在<a href="https://arxiv.org/html/2604.05550v2#S3.SS3" target="_blank" rel="noopener noreferrer">第 3.3 节</a>明确说明，当前闭环主要使用 <strong>Result Match</strong>，重点对齐原方法和最佳基线的结果数值，其他结构与语义维度尚未充分用于反馈。因此，不能把树状 rubric 的完整设计等同于已经全面实施的方法忠实性检查。</p>
+<h3 id="section-6">第二步：建立可运行的复现基线</h3>
+<p><strong>AgentInit</strong> 将任务包转成执行计划和容器环境，检查 GPU、CUDA、Python 与框架兼容性，找出训练和评价命令，必要时补齐路径或非核心辅助逻辑。修复的边界是保持数据划分和实验协议。</p>
+<p><strong>AgentMonitor</strong> 在执行循环外观察日志和工具轨迹，识别重复安装、无进展调试及超时，给出切换方案、恢复或终止等指令。<strong>AgentFix</strong> 负责具体故障修复，并记录失败特征、尝试过的方案及结果，减少重复踩坑。</p>
+<p>输出不只是“环境装好了”，还包括可运行仓库、实测基线和执行记录。系统用外部文件保存代码地图、想法库和研究报告，使后续轮次能够恢复上下文。<a href="https://arxiv.org/html/2604.05550v2#S3.SS4" target="_blank" rel="noopener noreferrer">第 3.4—3.6 节说明了执行与恢复机制</a>。</p>
+<h3 id="section-7">第三步：生成有约束的想法，安排迭代实验</h3>
+<p><strong>AgentIdeator</strong> 将论文目标、代码可改位置和外部研究知识对应起来，形成候选想法库。想法按参数、代码和算法层次分类，并记录优先级、风险及实现假设。它首先需要回答“能改什么、不能改什么”，再讨论可能的收益。</p>
+<p><strong>AgentScheduler</strong> 先测量未修改代码的基线，再理解代码和构建想法库。每轮包含反思、选择想法、保存 Git 快照、修改、评价、调试、记录结果及更新想法。连续三轮都是参数调整时，系统要求提出结构性方案；这条 Leap Path 最多允许后续五轮探索和调试，再决定是否回退，避免新结构因初次表现不佳而过早被放弃。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/autosota/optimization-loop.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/autosota/optimization-loop.png" alt="AutoSOTA 优化循环，调度器连接想法库、代码快照、评价与监督" loading="lazy" decoding="async"></a><figcaption>图 2 · 中间流程从实测基线进入想法库与迭代循环；右侧监督器约束候选修改，左侧调度器分配资源。每次收益都应能回到对应代码状态。来源：原论文 v2 Figure 6，PDF 第 16 页；采用 arXiv HTML 原始图像，未改绘。</figcaption></figure>
+<p>调度器保存最佳代码状态，结束时恢复该状态并再次评价，导出代码及 Docker 镜像。跨论文调度以两张 GPU 为基本单元，并将任务状态持久化。这里的价值在于把“尝试了一个方案”落实为可定位的代码、分数和运行产物。<a href="https://arxiv.org/html/2604.05550v2#S3.SS8" target="_blank" rel="noopener noreferrer">具体流程见第 3.8 节</a>。</p>
+<h3 id="section-8">第四步：持续检查改进是否仍然有效</h3>
+<p><strong>AgentSupervisor</strong> 在理解代码、筛选想法和生成新结构时检查红线。正文实际列出 R1—R7：固定指标参数、保持评价脚本、保持真实模型输出、限制不公平的多指标取舍、保持数据划分、禁止改变数据分布，以及明确论文特有约束。</p>
+<p>例如，不能把多次运行的平均值换成最好一次，不能修改评分脚本，也不能用测试集训练。监督器通过文档、审计和提示约束这些行为；它的存在并不等于违规已经被完全排除，仍需要看最终审计与独立执行证据。<a href="https://arxiv.org/html/2604.05550v2#S3.SS9" target="_blank" rel="noopener noreferrer">规则见第 3.9 节</a>。</p>
+<h2 id="section-9">五、实验设计与结果：先看整体效果，再看改进来源</h2>
+<h3 id="section-10">主实验：105 个成功结果的分母是什么</h3>
+<p>作者从八个 AI 会议的近期论文收集任务，筛选方法类研究、公开代码和仓库就绪程度，再控制环境与执行成本。筛选过程不能从成功率中省略：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>阶段</th>
+<th>论文数或条件</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初步候选池</td>
+<td>2,347</td>
+<td>经过研究类型、代码可用性和就绪程度筛选</td>
+</tr>
+<tr>
+<td>初步执行测试</td>
+<td>745</td>
+<td>从候选池选择的子集，并非全部执行</td>
+</tr>
+<tr>
+<td>最终实验集</td>
+<td>125</td>
+<td>排除无法解决的环境问题，以及单次完整复现超过 4 GPU 小时的任务</td>
+</tr>
+<tr>
+<td>报告成功改进</td>
+<td>105 / 125，84%</td>
+<td>分母是最终实验集</td>
+</tr>
+<tr>
+<td>其余结果</td>
+<td>20 / 125，16%</td>
+<td>Class C；其定义存在下文所述差异</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/html/2604.05550v2#S4" target="_blank" rel="noopener noreferrer">第 4.1—4.2 节</a>。84% 与 16% 为论文报告的最终集合比例，不能作为所有候选论文的端到端成功率。</em></p>
+<p>主实验的比较对象是各论文的方法基线，优化每篇选定的核心指标。<strong>Table 1 列出 105 个成功条目的提升比例，没有提供与其他科研智能体在同一任务和预算下的整体对照。</strong> 论文摘要报告每篇约五小时；这不能直接换算为总 GPU 小时或模型调用成本。文中也未完整报告支撑统一成本复算的模型版本、逐任务硬件和调用费用。</p>
+<p>还要区分原论文报告值和本地实测值：方法流程要求优化锚定实测基线，但案例中的提升比例并非总是使用同一口径。例如 Neural MJD 的论文 MAE 为 17.411，本地复现为 17.127，最终为 14.096，作者的约 19.0% 使用前者计算。<strong>“105 个新 SOTA”更适合在这里理解为作者报告的、超过所选原论文方法的结果；它并不自动证明超过该领域所有同期方法。</strong></p>
+<h3 id="section-11">结果分类：结构改动占多少，平均收益怎样</h3>
+<p>作者将最终集合分成算法或结构改动、参数优化和失败三类。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/autosota/outcome-distribution.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/autosota/outcome-distribution.png" alt="125 篇实验中三类优化结果的原始分布图" loading="lazy" decoding="async"></a><figcaption>图 3 · A 类 64 篇、B 类 41 篇、C 类 20 篇，分母均为 125。A 与 B 合计 105。来源：原论文 v2 Figure 8a，PDF 第 28 页；采用 arXiv HTML 原始子图，未改绘。</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>类别</th>
+<th>数量与占比</th>
+<th style="text-align:right">该类平均提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A：算法或结构改动</td>
+<td>64 / 125，约 51%</td>
+<td style="text-align:right">8.82%</td>
+</tr>
+<tr>
+<td>B：参数优化</td>
+<td>41 / 125，约 33%</td>
+<td style="text-align:right">5.67%</td>
+</tr>
+<tr>
+<td>C：失败或无效优化</td>
+<td>20 / 125，16%</td>
+<td style="text-align:right">未报告可比的有效提升</td>
+</tr>
+</tbody>
+</table></div><figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/autosota/outcome-gains.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/autosota/outcome-gains.png" alt="A 类与 B 类平均提升和标准误的原始柱状图" loading="lazy" decoding="async"></a><figcaption>图 4 · 柱高为各类平均提升，误差线为均值标准误 SEM，不是逐次运行的波动范围。来源：原论文 v2 Figure 8b，PDF 第 28 页；采用 arXiv HTML 原始子图，未改绘。</figcaption></figure>
+<p>这组证据支持“系统产物包含超出调参的修改”。但 A、B 是事后分类，不是随机分配的实验组，8.82% 对 5.67% 不能直接解释为结构修改的因果收益，也不能把 SEM 当作每项改进都显著的证明。</p>
+<p><strong>失败类别需要保留原文差异。</strong> Figure 8a 图注和分类段落将 C 描述为没有取得改进；第 4.2 节后面的段落又称这 20 项是监督器没有拦截的无效优化。现有披露不足以还原两类失败各占多少。本文因此将其写作“失败或无效优化”，不会将 16% 全部简化为普通搜索失败，也不会据此声称已经获得完整的监督违规率统计。</p>
+<h3 id="section-12">案例与补充分析：分数改善来自什么</h3>
+<p>案例提供了可解释的修改路径，下面摘出四个互补例子。它们是选定案例，不是全部任务的平均轨迹。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>案例与指标</th>
+<th>起点 → 最终结果</th>
+<th>作者报告的提升</th>
+<th>主要改动与解释边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-Spec，吞吐量，越高越好</td>
+<td>674.58 → 765.27 tok/s</td>
+<td>13.44%</td>
+<td>修复推测解码状态复用错误，减少 CPU 与 GPU 同步；包含工程纠错收益</td>
+</tr>
+<tr>
+<td>StaB-ddG，界面内 Pearson 相关，越高越好</td>
+<td>0.4897 → 0.5655</td>
+<td>15.48%</td>
+<td>修复突变字符串对齐，将模型与已有 FoldX 预测按 60% / 40% 融合；需要关注权重选择的数据边界</td>
+</tr>
+<tr>
+<td>Neural MJD，测试 MAE，越低越好</td>
+<td>实测 17.127 → 14.096；论文值 17.411</td>
+<td>约 19.0%</td>
+<td>引入对偶随机变量减少采样方差，并调整采样数和损失；百分比对应论文值</td>
+</tr>
+<tr>
+<td>MoSES，CVRP 最优性差距，越低越好</td>
+<td>0.914% → 0.444%</td>
+<td>51.4%</td>
+<td>修改门控、增加测试时增强、加入路径启发式；推理约 3.7 → 103 秒</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/html/2604.05550v2#S4.SS3" target="_blank" rel="noopener noreferrer">第 4.3 节</a>。这里的提升是相对比例，不是准确率百分点。Neural MJD 搜索中曾达到 14.084，表中采用作者最终锁定的 14.096；不以搜索最好值替代最终产物。</em></p>
+<p>这些例子提示我们分别看待代码修复、已有信号融合、统计方法修改和增加搜索计算。它们都可能有实用价值，但对研究创新性与效率的含义不同。尤其是 MoSES，质量改善同时伴随显著增加的推理时间，不能单独依据 51.4% 宣称同成本优势。</p>
+<p>论文没有给出移除监控、故障记忆、Leap Path 或监督器后的系统级受控消融。因此，案例和分类结果可以说明完整系统做出了什么，还不足以确定八个角色各自贡献多少，也未建立相对其他系统的预算匹配优势。</p>
+<h2 id="section-13">六、我们自己的思考</h2>
+<h3 id="section-14">课题思考：这个领域在研究什么</h3>
+<p>我们认为，这篇论文最有价值的问题是：怎样让科研想法经过真实软件和实验的检验，并在失败后继续推进。它把环境恢复、状态保存、评价约束和想法生成放在同一研究流程中，提醒我们科研自动化的能力不能只用代码是否生成或论文是否写成来衡量。</p>
+<p>同时，已有任务上的经验改进、可复现的研究贡献和独立发现新问题，是不同层次的目标。AutoSOTA 主要为前两者之间的衔接提供了系统设计与案例，后续仍需更独立的证据判断改进是否稳健、可迁移且具有新颖性。</p>
+<h3 id="section-15">局限问题思考：目前还存在哪些问题</h3>
+<ul>
+<li><strong>任务覆盖与成本仍有选择性。</strong> 最终集合已经排除难安装和高执行成本任务；缺少完整的模型、调用与硬件账单，难判断更广泛研究场景中的收益。</li>
+<li><strong>指标改进与可信研究之间仍有距离。</strong> 当前 rubric 主要使用结果匹配，C 类失败定义也不完全一致；缺少统一报告的多随机种子、独立保留测试与逐任务审计证据，难排除选择偏差和反复搜索带来的偶然收益。</li>
+<li><strong>设计作用与研究价值尚未分开验证。</strong> 没有核心模块的受控消融，A/B 分类也不是因果对照；修复错误、融合现有工具和增加推理计算，需要分别评价贡献与创新程度。</li>
+</ul>
+<h3 id="section-16">解决方案思考：这些问题有哪些解决方向</h3>
+<p>以下是我们提出的后续实验方向，不是论文已完成的结果。</p>
+<ul>
+<li><strong>对应覆盖与成本：</strong> 预先登记连续采样的论文集合，报告每个阶段的淘汰原因与耗时，保留长任务和安装失败任务，并用 GPU 小时、模型费用及人工干预时间比较同等预算的产出。</li>
+<li><strong>对应可信度：</strong> 将评价脚本、数据划分与审计规则独立冻结；在验证集选择方案，在未参与搜索的测试集进行多种子重跑；公开代码版本、日志、完整指标和失败类别，并由领域专家检查自动 rubric 的方法忠实性。</li>
+<li><strong>对应设计与价值：</strong> 在相同模型和预算下分别移除监控、记忆、Leap Path 与监督器，比较有效改进率和违规率；对成功产物再做新颖性盲评，并展示质量与推理成本曲线，区分纠错、方法进展和计算扩展。</li>
+</ul>
+<p><em>版本与素材：依据 <a href="https://arxiv.org/pdf/2604.05550v2" target="_blank" rel="noopener noreferrer">AutoSOTA v2 PDF</a> 及其 HTML 全文；原图归 Yu Li 等作者所有，依 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 署名使用，未改绘。表格按正文与图表整理，解释、局限分析和后续实验建议为本文阅读判断。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样把论文改进变成可执行的研究过程</a></li><li><a href="#section-2">二、相关文献解读：从程序优化、论文复现到自主研究</a></li><li><a href="#section-3">三、研究问题解读：系统需要跨过哪几道关</a></li><li><a href="#section-4">四、方法解读：从输入论文到导出改进仓库</a></li><li><a href="#section-9">五、实验设计与结果：先看整体效果，再看改进来源</a></li><li><a href="#section-13">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../autoscientists/"><span>论文阅读</span><strong>AutoScientists：科研智能体怎样组队，决定下一次实验</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>论文阅读</span><strong>AutoSciRub：先明确证据要求，再推进自主科研</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>论文阅读</span><strong>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

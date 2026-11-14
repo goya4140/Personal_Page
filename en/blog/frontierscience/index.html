@@ -1,0 +1,216 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FrontierScience: from science problem solving to research subtasks | Linhao Wang</title>
+  <meta name="description" content="An illustrated reading of expert task construction, independent review, rubric grading, and the gap between competition scores and research-subtask performance.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="FrontierScience: from science problem solving to research subtasks">
+  <meta property="og:description" content="An illustrated reading of expert task construction, independent review, rubric grading, and the gap between competition scores and research-subtask performance.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/frontierscience/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="FrontierScience：从科学解题到研究子问题评测" data-title-en="FrontierScience: from science problem solving to research subtasks" data-language-url="../../../blog/frontierscience/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>7 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>FrontierScience: from science problem solving to research subtasks</h1><p class="article-summary">An illustrated reading of expert task construction, independent review, rubric grading, and the gap between competition scores and research-subtask performance.</p><div class="post-topics"><span>AI for Science</span><span>Scientific capability evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/frontierscience/main-results.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/frontierscience/main-results.png" alt="FrontierScience: from science problem solving to research subtasks" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2601.21165v1" target="_blank" rel="noopener noreferrer">FrontierScience: Evaluating AI&#39;s Ability to Perform Expert-Level Scientific Tasks ↗</a><small>arXiv · 2026 / v1 · 2026-01-29</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Background: how should scientific capabilities be evaluated?</a></li><li><a href="#section-2">2. Related work: what has been measured before?</a></li><li><a href="#section-3">3. Research questions: what does the paper aim to establish?</a></li><li><a href="#section-4">4. Method: from expert authoring to automated grading</a></li><li><a href="#section-8">5. Experiments and results: overall performance before reasoning effort</a></li><li><a href="#section-11">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>AI can solve increasingly difficult science questions, but which research activities does that qualify it to undertake? FrontierScience evaluates Olympiad-style problem solving and open-ended research subtasks on separate tracks. Following expert authoring, review, grading, and model comparisons shows what evidence the benchmark provides and what remains outside its scope.</p>
+<p>This article uses <a href="https://arxiv.org/abs/2601.21165v1" target="_blank" rel="noopener noreferrer">arXiv v1, dated January 29, 2026</a>. Model names and scores refer to the paper’s experimental settings at that time.</p>
+<h2 id="section-1">1. Background: how should scientific capabilities be evaluated?</h2>
+<p>Studying a material may involve several levels of work: calculating a physical quantity from given conditions, explaining an experimental observation, identifying a worthwhile question, and designing experiments whose feedback changes the research direction.</p>
+<p>These activities need separate evaluation. Knowledge questions provide local evidence; assessing research support also requires checking multi-step reasoning, constraint satisfaction, and sufficient justification.</p>
+<p><strong>The central question is which activity in the research process an evaluation score actually measures.</strong> Making questions difficult is one task. Establishing whether their scores help predict practical research performance is another relationship that needs validation.</p>
+<h2 id="section-2">2. Related work: what has been measured before?</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main evaluation target</th>
+<th>Remaining question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2311.12022" target="_blank" rel="noopener noreferrer">GPQA</a></td>
+<td>Difficult scientific multiple-choice questions written by experts</td>
+<td>How well does selecting the correct answer reflect independent derivation?</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2402.14008" target="_blank" rel="noopener noreferrer">OlympiadBench</a></td>
+<td>Competition-level mathematics and physics, including open answers</td>
+<td>Published questions may introduce contamination; competitions also leave open-ended research judgments untested</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Understanding papers, implementing code, and executing replication experiments</td>
+<td>Replication combines reasoning, engineering, and execution, requiring further diagnosis of each ability</td>
+</tr>
+</tbody>
+</table></div><p>FrontierScience occupies an intermediate level: it retains science questions with relatively definite answers and adds research subtasks requiring multi-step explanation, argument, and judgment. The aim is a more difficult, original, and diagnostically useful evaluation of scientific reasoning.</p>
+<h2 id="section-3">3. Research questions: what does the paper aim to establish?</h2>
+<p>We organize the goals into three reading questions that guide the methods and experiments below. This is our synthesis, rather than a verbatim list from the authors.</p>
+<ol>
+<li><strong>How can difficult, original, and verifiable science questions be constructed?</strong> Difficulty, complete conditions, and answer correctness must all be checked.</li>
+<li><strong>How should open-ended research answers be scored?</strong> Evaluation needs to identify specific omissions in reasoning and explanation, beyond final-answer correctness.</li>
+<li><strong>Where do current models differ?</strong> Compare overall performance on both task types, then examine the benefits of greater reasoning effort.</li>
+</ol>
+<h2 id="section-4">4. Method: from expert authoring to automated grading</h2>
+<h3 id="section-5">Step 1: separate capabilities into two evaluation tracks</h3>
+<p>The public gold set contains 160 questions across Olympiad and Research. The larger initial question pool is not fully released; the authors retain some questions to monitor potential contamination of the public set.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Track</th>
+<th style="text-align:right">Public questions</th>
+<th>Task format</th>
+<th>Grading basis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Olympiad</td>
+<td style="text-align:right">100</td>
+<td>Competition-style scientific reasoning, usually with a definite short answer</td>
+<td>Equivalence of numbers, expressions, or names</td>
+</tr>
+<tr>
+<td>Research</td>
+<td style="text-align:right">60</td>
+<td>Open-ended subtasks that may arise during PhD research</td>
+<td>A task-specific 10-point rubric</td>
+</tr>
+</tbody>
+</table></div><p>The public Research set contains 20 questions each in physics, chemistry, and biology. Authors include doctoral candidates, postdoctoral researchers, and professors. Problems must supply the background, variables, and assumptions required for reasoning. This already bounds the evaluation: <button type="button" class="reading-note-trigger" popovertarget="reading-note-task-scope" aria-controls="reading-note-task-scope" aria-expanded="false" aria-haspopup="dialog">models mainly solve given problems rather than choose research directions themselves</button>.</p>
+<h3 id="section-6">Step 2: check question quality through independent review</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontierscience/task-pipeline.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontierscience/task-pipeline.png" alt="FrontierScience task construction: authoring, review, resolving disagreements, and revision" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Task construction. Independent experts check factuality, verifiability, objectivity, and difficulty, discuss disagreements, and revise questions. Source: original Figure 3, PDF p. 4. The third box is still labeled REVIEW in the diagram; the text and caption call this stage Resolution. Only surrounding page material was cropped; not redrawn. Click to enlarge.</figcaption></figure>
+<p>Review checks sufficient conditions, correct answers, and originality alongside difficulty. Research receives at least two independent reviews followed by an overall review. Unresolved disagreement can lead to a question being discarded.</p>
+<p>The lesson is that <strong>difficult questions also need quality control</strong>. Missing information and ambiguity can cause model failure without demonstrating a lack of reasoning ability.</p>
+<h3 id="section-7">Step 3: decompose open answers into checkable criteria</h3>
+<p><button type="button" class="reading-note-trigger" popovertarget="reading-note-rubric-construction" aria-controls="reading-note-rubric-construction" aria-expanded="false" aria-haspopup="dialog">Each Research question has a rubric totaling 10 points</button>, with specific requirements and possible partial credit. The chemistry example separately examines limitations of synthesis methods, electronic structure, spectroscopy, and reactivity. Mentioning concepts can therefore receive a different assessment from correctly connecting them.</p>
+<p>Both tracks use GPT-5 high as the model grader. Olympiad checks equivalence to a reference answer; Research sums rubric credit, with <strong>at least 7/10 points counted as success</strong>. Automated grading scales evaluation, while making the reliability of both criteria and graders important. <a href="https://arxiv.org/html/2601.21165v1#S2.SS3" target="_blank" rel="noopener noreferrer">See Section 2.3 and the grading prompts in Appendix B</a>.</p>
+<h2 id="section-8">5. Experiments and results: overall performance before reasoning effort</h2>
+<h3 id="section-9">Main experiment: overall performance on the two tracks</h3>
+<p>The authors compare several frontier models. Olympiad scores average 20 independent trials; Research scores average 30. Research measures the share of responses earning at least 7 points, not mean rubric points. These results also do not select the best answer from repeated attempts.</p>
+<p>Evaluation does not use browsing. GPT-5.2 uses xhigh reasoning effort, while other reasoning models use high, so computation is not fully matched across models.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontierscience/main-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontierscience/main-results.png" alt="FrontierScience main results across models on Olympiad and Research" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Main evaluation. Left: Olympiad accuracy. Right: Research success rate, with at least 7/10 points required. Results average 20 and 30 independent trials, respectively. Source: original Figure 6, PDF p. 7. Original values and error bars are retained; only surrounding material was cropped. Click to enlarge.</figcaption></figure>
+<p>The following excerpts four model results from Figure 6, retaining one decimal place.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">Olympiad accuracy</th>
+<th style="text-align:right">Research success rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.2</td>
+<td style="text-align:right"><strong>77.1%</strong></td>
+<td style="text-align:right"><strong>25.2%</strong></td>
+</tr>
+<tr>
+<td>Gemini 3 Pro</td>
+<td style="text-align:right">76.1%</td>
+<td style="text-align:right">12.4%</td>
+</tr>
+<tr>
+<td>Claude Opus 4.5</td>
+<td style="text-align:right">71.4%</td>
+<td style="text-align:right">17.5%</td>
+</tr>
+<tr>
+<td>GPT-5</td>
+<td style="text-align:right">69.7%</td>
+<td style="text-align:right"><strong>25.2%</strong></td>
+</tr>
+</tbody>
+</table></div><p>The ranking changes are especially informative. Gemini 3 Pro approaches GPT-5.2 on Olympiad, but not on Research; GPT-5 ties GPT-5.2 on Research. This supports evaluating the two capabilities separately, beyond using one aggregate science score to judge suitability for research.</p>
+<p>However, the tracks use different tasks and grading procedures. Their score difference cannot directly quantify a loss of ability. These experiments demonstrate model differences and remaining headroom, but <strong>do not establish that the scores accurately predict real research outputs</strong>.</p>
+<h3 id="section-10">Additional analysis: how much does more reasoning help?</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontierscience/reasoning-effort.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontierscience/reasoning-effort.png" alt="Olympiad and Research results for GPT-5.2 and o3 at different reasoning-effort levels" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Reasoning effort. Compare low, medium, high, and GPT-5.2’s xhigh settings within each model. GPT-5.2 improves on both tracks; o3’s Research curve is not entirely monotonic. Source: original Figure 8, PDF p. 8. Only surrounding material was cropped; not redrawn. Click to enlarge.</figcaption></figure>
+<p>The figure shows the following changes for GPT-5.2 from low to xhigh:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Track</th>
+<th style="text-align:right">Low</th>
+<th style="text-align:right">Xhigh</th>
+<th style="text-align:right">Change (percentage points)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Olympiad</td>
+<td style="text-align:right">67.5%</td>
+<td style="text-align:right">77.1%</td>
+<td style="text-align:right">+9.6</td>
+</tr>
+<tr>
+<td>Research</td>
+<td style="text-align:right">18.2%</td>
+<td style="text-align:right">25.2%</td>
+<td style="text-align:right">+7.0</td>
+</tr>
+</tbody>
+</table></div><p>More reasoning helps under these settings, but Research retains substantial headroom. The o3 results also suggest checking benefits by model and task; the small dip alone does not establish that more effort is inherently harmful.</p>
+<p>The paper mainly compares models and reasoning effort. It does not use component ablations to separately quantify how expert review or a particular rubric design improves evaluation quality. The benchmark’s validity therefore needs further evidence.</p>
+<h2 id="section-11">6. Our reflections</h2>
+<h3 id="section-12">Understanding the field: what is being studied?</h3>
+<p>We see two relationships to establish: decomposing abstract scientific capabilities into observable tasks, and confirming whether task scores correspond to real research performance. FrontierScience offers a useful design for the first; the second still needs comparisons with projects and experimental outcomes.</p>
+<h3 id="section-13">Remaining limitations: which problems are unresolved?</h3>
+<ul>
+<li><strong>Limited evaluation scope.</strong> Solving a supplied problem differs from discovering a valuable one. Textual answers also omit experimental operations, multimodal observations, and sustained research decisions.</li>
+<li><strong>Grading standards need independent validation.</strong> Appendix B instructs the grader to follow the rubric strictly. A rubric that overlooks valid alternatives may penalize reasonable answers. The paper also lacks a human-performance baseline on this dataset.</li>
+<li><strong>Construction and resources affect interpretation.</strong> Questions that internal models solve easily may be modified or discarded. Together with unmatched reasoning effort, this means scores are not everyday research-success probabilities, and rankings must retain their experimental conditions.</li>
+</ul>
+<h3 id="section-14">Possible solutions: which directions are worth exploring?</h3>
+<p>These proposed directions correspond to the limitations above.</p>
+<ul>
+<li><strong>Connect question scores to complete projects.</strong> Test whether higher-scoring models also execute experiments, reproduce findings, or improve candidates more effectively, establishing predictive value for practical work.</li>
+<li><strong>Evaluate rubrics independently.</strong> Use blinded expert assessments, alternative correct solutions, and plausible incorrect solutions to measure false judgments and missed errors, alongside appropriately specialized human baselines.</li>
+<li><strong>Control question selection and reasoning budgets.</strong> Compare models at similar cost, author questions independently of evaluated models, and report variation across subjects, scoring thresholds, and repeated runs.</li>
+</ul>
+<p>These are proposals for future work. We would particularly like to know whether an evaluation helps identify which part of research a model can undertake, beyond producing difficult questions.</p>
+<p><em>Based on <a href="https://arxiv.org/abs/2601.21165v1" target="_blank" rel="noopener noreferrer">FrontierScience arXiv v1</a>. Figures belong to Miles Wang et al. and are reproduced under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Only surrounding page material was cropped; figures and data were not redrawn or altered. Tables excerpt the original figures. Interpretations and future research directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Background: how should scientific capabilities be evaluated?</a></li><li><a href="#section-2">2. Related work: what has been measured before?</a></li><li><a href="#section-3">3. Research questions: what does the paper aim to establish?</a></li><li><a href="#section-4">4. Method: from expert authoring to automated grading</a></li><li><a href="#section-8">5. Experiments and results: overall performance before reasoning effort</a></li><li><a href="#section-11">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../researchclawbench/"><span>Paper reading</span><strong>ResearchClawBench: how far are complete reports from reliable research?</strong><i aria-hidden="true">↗</i></a><a href="../scientific-discovery-evaluation/"><span>Paper reading</span><strong>SDE: do scientific Q&amp;A scores predict discovery?</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><aside id="reading-note-task-scope" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-task-scope-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-task-scope" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-task-scope-title">What does the model receive and produce, and what counts as success?</p><div class="reading-note-answer"><p><strong>Input</strong>: a text-only science question specifying the research background, conditions, and objective. This evaluation does not use browsing.</p>
+<p><strong>Output</strong>: a written solution. Research requires derivations, explanations, or a design with supporting reasoning; Olympiad mainly checks the final number, expression, or name.</p>
+<p><strong>Success</strong>: GPT-5 high receives the question, response, and task-specific 10-point rubric, evaluates the criteria, and totals the credit. <strong>At least 7/10 points counts as success.</strong> This checks whether the response meets grading conditions, not whether its proposal has been experimentally validated.</p>
+</div><details class="reading-note-detail"><summary>Expand the real example and grading criteria</summary><div class="reading-note-answer"><p><strong>Real example: conditional control in a plant</strong></p>
+<p>Appendix A, Figure 10 asks for a plant genetic system in which three enzymes sequentially produce metabolite X. Production should occur only when both a stress signal and a specified developmental signal are detected. A cell producing X must also signal nearby, non-transgenic cells to increase defense. The task requests a comprehensive design and critical evaluation.</p>
+<p>The response needs expression components, a two-input control mechanism, intercellular communication, and ways to manage stability and metabolic burden. Merely saying ‘build an AND gate and send a defense signal’ leaves substantial mechanistic detail unspecified.</p>
+<p>This question has 10 rubric items worth 1 point each. The following paraphrases only 4 of them. These are this question’s specific criteria, rather than a universal template for Research.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Content checked in this question (paraphrased)</th>
+<th style="text-align:right">Points</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Co-express the three enzymes using an expression architecture with self-cleaving 2A peptides</td>
+<td style="text-align:right">1</td>
+</tr>
+<tr>
+<td>Propose a CRISPR-based split activator for two-input AND control</td>
+<td style="text-align:right">1</td>
+</tr>
+<tr>
+<td>Explain how the two inputs reconstitute the split activator and activate the output</td>
+<td style="text-align:right">1</td>
+</tr>
+<tr>
+<td>Explain stabilization, secretion, and movement of a mobile peptide signal to neighboring cells</td>
+<td style="text-align:right">1</td>
+</tr>
+</tbody>
+</table></div><p>Other criteria address integration, chromatin insulation, repression of the off state, metabolic balance, repetitive sequences, and signaling specificity. Thus, <strong>a response that actually satisfies 7 complete 1-point criteria totals 7 points and reaches the paper’s success threshold; satisfying 6 does not</strong>. This is an arithmetic illustration of grading, not a model transcript reported in the paper. The grading prompt also permits fractional credit according to the rubric.</p>
+<p><strong>Why is this short of autonomous research?</strong> The deliverable is a design and argument under supplied constraints. Evaluation does not require choosing the research direction, engineering the actual plant, running wet-lab experiments, and iteratively revising the design from experimental results.</p>
+<p><strong>Separate the solver from the grader.</strong> Appendix B explicitly lists the grader’s inputs, including the rubric. It does not fully disclose each evaluated model’s solver-side prompt. We therefore cannot infer that all solvers received an identical prompt template, or treat the grader prompt as the solver’s input.</p>
+<p>Sources: <a href="https://arxiv.org/html/2601.21165v1#S2.SS3" target="_blank" rel="noopener noreferrer">task definition and scoring, Sections 1, 2.3, and 3.1</a>; <a href="https://arxiv.org/pdf/2601.21165v1#page=12" target="_blank" rel="noopener noreferrer">Appendix A, Figure 10 (PDF p. 12)</a>; <a href="https://arxiv.org/pdf/2601.21165v1#page=14" target="_blank" rel="noopener noreferrer">Appendix B, Research grader prompt (PDF p. 14)</a>. The example paraphrases the paper; the arithmetic illustration and scope explanation are our synthesis.</p>
+</div></details></aside><aside id="reading-note-rubric-construction" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-rubric-construction-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-rubric-construction" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-rubric-construction-title">How is the rubric for each Research question constructed?</p><div class="reading-note-answer"><p><strong>Expert authoring</strong>: subject-matter experts provide a task-specific rubric alongside a detailed solution that would earn full credit. The GPT-5 grader applies these predefined criteria.</p>
+<p><strong>Explicit criteria</strong>: each item specifies the condition for credit and its point value. Items must be independent and objectively assessable, totaling 10 points. <strong>A 10-point total does not imply ten equally weighted items.</strong></p>
+<p><strong>Review and revision</strong>: Research questions, rubrics, and solutions undergo at least two independent expert reviews followed by an overall review. Disagreements must be resolved, or the question may be discarded.</p>
+</div><details class="reading-note-detail"><summary>Expand the guidelines, weighting examples, and validation limits</summary><div class="reading-note-answer"><p><strong>1. Construct the question, solution, and criteria together</strong></p>
+<p>Section 2.1 requires a detailed expert solution that would earn full credit; Section 2.3 specifies task-specific grading conditions and points. One way to understand the design is to turn essential results and reasoning requirements into checkable conditions. This explains the design logic; the paper does not prescribe a fixed writing sequence or automatic rubric-generation algorithm for every expert.</p>
+<p><strong>2. Make items concrete; weights vary by question</strong></p>
+<p>Appendix C requires independent, objectively assessable items with clear, affirmative descriptions and defined variables and acronyms. Checking whether a specified equation is written is more concrete than asking whether an analysis is sufficiently insightful. Criteria may check both final conclusions and intermediate reasoning.</p>
+<p>The plant-design example in Appendix A (Figure 10) has 10 items worth 1 point each, including an explanation of the two-input AND gate’s activation mechanism. The physics example (Figure 9) instead includes items worth 0.5, 1, and 1.5 points. What is standardized is the 10-point total, rather than the criteria or their allocation.</p>
+<p><strong>3. Review covers the grading rules as well as the question</strong></p>
+<p>Section 2.2 states that independent domain experts read the question, rubric, and solution explanation, checking correctness and compliance with the guidelines. Research undergoes at least two independent reviews followed by expert meta review. Authors and reviewers must resolve disagreements or discard the question.</p>
+<p><strong>4. Separate consistency requirements from demonstrated validation</strong></p>
+<p>Appendix C lists a maximum 0.5-point overall discrepancy between human and model grading as a construction requirement. Internal models are also used to test difficulty, and questions on which they score highly may be modified or discarded. The former is a grading-consistency requirement; the latter is difficulty selection. They are different checks.</p>
+<p>The paper does not supply a universal weighting formula, complete per-question revision histories, or comprehensive consistency statistics here. Construction requirements therefore cannot be treated as proof that every rubric is unbiased and fully reliable. Our follow-up questions are whether valid alternative solutions may be missed and whether the weights accurately reflect the importance of each component.</p>
+<p>Sources: <a href="https://arxiv.org/html/2601.21165v1#S2.SS1" target="_blank" rel="noopener noreferrer">Section 2.1, data construction</a>; <a href="https://arxiv.org/html/2601.21165v1#S2.SS2" target="_blank" rel="noopener noreferrer">Sections 2.2–2.3, review and grading</a>; <a href="https://arxiv.org/pdf/2601.21165v1#page=12" target="_blank" rel="noopener noreferrer">Appendix A, weighting examples (PDF p. 12)</a>; <a href="https://arxiv.org/pdf/2601.21165v1#page=15" target="_blank" rel="noopener noreferrer">Appendix C, problem guidelines (PDF p. 15)</a>. Requirements and workflow summarize the paper; the explanation of design logic and follow-up questions are our analysis.</p>
+</div></details></aside><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

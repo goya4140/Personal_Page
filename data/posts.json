@@ -1,0 +1,494 @@
+[
+  {
+    "slug": "autoscientists",
+    "title_zh": "AutoScientists：科研智能体怎样组队，决定下一次实验",
+    "title_en": "AutoScientists: how research agents form teams and choose the next experiment",
+    "summary_zh": "从共享实验日志、提案互评和停滞后改组，理解自组织团队在相同实验资源下如何搜索，以及试验次数与实际耗时的区别。",
+    "summary_en": "Shared logs, proposal critique, and team reorganization during experimental search, with a comparison of trial counts, wall-clock time, and budgets.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-14",
+    "paper": {
+      "title": "AutoScientists: Self-Organizing Agent Teams for Long-Running Scientific Experimentation",
+      "url": "https://arxiv.org/abs/2605.28655v2",
+      "venue": "arXiv · 2026 / v2 · 2026-11-10"
+    },
+    "cover": "assets/img/blog/autoscientists/overview.png"
+  },
+  {
+    "slug": "autoscirub",
+    "title_zh": "AutoSciRub：先明确证据要求，再推进自主科研",
+    "title_en": "AutoSciRub: specify evidence before improving research",
+    "summary_zh": "沿目标骨架、文献与数据依据、准则合成和定向修订流程，解读跨系统收益，以及内部核验、可评分提交与完整科研成功的区别。",
+    "summary_en": "From goal skeletons and evidence grounding to targeted revision: cross-system gains and the distinctions between internal verification, scorable submissions, and complete research success.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "Learning to Evaluate Before Improving: Automatic Rubric Induction for Automatic Research Agents",
+      "url": "https://arxiv.org/abs/2608.31076v1",
+      "venue": "arXiv · 2026 / v1 · 2026-08-31 · Work in progress"
+    },
+    "cover": "assets/img/blog/autoscirub/overview.png"
+  },
+  {
+    "slug": "exp-bench",
+    "title_zh": "EXP-Bench：AI 能把研究实验完整做对吗？",
+    "title_en": "EXP-Bench: can AI complete a research experiment correctly?",
+    "summary_zh": "从 461 个实验任务、过程评分到独立执行，理解单项能力与完整成功的差距，以及 0.5% 严格得分的统计边界。",
+    "summary_en": "From 461 experimental tasks and process scoring to independent execution: the gap between partial competence and complete success, and the limits of the strict 0.5% result.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "EXP-Bench: Can AI Conduct AI Research Experiments?",
+      "url": "https://arxiv.org/abs/2505.24785v2",
+      "venue": "arXiv · 2025 / v2 · 2025-06-02"
+    },
+    "cover": "assets/img/blog/exp-bench/overview.png"
+  },
+  {
+    "slug": "researchclawbench",
+    "title_zh": "ResearchClawBench：完整报告距离可靠科研还有多远",
+    "title_en": "ResearchClawBench: how far are complete reports from reliable research?",
+    "summary_zh": "从隐藏目标、任务输入到加权 RADS 评分，理解科研证据与报告外观的差别；附评分教学算例、可展开说明及与 AutoSciRub 的连接。",
+    "summary_en": "From hidden targets and task inputs to weighted RADS scoring: scientific evidence, report quality, a labeled teaching example, expandable notes, and the link to AutoSciRub.",
+    "tags_zh": [
+      "AI for Science",
+      "科研能力评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Scientific capability evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research",
+      "url": "https://arxiv.org/abs/2606.07591v5",
+      "venue": "arXiv · 2026 / v5 · 2026-07-03"
+    },
+    "cover": "assets/img/blog/researchclawbench/overview.png"
+  },
+  {
+    "slug": "astabench",
+    "title_zh": "AstaBench：怎样公平评价科研智能体",
+    "title_en": "AstaBench: how to evaluate research agents fairly",
+    "summary_zh": "从统一任务、受控文献工具到成本与产物核验，理解科研智能体的整体成绩，以及平均步骤得分与完整研究成功率的距离。",
+    "summary_en": "From standardized tasks and controlled literature tools to costs and artifact checks: interpreting overall scores and the gap between partial progress and complete research.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite",
+      "url": "https://arxiv.org/abs/2510.21652v2",
+      "venue": "ICLR 2026 / arXiv v2 · 2026-04-21"
+    },
+    "cover": "assets/img/blog/astabench/main-results.png"
+  },
+  {
+    "slug": "evoscientist",
+    "title_zh": "让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化",
+    "title_en": "Learning from research experience: EvoScientist’s dual memory and cross-task evolution",
+    "summary_zh": "沿构思、实验与经验回写流程，解读双记忆和三种演化机制，区分提案人评、代码成功率与六篇论文录用的证据边界。",
+    "summary_en": "A reading of dual memory and three evolution mechanisms, separating evidence from proposal judgments, code execution, and six accepted papers.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "EvoScientist: Towards Multi-Agent Evolving AI Scientists for End-to-End Scientific Discovery",
+      "url": "https://arxiv.org/abs/2603.08127v2",
+      "venue": "arXiv · 2026 / v2 · 2026-10-05"
+    },
+    "cover": "assets/img/blog/evoscientist/overview.png"
+  },
+  {
+    "slug": "autosota",
+    "title_zh": "AutoSOTA：从论文复现到有效的方法改进",
+    "title_en": "AutoSOTA: from paper replication to valid method improvements",
+    "summary_zh": "沿资源恢复、实验执行与反思优化流程，解读八个 Agent 的分工、105/125 的结果，以及有效性监督和计算成本的边界。",
+    "summary_en": "An illustrated reading of resource recovery, execution, and iterative optimization, examining eight agents, the 105/125 result, validity supervision, and compute costs.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "AutoSOTA: An End-to-End Automated Research System for State-of-the-Art AI Model Discovery",
+      "url": "https://arxiv.org/abs/2604.05550v2",
+      "venue": "arXiv · 2026 / v2 · 2026-05-25"
+    },
+    "cover": "assets/img/blog/autosota/overview.png"
+  },
+  {
+    "slug": "paperbench",
+    "title_zh": "PaperBench：AI 能把一篇论文真正复现出来吗？",
+    "title_en": "PaperBench: can AI truly replicate a research paper?",
+    "summary_zh": "从代码实现、独立执行到结果匹配，理解论文复现的层级评分，以及科研智能体持续推进实验的瓶颈。",
+    "summary_en": "From implementation and independent execution to matching results: hierarchical replication scores and the limits of sustained experimental progress.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "PaperBench: Evaluating AI’s Ability to Replicate AI Research",
+      "url": "https://arxiv.org/abs/2504.01848",
+      "venue": "2025"
+    },
+    "cover": "assets/img/blog/paperbench/overview.png"
+  },
+  {
+    "slug": "frontierscience",
+    "title_zh": "FrontierScience：从科学解题到研究子问题评测",
+    "title_en": "FrontierScience: from science problem solving to research subtasks",
+    "summary_zh": "从专家出题、独立复审到 10 分制 rubric，理解竞赛成绩与研究题表现的差异，以及评测分数能说明什么。",
+    "summary_en": "An illustrated reading of expert task construction, independent review, rubric grading, and the gap between competition scores and research-subtask performance.",
+    "tags_zh": [
+      "AI for Science",
+      "科研能力评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Scientific capability evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-10",
+    "paper": {
+      "title": "FrontierScience: Evaluating AI's Ability to Perform Expert-Level Scientific Tasks",
+      "url": "https://arxiv.org/abs/2601.21165v1",
+      "venue": "arXiv · 2026 / v1 · 2026-01-29"
+    },
+    "cover": "assets/img/blog/frontierscience/main-results.png"
+  },
+  {
+    "slug": "scientistone",
+    "title_zh": "ScientistOne：用证据链连接论文、代码与实验",
+    "title_en": "ScientistOne: linking papers, code, and experiments through evidence",
+    "summary_zh": "数字来自哪次实验，方法是否对应代码，引用是否真实？沿文献、实验与写作流程，理解证据链和四项产物审计。",
+    "summary_en": "An illustrated reading of evidence grounding across literature, experiments, and writing, with four artifact integrity checks and their limits.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-09",
+    "paper": {
+      "title": "ScientistOne: Towards Human-Level Autonomous Research via Chain-of-Evidence",
+      "url": "https://arxiv.org/abs/2605.26340v1",
+      "venue": "arXiv · 2026"
+    }
+  },
+  {
+    "slug": "scientific-discovery-evaluation",
+    "title_zh": "SDE：答对科学题，能否做好科学研究",
+    "title_en": "SDE: do scientific Q&A scores predict discovery?",
+    "summary_zh": "从研究场景、题目测评到多轮项目，理解科学发现能力该怎样评价，以及答题分数何时无法预测研究表现。",
+    "summary_en": "An illustrated reading of scenario-grounded questions, iterative projects, and the gap between answering science questions and driving discovery.",
+    "tags_zh": [
+      "AI for Science",
+      "科研能力评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Scientific capability evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-09",
+    "paper": {
+      "title": "Evaluating Large Language Models in Scientific Discovery",
+      "url": "https://arxiv.org/abs/2512.15567v2",
+      "venue": "arXiv · 2025 / v2 · 2026-05-08"
+    }
+  },
+  {
+    "slug": "scientisttwo",
+    "title_zh": "ScientistTwo：从研究想法到实验反馈",
+    "title_en": "ScientistTwo: from research ideas to experimental feedback",
+    "summary_zh": "按研究流程读懂自主科研：怎样筛选想法、解释提升，再把评审反馈变成下一步实验。配合原论文方法图与核心实验。",
+    "summary_en": "An illustrated reading of idea screening, ablation, and review-driven experiments, with the original method figures and core evidence.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-09",
+    "paper": {
+      "title": "ScientistTwo: Pioneering the Human Knowledge Frontier with Autonomous AI",
+      "url": "https://arxiv.org/abs/2609.19644v1",
+      "venue": "arXiv · 2026"
+    },
+    "cover": "assets/posters/scientisttwo/zh/preview.png",
+    "posters": "assets/posters/scientisttwo/index.html",
+    "pinned": true,
+    "covers": {
+      "zh": "assets/posters/scientisttwo/zh/preview.png",
+      "en": "assets/posters/scientisttwo/en/preview.png"
+    }
+  },
+  {
+    "slug": "medical-vlm-probe",
+    "title_zh": "从一张 CT 开始，理解 Medical VLM 与 Probe",
+    "title_en": "Understanding Medical VLMs and probes, one CT slice at a time",
+    "summary_zh": "把病灶是否存在、模型如何回答，以及 Probe 读出了什么分开理解，建立医学 VLM 可解释性研究的入门框架。",
+    "summary_en": "A concrete introduction to lesion labels, native model answers, probe predictions, and what they can—and cannot—establish.",
+    "tags_zh": [
+      "医学 AI",
+      "可解释性",
+      "Probe"
+    ],
+    "tags_en": [
+      "Medical AI",
+      "Interpretability",
+      "Probes"
+    ],
+    "kind": "notes",
+    "date": "2026-10-29"
+  },
+  {
+    "slug": "deeprare",
+    "title_zh": "DeepRare：罕见病诊断中的工具、证据与可追溯推理",
+    "title_en": "DeepRare: tools, evidence, and traceable reasoning",
+    "summary_zh": "从系统架构、实验与失败案例出发，区分带引用的解释、诊断准确性与真正的临床效用。",
+    "summary_en": "A reading of the architecture, evaluation, failure modes, and limits of an agentic rare-disease diagnosis system.",
+    "tags_zh": [
+      "医学 AI",
+      "科研智能体",
+      "证据"
+    ],
+    "tags_en": [
+      "Medical AI",
+      "Agents",
+      "Evidence"
+    ],
+    "kind": "reading",
+    "date": null,
+    "paper": {
+      "title": "An agentic system for rare disease diagnosis with traceable reasoning",
+      "url": "https://www.nature.com/articles/s41586-025-10097-9",
+      "venue": "Nature · 2026"
+    }
+  },
+  {
+    "slug": "generate-verify-repair",
+    "title_zh": "生成—验证—修复：Coding Agent 的证据闭环",
+    "title_en": "Generate–Verify–Repair: an evidence loop for coding agents",
+    "summary_zh": "从可执行任务包到独立验证、局部修复与干净重放，理解 G–V–R 为什么不只是一次自我反思。",
+    "summary_en": "From executable task bundles to independent verification, targeted repair, and clean replay.",
+    "tags_zh": [
+      "Coding Agent",
+      "验证器",
+      "数据工程"
+    ],
+    "tags_en": [
+      "Coding agents",
+      "Verification",
+      "Data engineering"
+    ],
+    "kind": "notes",
+    "date": "2026-08-20"
+  },
+  {
+    "slug": "rubric-construction",
+    "title_zh": "Rubric Construction：让评分规则成为可验证的学习信号",
+    "title_en": "Rubric construction: from scoring rules to verifiable learning signals",
+    "summary_zh": "梳理需求溯源、原子准则、hard gates、过程评价与对抗审计，区分评分一致性和规则本身的有效性。",
+    "summary_en": "A framework for requirement provenance, atomic criteria, hard gates, process feedback, and adversarial audits.",
+    "tags_zh": [
+      "评价与奖励",
+      "Coding Agent",
+      "Rubric"
+    ],
+    "tags_en": [
+      "Evaluation",
+      "Coding agents",
+      "Rubrics"
+    ],
+    "kind": "notes",
+    "date": null
+  },
+  {
+    "slug": "agent-training-data",
+    "title_zh": "从静态资料到 Agent 训练数据：指令、动作、环境与奖励",
+    "title_en": "From static materials to agent training data",
+    "summary_zh": "同一份文档或工具记录，怎样逐步增加任务、状态与验证结构，转化为 SFT 和 RL 可用的数据。",
+    "summary_en": "How task, action, state, and verification structures turn static materials into SFT and RL data.",
+    "tags_zh": [
+      "数据工程",
+      "Agent 训练",
+      "强化学习"
+    ],
+    "tags_en": [
+      "Data engineering",
+      "Agent training",
+      "RL"
+    ],
+    "kind": "notes",
+    "date": null
+  },
+  {
+    "slug": "story-generation-map",
+    "title_zh": "AI 故事生成的领域地图：规划、记忆、交互与评价",
+    "title_en": "A field guide to AI story generation",
+    "summary_zh": "从 Plan-and-Write 到长篇记忆与读者选择，整理生成路线、评价维度和优先阅读清单。",
+    "summary_en": "A map of long-form planning, narrative memory, interactive choices, and story evaluation.",
+    "tags_zh": [
+      "长篇生成",
+      "文献地图",
+      "交互式叙事"
+    ],
+    "tags_en": [
+      "Long-form generation",
+      "Literature map",
+      "Interactive narrative"
+    ],
+    "kind": "notes",
+    "date": "2026-09-02"
+  },
+  {
+    "slug": "reflexion",
+    "title_zh": "Reflexion：把失败反馈写进记忆",
+    "title_en": "Reflexion: learning through reflective memory",
+    "summary_zh": "不更新模型权重的语言反思，如何影响下一轮行动，以及错误记忆为什么需要被检查。",
+    "summary_en": "How verbal feedback changes future trials without weight updates, and why reflective memory needs verification.",
+    "tags_zh": [
+      "自我修正",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Self-correction",
+      "Agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-08-20",
+    "paper": {
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "url": "https://arxiv.org/abs/2303.11366"
+    }
+  },
+  {
+    "slug": "critic",
+    "title_zh": "CRITIC：让自我修正依靠工具证据",
+    "title_en": "CRITIC: grounding self-correction in tool evidence",
+    "summary_zh": "将初答、外部工具核验与修订连接起来，理解 self-critique 和 tool-grounded critique 的区别。",
+    "summary_en": "Connecting initial answers, external validation, and revision with auditable tool evidence.",
+    "tags_zh": [
+      "自我修正",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Self-correction",
+      "Agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-08-20",
+    "paper": {
+      "title": "CRITIC: Large Language Models Can Self-Correct with Tool-Interactive Critiquing",
+      "url": "https://arxiv.org/abs/2305.11738"
+    }
+  },
+  {
+    "slug": "self-refine",
+    "title_zh": "Self-Refine：自反馈迭代的能力与边界",
+    "title_en": "Self-Refine: the promise and limits of self-feedback",
+    "summary_zh": "同一个模型扮演生成、反馈与修订角色，是一个简单而重要的推理时优化基线。",
+    "summary_en": "A useful baseline in which one model generates, critiques, and revises its own output.",
+    "tags_zh": [
+      "自我修正",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Self-correction",
+      "Agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-08-20",
+    "paper": {
+      "title": "Self-Refine: Iterative Refinement with Self-Feedback",
+      "url": "https://arxiv.org/abs/2303.17651"
+    }
+  }
+]

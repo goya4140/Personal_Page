@@ -1,0 +1,51 @@
+{
+  "source": "https://arxiv.org/pdf/2504.01848v3",
+  "source_pdf_sha256": "2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Giulio Starace et al. PaperBench: Evaluating AI's Ability to Replicate AI Research (2025)",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": 1,
+      "pdf_page": 2,
+      "render_scale_to_pixels": 2200,
+      "crop_pixels_xywh": [
+        148,
+        181,
+        1360,
+        646
+      ],
+      "sha256": "ab213a85ae4d2b6d43ee02bb9a21d9bb2aed7b23b825395fd842b4a0baf726c0",
+      "operation": "Cropped surrounding page material; original figure and data unchanged; rendered with Poppler"
+    },
+    {
+      "file": "rubric.png",
+      "figure": 2,
+      "pdf_page": 3,
+      "render_scale_to_pixels": 2200,
+      "crop_pixels_xywh": [
+        150,
+        181,
+        660,
+        583
+      ],
+      "sha256": "d6d88dd4b7b4bf18fadd5f5a085cf0fb57cba9622ee5667460cf9389a9a5ac2a",
+      "operation": "Cropped surrounding page material; original figure and data unchanged; rendered with Poppler"
+    },
+    {
+      "file": "human-comparison.png",
+      "figure": 3,
+      "pdf_page": 8,
+      "render_scale_to_pixels": 2200,
+      "crop_pixels_xywh": [
+        152,
+        191,
+        1345,
+        460
+      ],
+      "sha256": "08b37343f5347c1988ded9d2ba3e20874f0137f3715107de24e3f5bad0af28ff",
+      "operation": "Cropped surrounding page material; original figure and data unchanged; rendered with Poppler"
+    }
+  ]
+}

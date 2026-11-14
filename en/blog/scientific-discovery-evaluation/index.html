@@ -1,0 +1,135 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDE: do scientific Q&amp;A scores predict discovery? | Linhao Wang</title>
+  <meta name="description" content="An illustrated reading of scenario-grounded questions, iterative projects, and the gap between answering science questions and driving discovery.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="SDE: do scientific Q&amp;A scores predict discovery?">
+  <meta property="og:description" content="An illustrated reading of scenario-grounded questions, iterative projects, and the gap between answering science questions and driving discovery.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/scientific-discovery-evaluation/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="SDE：答对科学题，能否做好科学研究" data-title-en="SDE: do scientific Q&amp;A scores predict discovery?" data-language-url="../../../blog/scientific-discovery-evaluation/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>8 min read</span><span>English translation</span><time datetime="2026-11-09">2026-11-09</time></div><div class="article-heading-layout has-art"><div><h1>SDE: do scientific Q&amp;A scores predict discovery?</h1><p class="article-summary">An illustrated reading of scenario-grounded questions, iterative projects, and the gap between answering science questions and driving discovery.</p><div class="post-topics"><span>AI for Science</span><span>Scientific capability evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/scientific-discovery-evaluation/framework.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/scientific-discovery-evaluation/framework.png" alt="SDE: do scientific Q&amp;A scores predict discovery?" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2512.15567v2" target="_blank" rel="noopener noreferrer">Evaluating Large Language Models in Scientific Discovery ↗</a><small>arXiv · 2025 / v2 · 2026-05-08</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Background: evaluating AI’s research capabilities</a></li><li><a href="#section-2">2. Related work: from scientific questions to research tasks</a></li><li><a href="#section-3">3. Research questions: which abilities need separate checks?</a></li><li><a href="#section-4">4. Method: two evaluation levels built from research projects</a></li><li><a href="#section-8">5. Experiments and results: evidence for the three questions</a></li><li><a href="#section-12">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>If a model answers many difficult scientific questions correctly, can we entrust it with research? Scientific Discovery Evaluation (SDE) evaluates both answers in research scenarios and performance on iterative projects. Its design helps us reconsider what evidence to trust when selecting research models.</p>
+<h2 id="section-1">1. Background: evaluating AI’s research capabilities</h2>
+<p>Suppose we want a better-performing material. Research involves interpreting existing data, proposing candidates, obtaining computational or experimental feedback, and adjusting the search. Answering a knowledge question supports only one part of that process.</p>
+<p><strong>Research-capability evaluation asks whether models make useful judgments under specific research conditions and use feedback to advance a task.</strong> It therefore includes local abilities and sustained action: the former identifies weaknesses; the latter tests whether those abilities work together.</p>
+<p>The central difficulty is relating easily measured scores to the research performance we actually care about. Question accuracy, candidate validity, and final project benefits provide evidence at different levels.</p>
+<h2 id="section-2">2. Related work: from scientific questions to research tasks</h2>
+<p>Existing evaluations approach this through knowledge, executable tasks, and replication.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main evaluation target</th>
+<th>Perspective for this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2311.12022" target="_blank" rel="noopener noreferrer">GPQA</a></td>
+<td>Difficult scientific multiple-choice questions written by experts</td>
+<td>Which scientific knowledge and problem-solving abilities does a model have?</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>Data-driven tasks from real papers, checking programs, execution, and cost</td>
+<td>Can a model turn requirements into executable artifacts?</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Reproducing ML papers from scratch using hierarchical assessment</td>
+<td>How can multi-stage research be decomposed and scored?</td>
+</tr>
+</tbody>
+</table></div><p>SDE links projects, scenarios, and questions, while adding candidate generation, computational validation, and feedback to projects. We ask whether this explains why a strong question-answering model may not lead on research projects.</p>
+<h2 id="section-3">3. Research questions: which abilities need separate checks?</h2>
+<p>We organize the goals into three questions:</p>
+<ol>
+<li><strong>Can research-oriented questions reveal differences hidden by general scores?</strong> Broad fields need to be decomposed into specific research activities.</li>
+<li><strong>Does more reasoning reliably improve these abilities?</strong> Benefits should be checked by scenario, beyond aggregate scores.</li>
+<li><strong>Does good question answering imply good project performance?</strong> Models need to enter iterative search so the two levels can be compared.</li>
+</ol>
+<p>These correspond to scenario profiles, reasoning-effort comparisons, and question–project comparisons. This article uses <a href="https://arxiv.org/abs/2512.15567v2" target="_blank" rel="noopener noreferrer">v2, revised May 8, 2026</a>. Model names and results refer to that paper’s experimental settings.</p>
+<h2 id="section-4">4. Method: two evaluation levels built from research projects</h2>
+<p>SDE is an evaluation design. We follow data construction, question evaluation, and project evaluation.</p>
+<h3 id="section-5">Step 1: decompose projects into reusable research scenarios</h3>
+<p>Domain experts identify scenarios from real research interests, construct questions using public data, computational workflows, and manual writing, then review them. A scenario is a research unit reusable across projects, such as reaction prediction, spectral interpretation, or molecular-property estimation.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scientific-discovery-evaluation/framework.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scientific-discovery-evaluation/framework.png" alt="SDE connects scientific fields, projects, research scenarios, and questions" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Evaluation construction. Move from a field to projects, scenarios, and questions; eval marks project-level and question-level assessment. Source: original Figure 1c, v2 PDF p. 3, corresponding panel excerpted. Click to enlarge.</figcaption></figure>
+<p>Retrosynthesis, for example, works backward from a target molecule to starting materials and reaction routes. Multi-step planning draws on single-step retrosynthesis, reaction mechanisms, and forward prediction. Testing these scenarios separately helps locate project failures. The resulting set covers biology, chemistry, materials, and physics, with 43 scenarios and 1,125 questions.</p>
+<h3 id="section-6">Step 2: construct question-level capability profiles</h3>
+<p>Models answer questions within scenarios and are scored using task-specific exact matching, numerical tolerances, or similarity measures. The authors compare overall performance while retaining scenario results, and vary reasoning effort to locate gains.</p>
+<p>This addresses the first two questions: where models are reliable and where additional reasoning helps. This level still primarily evaluates answers to questions.</p>
+<h3 id="section-7">Step 3: run hypothesis–validation–observation loops on projects</h3>
+<p>The authors build sde-harness. In eight project types, models propose hypotheses, computational evaluators or simulators check them, and results feed the next round. Projects involve molecules, proteins, crystals, equations, and other search spaces. Evolutionary search provides a shared framework: retain stronger candidates and generate new ones, with task-specific adaptations where needed.</p>
+<p>For transition-metal complex (TMC) optimization, the model receives candidate ligands, constraints, objectives, and initial samples, then proposes structures. Validity checks and property calculations generate feedback for the next round. <strong>Evaluation examines how candidates improve through feedback, beyond the correctness of one answer.</strong></p>
+<p>This addresses the third question and bounds the interpretation: the evaluation measures a model combined with specified search frameworks and computational tools, not complete real-laboratory research ability. <a href="https://arxiv.org/pdf/2512.15567v2#page=15" target="_blank" rel="noopener noreferrer">Methods: PDF pp. 15–18</a>.</p>
+<h2 id="section-8">5. Experiments and results: evidence for the three questions</h2>
+<h3 id="section-9">Question 1: what does scenario decomposition reveal?</h3>
+<p>The authors aggregate scenario scores by field while retaining individual scenarios. In the biology and chemistry example below, each point is a scenario. A model’s dispersed points show why field averages alone do not describe its abilities adequately.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scientific-discovery-evaluation/scenario-profiles.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scientific-discovery-evaluation/scenario-profiles.png" alt="Scenario accuracies of ten models in biology and chemistry" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Distributions, beyond averages. Points represent scenarios; diamonds and horizontal lines indicate means and medians. Performance can vary widely across scenarios for one model. Source: original Figure 2a, v2 PDF p. 5; biology and chemistry panels excerpted with the model legend retained. Click to enlarge.</figcaption></figure>
+<p>For example, GPT-5 in the paper scores 0.85 on retrosynthesis and 0.23 on NMR spectrum-to-structure questions. This suggests model selection should target specific task stages, although the difference alone does not explain the causes of errors.</p>
+<h3 id="section-10">Question 2: does more reasoning consistently help?</h3>
+<p>The paper compares GPT-5 at different reasoning-effort levels. The following excerpts field results for medium and high:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align:right">Medium</th>
+<th style="text-align:right">High</th>
+<th style="text-align:right">Difference (percentage points)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Biology</td>
+<td style="text-align:right">70%</td>
+<td style="text-align:right">69%</td>
+<td style="text-align:right">−1</td>
+</tr>
+<tr>
+<td>Chemistry</td>
+<td style="text-align:right">53%</td>
+<td style="text-align:right">60%</td>
+<td style="text-align:right">+7</td>
+</tr>
+<tr>
+<td>Materials</td>
+<td style="text-align:right">74%</td>
+<td style="text-align:right">75%</td>
+<td style="text-align:right">+1</td>
+</tr>
+<tr>
+<td>Physics</td>
+<td style="text-align:right">58%</td>
+<td style="text-align:right">60%</td>
+<td style="text-align:right">+2</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: text on v2 PDF p. 7; related curves appear in Figure 3a. This compares reasoning configurations of the same model.</em></p>
+<p>The appropriate interpretation is that gains depend on field and configuration. Chemistry still improves by seven percentage points here, so it would be wrong to say extra reasoning is useless everywhere. Equally, greater effort cannot be assumed to help every field.</p>
+<h3 id="section-11">Question 3: can question scores predict project performance?</h3>
+<p>Project experiments use iterative validation and compare models with conventional task-specific methods. Each project uses its own normalized metric. Bars support within-project comparisons, rather than a common research-capability score across projects.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scientific-discovery-evaluation/project-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scientific-discovery-evaluation/project-results.png" alt="Normalized results for four models and conventional methods across eight project types" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Project-level evaluation. Eight tasks compare models with their respective reference methods, shown in orange. Metrics are normalized separately, so bar heights should not be compared directly across projects. Source: original Figure 4a, v2 PDF p. 10; project-results region excerpted. Click to enlarge.</figcaption></figure>
+<p>The paper illustrates two contrasting phenomena.</p>
+<p><strong>Weak knowledge judgments can coexist with good project results.</strong> Models are not strong on TMC property questions, yet three reasoning models use computational feedback to find highly polarizable structures within a constrained candidate space. The appendix tests this with five different initial sample sets.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scientific-discovery-evaluation/tmc-search.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scientific-discovery-evaluation/tmc-search.png" alt="Polarizability over iterations and multi-objective search in TMC optimization" loading="lazy" decoding="async"></a><figcaption>Figure 4 · TMC search. Left: high-polarizability candidates improve with iteration; the dashed line marks the maximum in the given 1.37-million-candidate space. Right: the Pareto frontier between two properties, comprising candidates for which no alternative is better on one objective and no worse on the other. Source: original Figure 4b, v2 PDF p. 10. Click to enlarge.</figcaption></figure>
+<p><strong>Strong local answers can still fail in multi-step planning.</strong> Retrosynthesis projects require complete, valid multi-step routes. The paper analyzes invalid molecular representations and reaction-validity failures, reporting that these models did not surpass the corresponding conventional planners.</p>
+<p>Our reading is that local accuracy, constraint satisfaction, and feedback-driven search separately influence project performance. These cases support checking them separately; they do not establish that project success is entirely attributable to mastery of the underlying science. <a href="https://arxiv.org/pdf/2512.15567v2#page=11" target="_blank" rel="noopener noreferrer">Results: PDF pp. 11–12; TMC setting: p. 49</a>.</p>
+<h2 id="section-12">6. Our reflections</h2>
+<h3 id="section-13">Understanding the field: what is being studied?</h3>
+<p>This field studies the relationship between evaluation metrics and real research tasks. We care about whether a score helps identify which activity a model can undertake and when tools or other models should supplement it. Local questions aid diagnosis; continuous projects test combined performance. The two levels should cross-check each other.</p>
+<h3 id="section-14">Remaining limitations: which problems are unresolved?</h3>
+<ul>
+<li><strong>Limited scope:</strong> Four fields and eight project types cannot represent research broadly. Computational gains still need to be connected to real experimental value.</li>
+<li><strong>Difficult attribution:</strong> Project performance depends jointly on models, prompts, search rules, and budgets. Rankings in the current configuration may not transfer to other workflows.</li>
+<li><strong>Uncertain scenario–project mapping:</strong> Related questions offer clues, but more direct experiments are needed to identify which local ability causes which project failure.</li>
+</ul>
+<h3 id="section-15">Possible solutions: which directions are worth exploring?</h3>
+<p>We would prioritize three corresponding directions:</p>
+<ul>
+<li><strong>Extend validation levels:</strong> Establish the same two-level evaluation across more research topics and validate some computational candidates through independent experiments to test whether metrics track actual benefits.</li>
+<li><strong>Control variables beyond the model:</strong> Cross models, prompts, and search strategies under similar budgets, reporting variability across runs and benefits per unit cost.</li>
+<li><strong>Intervene on specific failures:</strong> Add structure and reaction validation to multi-step routes and compare project success before and after. A substantial reduction in failure would provide stronger evidence about the bottleneck.</li>
+</ul>
+<p>These are our proposed next steps. In practical research, we would first identify critical task stages and examine evidence at both those stages and the complete workflow, rather than adopt a model based on one general score.</p>
+<p><em>Based on <a href="https://arxiv.org/abs/2512.15567v2" target="_blank" rel="noopener noreferrer">Evaluating Large Language Models in Scientific Discovery, arXiv v2</a>. Figures excerpt corresponding original panels, with surrounding material cropped and no redrawing or data changes; copyright belongs to Zhangde Song et al. Tables excerpt original data. Extended interpretations and validation directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Background: evaluating AI’s research capabilities</a></li><li><a href="#section-2">2. Related work: from scientific questions to research tasks</a></li><li><a href="#section-3">3. Research questions: which abilities need separate checks?</a></li><li><a href="#section-4">4. Method: two evaluation levels built from research projects</a></li><li><a href="#section-8">5. Experiments and results: evidence for the three questions</a></li><li><a href="#section-12">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../researchclawbench/"><span>Paper reading</span><strong>ResearchClawBench: how far are complete reports from reliable research?</strong><i aria-hidden="true">↗</i></a><a href="../frontierscience/"><span>Paper reading</span><strong>FrontierScience: from science problem solving to research subtasks</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

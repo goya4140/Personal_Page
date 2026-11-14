@@ -1,0 +1,296 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoSciRub: specify evidence before improving research | Linhao Wang</title>
+  <meta name="description" content="From goal skeletons and evidence grounding to targeted revision: cross-system gains and the distinctions between internal verification, scorable submissions, and complete research success.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AutoSciRub: specify evidence before improving research">
+  <meta property="og:description" content="From goal skeletons and evidence grounding to targeted revision: cross-system gains and the distinctions between internal verification, scorable submissions, and complete research success.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/autoscirub/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AutoSciRub：先明确证据要求，再推进自主科研" data-title-en="AutoSciRub: specify evidence before improving research" data-language-url="../../../blog/autoscirub/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>13 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>AutoSciRub: specify evidence before improving research</h1><p class="article-summary">From goal skeletons and evidence grounding to targeted revision: cross-system gains and the distinctions between internal verification, scorable submissions, and complete research success.</p><div class="post-topics"><span>AI for Science</span><span>Research agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/autoscirub/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/autoscirub/overview.png" alt="AutoSciRub: specify evidence before improving research" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2608.31076v1" target="_blank" rel="noopener noreferrer">Learning to Evaluate Before Improving: Automatic Rubric Induction for Automatic Research Agents ↗</a><small>arXiv · 2026 / v1 · 2026-08-31 · Work in progress</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: translating research goals into evidence requirements</a></li><li><a href="#section-2">2. Related work: bringing evaluation criteria into research workflows</a></li><li><a href="#section-3">3. Research questions: what does evaluating before improving require?</a></li><li><a href="#section-4">4. Method: from a goal skeleton to targeted revision</a></li><li><a href="#section-9">5. Experiments and results: overall effects before component analysis</a></li><li><a href="#section-15">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>An AI given a research objective may produce a convincing report while omitting crucial comparisons, choosing unsuitable methods, or failing to generate evidence supporting its conclusions. The problem can arise before execution: the required evidence has never been made explicit. AutoSciRub first constructs concrete scientific requirements, then uses them to guide experiments, check artifacts, and target revisions.</p>
+<p>We discuss <strong>Learning to Evaluate Before Improving: Automatic Rubric Induction for Automatic Research Agents</strong> by Xuehai Wang and colleagues, using <a href="https://arxiv.org/abs/2608.31076v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>, submitted August 31, 2026 and labeled <strong>Work in progress</strong>. We distinguish the method, the authors' reported experiments, and our interpretation and proposals.</p>
+<h2 id="section-1">1. Topic: translating research goals into evidence requirements</h2>
+<p>Suppose a task asks for analysis of observational data to explain how a phenomenon varies across regions or conditions. Instructions rarely enumerate every statistic, comparator, unit convention, or claim requiring additional evidence. Even a proficient coding system can end up solving a nearby but different problem.</p>
+<p><strong>This topic asks how to recover scientific goals from underspecified instructions and translate them into executable, checkable requirements.</strong> A rubric is a set of assessment and acceptance criteria. It can assess completion afterward and also specify which evidence should be generated along the way.</p>
+<p>Three levels need checking: whether the scientific question is correctly identified, whether the experimental plan is feasible, and whether artifacts support the conclusions. Detail can help execution without establishing correct direction. Meeting a checklist also depends on whether it covers the important scientific questions.</p>
+<h2 id="section-2">2. Related work: bringing evaluation criteria into research workflows</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main exploration</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Hierarchical rubrics check implementation, execution, and replication results</td>
+<td>Shows diagnostic value while highlighting the cost of expert-authored requirements</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2606.07591v5" target="_blank" rel="noopener noreferrer">ResearchClawBench</a></td>
+<td>Instructions, related literature, and raw data are provided; a hidden target paper supports multimodal evaluation</td>
+<td>Provides a research setting where the official assessment criteria are unavailable during execution</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2510.21652v2" target="_blank" rel="noopener noreferrer">AstaBench</a></td>
+<td>Combines research tasks, tools, and artifact assessment, distinguishing partial progress from full completion</td>
+<td>Supplies another end-to-end task collection for examining transfer</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2303.17651v2" target="_blank" rel="noopener noreferrer">Self-Refine</a></td>
+<td>Models provide feedback on initial outputs and revise them iteratively</td>
+<td>Motivates the comparison between explicit criteria and generic self-improvement</td>
+</tr>
+</tbody>
+</table></div><p>AutoSciRub automatically constructs a rubric before research and uses it for subsequent checking and revision. As described, it is an inference-time task-interpretation and execution-control layer; the main experiments do not obtain these improvements by updating backbone model parameters. Its generic refinement baseline draws on related ideas without constituting a comprehensive comparison against all existing feedback systems.</p>
+<h2 id="section-3">3. Research questions: what does evaluating before improving require?</h2>
+<p>We synthesize the goals into three questions for this reading.</p>
+<ol>
+<li><strong>How can broad instructions yield actionable, verifiable scientific requirements?</strong> Goals must remain traceable while incorporating literature and available data.</li>
+<li><strong>Do these requirements improve complete research outputs?</strong> Paired comparisons should span models, agent harnesses, and another task collection.</li>
+<li><strong>Where do gains come from, and where does the approach fail?</strong> Separate decomposition, grounding, and targeted revision, and test whether added detail improves coverage of the scientific core.</li>
+</ol>
+<p>Crucially, <strong>the induced rubric differs from the benchmark's hidden evaluation rubric.</strong> The first is the system's specification derived from visible materials; the second assesses final outputs. The goal is to bring the induced specification closer to the actual scientific requirements without exposing official answers or checklists to the execution agent.</p>
+<h2 id="section-4">4. Method: from a goal skeleton to targeted revision</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/autoscirub/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/autoscirub/overview.png" alt="AutoSciRub workflow connecting goal induction, literature grounding, data exploration, criterion synthesis, execution, verification, and revision" loading="lazy" decoding="async"></a><figcaption>Figure 1 · On the left, instructions become goals, which are grounded in literature and data to produce a rubric. On the right, that rubric guides execution, checking, and revision. Together they connect scientific objectives to generated evidence. Source: original v1 Figure 2, PDF page 3; rendered from the authors&#39; original vector figure without redrawing.</figcaption></figure>
+<h3 id="section-5">Step 1: induce a goal skeleton from the instruction alone</h3>
+<p>The system decomposes the instruction into a compact set of atomic goals, each with an identifier, name, and concrete requirement. At this stage it reads only the instruction, without introducing particular methods, metrics, baselines, or expected results. This reduces the risk of prematurely organizing the task around an available technique.</p>
+<p>The output describes what should be investigated. It is not yet a complete experiment plan; the means of establishing evidence come later.</p>
+<h3 id="section-6">Step 2: examine literature support and data feasibility</h3>
+<p>For each goal, the literature stage searches concepts, methods, metrics, and protocols, consulting task-provided materials first and retaining five to seven core papers. Findings are organized by goal, covering possible analyses, controls, ablations, robustness checks, and evidence forms.</p>
+<p>To reduce direct retrieval of hidden target papers, queries avoid long instruction spans, task identifiers, and specific filenames. Before full-text access, the retrieval layer filters titles against a hidden blocklist maintained by the evaluation harness. These are safeguards rather than proof that every leakage route is excluded. Literature informs design without substituting for experimental evidence generated in the current task.</p>
+<p>The data stage lightly inspects files, formats, dimensions, fields, units, labels, conditions, and relationships across sources to establish feasibility. It supports planning; full experiments occur during execution, avoiding requirements that assume unavailable labels or reference values. <a href="https://arxiv.org/html/2608.31076v1#S3.SS2" target="_blank" rel="noopener noreferrer">See Section 3.2</a>.</p>
+<h3 id="section-7">Step 3: synthesize concrete criteria from goals, literature, and data</h3>
+<p>Each criterion links to one or more goals and specifies data, experiments or analyses, metrics and comparisons, expected files, and satisfaction conditions. “Executable” mainly means concrete enough to guide research; it does not establish that every criterion has been compiled into a deterministic programmatic test.</p>
+<p>For example, the original format example in Appendix B expands a goal concerning state-level concentration of cloud-seeding projects into counts, shares, Gini coefficients, maps, heatmaps, and ranked tables, with input fields and output paths. This is the paper's rubric example, not a scientific result we independently reproduced.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/autoscirub/rubric-example.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/autoscirub/rubric-example.png" alt="Original comparison of concrete experimental requirements and the benchmark&#39;s final-report checklist" loading="lazy" decoding="async"></a><figcaption>Figure 2 · The left specifies experiments, data, metrics, and artifacts; the right summarizes evidence expected in the final report. It illustrates different roles for an execution specification and a post-hoc checklist without establishing complete coverage of hidden requirements. Source: original v1 Figure 5, PDF page 6; rendered from the authors&#39; original vector figure without redrawing.</figcaption></figure>
+<h3 id="section-8">Step 4: execute research, diagnose gaps, and revise artifacts</h3>
+<p>The agent uses the induced rubric to produce an initial report, code, results, and figures. Verification identifies missing experiments, results, explanations, or evidence and produces issues and corrective actions. Revisions may change code, rerun experiments, add analyses, update figures, or remove unsupported claims.</p>
+<p>The main method describes stopping when requirements are met or the budget is exhausted. Appendix A.3 provides a more specific implementation: in the OpenClaw refinement experiment, <strong>the same agent invokes a verification skill, without a separately instantiated verifier model</strong>. At most three revision calls and four verification calls are allowed.</p>
+<p>Stopping depends on the top-level <code>overall_pass</code> field. This is a holistic LLM judgment rather than a deterministic conjunction of every Boolean criterion. High-priority requirements may be satisfied or scientifically justified by generated evidence; lower-priority items need not all pass individually. The runner reads that field directly. Internal verification success therefore should not be equated with a perfect hidden benchmark score. <a href="https://arxiv.org/pdf/2608.31076v1#page=17" target="_blank" rel="noopener noreferrer">See Appendix A.3</a>.</p>
+<h2 id="section-9">5. Experiments and results: overall effects before component analysis</h2>
+<h3 id="section-10">Main experiment 1: do different models and harnesses benefit?</h3>
+<p>The ResearchClawBench experiment uses <strong>all 40 tasks across 10 domains, with 4 tasks per domain</strong>. Each paired comparison holds the backbone, harness, task inputs, and available environment fixed while adding AutoSciRub. The hidden target paper and official rubric remain unavailable during execution. <strong>GPT-5.1</strong> evaluates final artifacts under the benchmark protocol.</p>
+<p>Scores range from 0 to 100, using textual and image criteria tied to scientific artifacts in the hidden paper, then averaging across the 40 tasks. The paper describes approximately 50 as a calibration point for target-paper-level rediscovery within this protocol, rather than a universal passing grade for scientific capability.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Fixed condition</th>
+<th>Configuration</th>
+<th style="text-align:right">Vanilla</th>
+<th style="text-align:right">+AutoSciRub</th>
+<th style="text-align:right">Absolute gain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codex harness</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">18.66</td>
+<td style="text-align:right">21.04</td>
+<td style="text-align:right">+2.38</td>
+</tr>
+<tr>
+<td>Codex harness</td>
+<td>GLM-5.2</td>
+<td style="text-align:right">20.86</td>
+<td style="text-align:right">22.73</td>
+<td style="text-align:right">+1.87</td>
+</tr>
+<tr>
+<td>Codex harness</td>
+<td>MiniMax-M3</td>
+<td style="text-align:right">19.05</td>
+<td style="text-align:right">21.04</td>
+<td style="text-align:right">+1.99</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Flash backbone</td>
+<td>Claude Code</td>
+<td style="text-align:right">16.60</td>
+<td style="text-align:right">18.74</td>
+<td style="text-align:right">+2.14</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Flash backbone</td>
+<td>OpenClaw</td>
+<td style="text-align:right">17.25</td>
+<td style="text-align:right">20.36</td>
+<td style="text-align:right">+3.11</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Flash backbone</td>
+<td>OpenScience</td>
+<td style="text-align:right">14.49</td>
+<td style="text-align:right">18.09</td>
+<td style="text-align:right">+3.60</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2608.31076v1#page=5" target="_blank" rel="noopener noreferrer">Table 1</a>. Gains are score points, not relative percentage increases. The mean gain across three models is 2.08 points and across three harnesses is 2.95 points.</em></p>
+<p>Overall means improve for all six configurations, supporting usefulness across the evaluated systems. Not every domain improves: the authors report gains in 49 of 60 configuration-by-domain comparisons, which are not 60 independent tasks. The highest overall score is still 22.73, illustrating the distance between consistent improvement and strong scientific rediscovery.</p>
+<p><strong>Three repetitions refer to judging, not research execution.</strong> Each task–configuration pair runs once, generating one report and artifact set, which is independently scored three times and averaged. This reduces judging variability without measuring stability across independent research runs. Compute is also unmatched: AutoSciRub adds induction, verification, and revision calls, with no shared explicit token, tool-call, runtime, or monetary cap across harnesses. <a href="https://arxiv.org/pdf/2608.31076v1#page=10" target="_blank" rel="noopener noreferrer">See Appendix A.1</a>.</p>
+<h3 id="section-11">Main experiment 2: what improves on AstaBench?</h3>
+<p>From the 40 Easy test tasks, the authors select a fixed random subset of <strong>20 tasks</strong>, using the same subset and execution order across configurations. The task rubrics and three-facet artifact-scoring pipeline are retained, with <strong>MiniMax-M3</strong> serving as evaluator.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/autoscirub/astabench-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/autoscirub/astabench-results.png" alt="AutoSciRub scores and submission-completion counts for three agent configurations on AstaBench" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Bars show mean rubric scores; lines show counts of successfully produced submissions accepted for scoring. These are different measures: 20/20 does not mean every rubric criterion passed. Source: original v1 Figure 3, PDF page 4; rendered from the authors&#39; original vector figure without redrawing.</figcaption></figure>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Harness and backbone</th>
+<th style="text-align:right">Vanilla score</th>
+<th style="text-align:right">Augmented score</th>
+<th style="text-align:right">Absolute gain</th>
+<th>Scorable submissions: vanilla → augmented</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code / DeepSeek-V4-Flash</td>
+<td style="text-align:right">71.26</td>
+<td style="text-align:right">90.62</td>
+<td style="text-align:right">+19.36</td>
+<td>18/20 → 20/20</td>
+</tr>
+<tr>
+<td>Codex / GPT-5.4-mini</td>
+<td style="text-align:right">71.74</td>
+<td style="text-align:right">84.35</td>
+<td style="text-align:right">+12.61</td>
+<td>18/20 → 20/20</td>
+</tr>
+<tr>
+<td>OpenClaw / DeepSeek-V4-Flash</td>
+<td style="text-align:right">67.96</td>
+<td style="text-align:right">86.34</td>
+<td style="text-align:right">+18.38</td>
+<td>19/20 → 19/20</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2608.31076v1#page=4" target="_blank" rel="noopener noreferrer">Figure 3 and Appendix A.1</a>. The mean gain is 16.78 points across the three configurations.</em></p>
+<p><strong>This paper defines successful task completion as ending without an execution-level failure and producing a valid submission processable by the evaluator.</strong> This differs from AstaBench's all-required-criteria completion rate. A count of 20/20 does not establish that twenty studies were fully completed.</p>
+<p>The experiment supports higher artifact scores on this fixed subset while preserving or improving submission completion. It is not a score for the full suite or Hard split. Subset, model, and judge settings also prevent direct comparison with original leaderboard values reported elsewhere.</p>
+<h3 id="section-12">Ablation: roles of skeletons, grounding, and revision</h3>
+<p>The cumulative ablation fixes OpenClaw with DeepSeek-V4-Flash and uses all 40 ResearchClawBench tasks.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Setting</th>
+<th style="text-align:right">Score</th>
+<th style="text-align:right">Gain over vanilla</th>
+<th style="text-align:right">Gain over preceding stage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vanilla</td>
+<td style="text-align:right">17.25</td>
+<td style="text-align:right">—</td>
+<td style="text-align:right">—</td>
+</tr>
+<tr>
+<td>Add goal skeleton</td>
+<td style="text-align:right">17.61</td>
+<td style="text-align:right">+0.36</td>
+<td style="text-align:right">+0.36</td>
+</tr>
+<tr>
+<td>Add grounded executable rubric</td>
+<td style="text-align:right">18.31</td>
+<td style="text-align:right">+1.06</td>
+<td style="text-align:right">+0.70</td>
+</tr>
+<tr>
+<td>Add targeted revision, full method</td>
+<td style="text-align:right">20.36</td>
+<td style="text-align:right">+3.11</td>
+<td style="text-align:right">+2.05</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2608.31076v1#page=6" target="_blank" rel="noopener noreferrer">Table 2</a>. The second added stage jointly includes literature grounding, data exploration, and criterion synthesis; their contributions are not separately isolated.</em></p>
+<p>Making goals explicit helps, while greater operational detail and targeted post-execution changes provide larger gains. However, sequential additions depend on existing components and additional computation. Their increments are not independent component effects that necessarily transfer to every setting.</p>
+<h3 id="section-13">Rubric quality: greater detail does not ensure scientific-core coverage</h3>
+<p>MiniMax-M3 separately evaluates skeletons and executable rubrics using the task, visible data, and official checklist. Four dimensions use a 1–5 scale. The checklist is available only to the judge, not the execution agent.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Quality dimension</th>
+<th style="text-align:right">Goal skeleton</th>
+<th style="text-align:right">Executable rubric</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Specificity</td>
+<td style="text-align:right">1.65</td>
+<td style="text-align:right">4.40</td>
+</tr>
+<tr>
+<td>Actionability</td>
+<td style="text-align:right">2.00</td>
+<td style="text-align:right">3.83</td>
+</tr>
+<tr>
+<td>Evidence verifiability</td>
+<td style="text-align:right">1.78</td>
+<td style="text-align:right">4.08</td>
+</tr>
+<tr>
+<td>Scientific core coverage</td>
+<td style="text-align:right">3.35</td>
+<td style="text-align:right">3.07</td>
+</tr>
+</tbody>
+</table></div><figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/autoscirub/rubric-quality.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/autoscirub/rubric-quality.png" alt="Original comparison of goal skeletons and executable rubrics on four quality dimensions" loading="lazy" decoding="async"></a><figcaption>Figure 4 · The orange line has greater specificity, actionability, and evidence verifiability but slightly lower scientific-core coverage. Values are automatic-judge means, not expert human assessments. Source: original v1 Figure 4a, PDF page 6; rendered from the authors&#39; original vector subfigure without redrawing.</figcaption></figure>
+<p>The four-dimension mean rises from 2.20 to 3.84, while core coverage falls from 3.35 to 3.07. Our interpretation is that the approach more effectively operationalizes an identified direction than consistently corrects the initial scientific framing. When the skeleton misses the core goal, additional detail can elaborate an off-target analysis.</p>
+<p>The positive association between core coverage and report scores in Figure 4b does not independently establish causality. The supplementary experiments also do not provide comprehensive independent expert verification of the generated rubrics. <a href="https://arxiv.org/html/2608.31076v1#S4.SS4" target="_blank" rel="noopener noreferrer">See Section 4.4 and Appendix A.2</a>.</p>
+<h3 id="section-14">Revision comparison: explicit feedback versus generic self-improvement</h3>
+<p>Both conditions begin with the same initial reports and figures, scoring 18.31 on average, and use the same OpenClaw/DeepSeek-V4-Flash configuration.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Revision round</th>
+<th style="text-align:right">Generic self-refinement score</th>
+<th style="text-align:right">Rubric-guided revision score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align:right">18.80</td>
+<td style="text-align:right">19.47</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align:right">18.52</td>
+<td style="text-align:right">20.08</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align:right">19.08</td>
+<td style="text-align:right">20.36</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2608.31076v1#page=7" target="_blank" rel="noopener noreferrer">Table 3</a>. Cumulative gains are 0.77 and 2.05 points. The final scores themselves do not differ by a factor of 2.7.</em></p>
+<p>The guided aggregate score increases steadily, whereas generic refinement regresses in the second round. However, the appendix explicitly states that the conditions are <strong>neither complete-workspace-identical nor compute-matched</strong>. Guided revision preserves original code and outputs and separates verification from revision. Generic refinement copies only frozen reports and figures into a fresh workspace with task materials, combining review and revision in each call.</p>
+<p>This supports explicit feedback's value in the tested workflows without isolating the causal effect of feedback content alone. Existing code state, call organization, and stopping behavior may also affect outcomes.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/autoscirub/revision-dynamics.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/autoscirub/revision-dynamics.png" alt="Overall scores, active-task counts, and stopping behavior during guided revision" loading="lazy" decoding="async"></a><figcaption>Figure 5 · Later rounds process only tasks that have not stopped. Stopped tasks retain their latest real reports and existing scores in subsequent aggregate means, whose denominator remains all 40 tasks. Source: original v1 Figure 6a, PDF page 7; rendered from the authors&#39; original vector subfigure without redrawing.</figcaption></figure>
+<p>The guided condition revises 40 tasks initially, then only 17 and 6 tasks. In total, 35 tasks pass internal verification within three revisions. Subsequent aggregate means carry forward stopped tasks' existing scores without generating or rescoring artificial reports. This 35/40 is an internal stopping statistic, not official all-criteria benchmark success. Without comprehensive cost measurement, larger early gains alone also cannot establish the most cost-effective revision budget.</p>
+<h2 id="section-15">6. Our reflections</h2>
+<h3 id="section-16">Topic reflection: what is this field studying?</h3>
+<p>The paper makes an important problem explicit: research automation needs to decide which evidence to generate and which conclusions are warranted, alongside executing a plan. Connecting goals, data, methods, and artifacts can make feedback more specific and failures easier to locate.</p>
+<p>The deeper issue is whether the specification itself is correct. It should help identify omissions, accept counterevidence, and revise direction, rather than only enforce the first generated checklist. The separation between specificity and scientific-core coverage offers a useful research question.</p>
+<h3 id="section-17">Limitation reflection: what remains unresolved?</h3>
+<ul>
+<li><strong>Scientific framing can become fixed too early.</strong> Core coverage does not improve with operational detail, and the appendix format includes expected conclusions. Treating expectations as outcomes that must be established could reinforce confirmation bias. This is a risk we infer from the design, not a measured general violation.</li>
+<li><strong>Verification lacks sufficient independence.</strong> The same agent checks its own artifacts within the task session, and stopping relies on a holistic judgment. Automatic scores and internal passes still require independent evidence verification.</li>
+<li><strong>Gains and resource investment are not separated.</strong> Budgets are unmatched, each task–configuration pair executes once, and refinement workspaces differ. Execution variability and cost remain incompletely measured.</li>
+<li><strong>Transfer and success definitions have boundaries.</strong> AstaBench uses only a fixed twenty-task Easy subset. Scorable submissions are not fully successful studies, and gains under different judges need further validation against scientific value.</li>
+</ul>
+<h3 id="section-18">Solution reflection: which directions could address these issues?</h3>
+<p>These are our proposed experiments, rather than results already established by the authors.</p>
+<ul>
+<li><strong>For fixed framing:</strong> independently review goal coverage and permit evidence to revise or reject expectations. Separate anticipated findings from required tests, and introduce tasks whose data overturn initial hypotheses to assess confirmation bias.</li>
+<li><strong>For verification independence:</strong> connect crucial criteria to deterministic numerical, file, and execution checks; add independent models and expert audits. Distinguish inapplicability, insufficient evidence, and failure, and release judgment errors and reasons behind top-level passes.</li>
+<li><strong>For cost and stability:</strong> compare feedback strategies from identical frozen code, outputs, and reports, match calls, time, and expenses, run multiple seeds, and report gain distributions and effective improvement per unit cost.</li>
+<li><strong>For transfer:</strong> expand to complete Easy and Hard sets and broader scientific tasks. Separately report execution completion, evidence adequacy, and all-criteria success, retain independent judges, and have domain experts verify that added experiments actually strengthen the argument.</li>
+</ul>
+<p><em>Version and materials: based on the <a href="https://arxiv.org/pdf/2608.31076v1" target="_blank" rel="noopener noreferrer">AutoSciRub v1 PDF</a> and the authors' source files; <a href="https://github.com/zjunlp/AutoSciRub" target="_blank" rel="noopener noreferrer">official code</a>. Original Figures 2, 3, 4a, 5, and 6a belong to Xuehai Wang and colleagues and are attributed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a> for this noncommercial reading article. They were rendered as web images without redrawing. Tables organize reported results; interpretation, limitations, and proposals are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: translating research goals into evidence requirements</a></li><li><a href="#section-2">2. Related work: bringing evaluation criteria into research workflows</a></li><li><a href="#section-3">3. Research questions: what does evaluating before improving require?</a></li><li><a href="#section-4">4. Method: from a goal skeleton to targeted revision</a></li><li><a href="#section-9">5. Experiments and results: overall effects before component analysis</a></li><li><a href="#section-15">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>Paper reading</span><strong>Learning from research experience: EvoScientist’s dual memory and cross-task evolution</strong><i aria-hidden="true">↗</i></a><a href="../autosota/"><span>Paper reading</span><strong>AutoSOTA: from paper replication to valid method improvements</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

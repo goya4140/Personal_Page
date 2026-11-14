@@ -1,0 +1,220 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PaperBench: can AI truly replicate a research paper? | Linhao Wang</title>
+  <meta name="description" content="From implementation and independent execution to matching results: hierarchical replication scores and the limits of sustained experimental progress.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="PaperBench: can AI truly replicate a research paper?">
+  <meta property="og:description" content="From implementation and independent execution to matching results: hierarchical replication scores and the limits of sustained experimental progress.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/paperbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="PaperBench：AI 能把一篇论文真正复现出来吗？" data-title-en="PaperBench: can AI truly replicate a research paper?" data-language-url="../../../blog/paperbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>11 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>PaperBench: can AI truly replicate a research paper?</h1><p class="article-summary">From implementation and independent execution to matching results: hierarchical replication scores and the limits of sustained experimental progress.</p><div class="post-topics"><span>AI for Science</span><span>Research agent evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/paperbench/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/paperbench/overview.png" alt="PaperBench: can AI truly replicate a research paper?" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench: Evaluating AI’s Ability to Replicate AI Research ↗</a><small>2025</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: how can we assess AI&#39;s ability to execute research?</a></li><li><a href="#section-2">2. Related work: what did earlier evaluations cover?</a></li><li><a href="#section-3">3. Research questions: what must this paper resolve?</a></li><li><a href="#section-4">4. Method: following the evaluation workflow</a></li><li><a href="#section-9">5. Experimental design and results</a></li><li><a href="#section-15">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>Understanding a method, writing its code, and obtaining experimental results are three different capabilities. PaperBench asks whether AI can connect them to replicate a machine learning paper. Two aspects deserve particular attention: how it measures progress on complex research tasks, and where its experiments show research agents getting stuck.</p>
+<p>This reading follows <a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">arXiv v3, dated April 7, 2025</a>. Model names and scores below refer to the experimental settings reported at that time.</p>
+<h2 id="section-1">1. Topic: how can we assess AI's ability to execute research?</h2>
+<p>Suppose we give an AI a machine learning paper and ask it to replicate the work independently. It must identify the main contributions, resolve implementation details, prepare data, train models, troubleshoot errors, and decide whether its results support the paper's conclusions.</p>
+<p>These activities depend on one another. Training may run even when data processing is wrong. Executable code may use settings that depart from the paper. A generated results table does not establish that its numbers came from real experiments.</p>
+<p>Research-agent evaluation therefore needs to answer two questions:</p>
+<ul>
+<li><strong>What did the agent complete?</strong> We need to inspect code, execution records, and experimental artifacts.</li>
+<li><strong>Can it keep making progress?</strong> When problems arise, can it use feedback to revise its approach and finish the task?</li>
+</ul>
+<p>Replication offers a relatively well-defined setting: target results already exist, so we can examine whether an AI can independently reach them.</p>
+<h2 id="section-2">2. Related work: what did earlier evaluations cover?</h2>
+<p>Three earlier studies help locate this paper.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main task</th>
+<th>Difference from independent replication starting with a paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2409.11363v1" target="_blank" rel="noopener noreferrer">CORE-Bench</a></td>
+<td>Reproduce research results using supplied code and data</td>
+<td>Focuses on using and executing existing research code</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.07095" target="_blank" rel="noopener noreferrer">MLE-bench</a></td>
+<td>Complete Kaggle machine learning competitions</td>
+<td>Focuses on data preparation, modeling, and experimental optimization</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2411.15114v1" target="_blank" rel="noopener noreferrer">RE-Bench</a></td>
+<td>Solve open-ended machine learning research engineering tasks</td>
+<td>Focuses on solving particular research engineering problems</td>
+</tr>
+</tbody>
+</table></div><p>PaperBench starts from the paper, requires a codebase built from scratch, and checks the main empirical contributions. This introduces another difficulty: <strong>a paper contains several connected objectives, so a single prediction accuracy cannot summarize how much has been completed.</strong> <a href="https://arxiv.org/html/2504.01848v3#S6" target="_blank" rel="noopener noreferrer">Related work in the paper</a></p>
+<h2 id="section-3">3. Research questions: what must this paper resolve?</h2>
+<p>We organize the paper around three questions. These are our reading synthesis, rather than research questions quoted from the authors.</p>
+<ol>
+<li><strong>How should we define progress toward replication?</strong> An all-or-nothing judgment is too coarse; intermediate progress needs to be recognized.</li>
+<li><strong>How can implementation, execution, and reproduced results be distinguished?</strong> Plausible code establishes only part of the work; execution evidence is also needed.</li>
+<li><strong>How can submissions be graded reliably at scale, and capability bottlenecks identified?</strong> Expert review is expensive, while automated grading requires its own validation.</li>
+</ol>
+<p>This is an <strong>evaluation-method paper</strong>. Its main contribution is a set of tasks, grading criteria, and a verification workflow. The evaluated agent implementations primarily provide initial baselines.</p>
+<h2 id="section-4">4. Method: following the evaluation workflow</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/paperbench/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/paperbench/overview.png" alt="PaperBench workflow from code submission through independent execution to grading" loading="lazy" decoding="async"></a><figcaption>Figure 1. Evaluation workflow: submit a codebase, execute it in a fresh environment, then assess it against a rubric. The illustrated 34.7% is a workflow example, not a main experimental result. Source: original Figure 1, PDF page 2; only surrounding page material was cropped. Click to enlarge.</figcaption></figure>
+<h3 id="section-5">Step 1: provide a paper and require a complete replication codebase</h3>
+<p>The task input includes the paper and an addendum of clarifications. Agents can browse the web, install dependencies, and run experiments. They cannot view or use the paper authors' original repository or other replication resources included in the blacklist.</p>
+<p>The final submission must contain <code>reproduce.sh</code>, the common entry point for executing the replication experiments.</p>
+<p>One important decision is that <strong>the agent cannot see the detailed grading rubric and must infer which contributions to replicate from the paper.</strong> The addendum clarifies missing or ambiguous details.</p>
+<h3 id="section-6">Step 2: decompose replication into checkable requirements</h3>
+<p>The benchmark authors work with the original paper authors to decompose the main contributions into a rubric tree.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/paperbench/rubric.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/paperbench/rubric.png" alt="Rubric tree showing task decomposition and aggregation of leaf scores" loading="lazy" decoding="async"></a><figcaption>Figure 2. Hierarchical rubric. Leaves receive binary pass/fail scores; each parent&#39;s score is the weighted average of its children, propagated upward. The example yields 55%. Source: original Figure 2, PDF page 3; only surrounding page material was cropped. Click to enlarge.</figcaption></figure>
+<p>For example, a contribution can be decomposed into implementing a model, completing specified training, running the corresponding evaluation, and obtaining results that support the conclusion.</p>
+<p>Across 20 papers, there are <strong>8,316 leaf requirements</strong>. Weights reflect contributions' relative importance, rather than implementation difficulty. The Replication Score therefore measures <strong>the weighted extent to which requirements are satisfied</strong>; the headline metric then averages scores across papers.</p>
+<p><strong>A replication score of 21.0% does not mean that 21% of the papers were fully replicated.</strong></p>
+<h3 id="section-7">Step 3: execute the submission again in a fresh environment</h3>
+<p>After submission, the evaluation system copies the code into a fresh environment, runs <code>reproduce.sh</code>, and collects logs and output files. This checks whether the submission can independently generate results and reduces reliance on the agent's claims and files left over from development.</p>
+<p>Requirements are divided into three types:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Type</th>
+<th>Question checked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code Development</td>
+<td>Has the corresponding functionality been implemented?</td>
+</tr>
+<tr>
+<td>Execution</td>
+<td>Has the required experiment actually been executed?</td>
+</tr>
+<tr>
+<td>Result Match</td>
+<td>Do execution artifacts support the corresponding result in the paper?</td>
+</tr>
+</tbody>
+</table></div><p>This distinction awards partial credit while preserving the difference between implementation and empirical evidence. Submissions without <code>reproduce.sh</code> receive zero on all Execution and Result Match requirements.</p>
+<p>Independent execution strengthens credibility, but scripts, logs, and outputs still need consistency checks. Rerunning a submission alone does not establish that every result is valid.</p>
+<h3 id="section-8">Step 4: assess requirements with an automated judge</h3>
+<p>For each leaf requirement, SimpleJudge retrieves relevant submission files and decides whether the requirement is satisfied. The authors also build <strong>JudgeEval</strong>, using expert labels to assess automated grading quality.</p>
+<p>We see this as an important layer of the method: <strong>research-capability assessment depends on a judge, and that judge needs independent evaluation too.</strong> <a href="https://arxiv.org/html/2504.01848v3#S2" target="_blank" rel="noopener noreferrer">Method and grading details</a></p>
+<h2 id="section-9">5. Experimental design and results</h2>
+<h3 id="section-10">Main evaluation: performance on complete replication tasks</h3>
+<p>The dataset contains 20 ICML 2024 Spotlight or Oral papers across 12 topics. The main experiment uses BasicAgent with command execution, Python, a browser, and other tools, plus a single A10 GPU. Each model receives three runs per paper and a maximum agent runtime of 12 hours. The independent reproduction phase has a separate 12-hour limit.</p>
+<p>The main metric is the average weighted Replication Score across papers; higher is better.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model + BasicAgent</th>
+<th style="text-align:right">Average Replication Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude 3.5 Sonnet (New)</td>
+<td style="text-align:right"><strong>21.0 ± 0.8%</strong></td>
+</tr>
+<tr>
+<td>o1-high</td>
+<td style="text-align:right">13.2 ± 0.3%</td>
+</tr>
+<tr>
+<td>DeepSeek-R1</td>
+<td style="text-align:right">6.0 ± 0.3%</td>
+</tr>
+<tr>
+<td>GPT-4o</td>
+<td style="text-align:right">4.1 ± 0.1%</td>
+</tr>
+<tr>
+<td>Gemini 2.0 Flash</td>
+<td style="text-align:right">3.2 ± 0.2%</td>
+</tr>
+<tr>
+<td>o3-mini-high</td>
+<td style="text-align:right">2.6 ± 0.2%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 4. The ± values are standard errors of the mean, not confidence intervals or the range of difficulty across papers. Results apply to the particular model versions and execution settings in the paper.</em></p>
+<p>The tested systems complete some replication work, but remain far from full replication. Inspecting selected trajectories, the authors find that most models tend to finish early: sometimes claiming completion, and sometimes stopping after encountering difficulties.</p>
+<p>Our interpretation is that <strong>generating a plan and continuously executing it in response to experimental feedback remain different capabilities.</strong> <a href="https://arxiv.org/html/2504.01848v3#S5" target="_blank" rel="noopener noreferrer">Main experiment</a></p>
+<h3 id="section-11">Results by requirement type: where does progress stop?</h3>
+<p>The paper's Table 9 separates performance by requirement type. Selected results are:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>System</th>
+<th style="text-align:right">Code Development</th>
+<th style="text-align:right">Execution</th>
+<th style="text-align:right">Result Match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude 3.5 Sonnet + BasicAgent</td>
+<td style="text-align:right">35.4%</td>
+<td style="text-align:right">1.8%</td>
+<td style="text-align:right">0.7%</td>
+</tr>
+<tr>
+<td>o1 + IterativeAgent</td>
+<td style="text-align:right">43.3%</td>
+<td style="text-align:right">4.5%</td>
+<td style="text-align:right">0.0%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: means from original Table 9. Its last column is labeled Results Analysis; the accompanying discussion refers to Result Match requirements. Claude results use three runs; the standard error for the o1 + IterativeAgent row uses two runs, differing from the scope of the main results.</em></p>
+<p>These results expose a bottleneck more clearly than the overall score: <strong>much of the progress remains at the implementation stage and has yet to become completed experiments and reproduced results.</strong></p>
+<p>The category scores have separate scopes and cannot simply be added together. Low Result Match scores do not imply that all the code is without value. <a href="https://arxiv.org/pdf/2504.01848v3#page=19" target="_blank" rel="noopener noreferrer">Appendix Table 9</a></p>
+<h3 id="section-12">Agent design: does sustained iteration help?</h3>
+<p>The authors introduce IterativeAgent, removing the tool that lets agents submit early and prompting the model to take the next step on each turn.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">BasicAgent</th>
+<th style="text-align:right">IterativeAgent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>o3-mini-high</td>
+<td style="text-align:right">2.6%</td>
+<td style="text-align:right">8.5%</td>
+</tr>
+<tr>
+<td>o1-high</td>
+<td style="text-align:right">13.2%</td>
+<td style="text-align:right">24.4%</td>
+</tr>
+<tr>
+<td>Claude 3.5 Sonnet</td>
+<td style="text-align:right">21.0%</td>
+<td style="text-align:right">16.1%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: means from original Tables 4–5.</em></p>
+<p>o1 and o3-mini improve, while Claude declines and the ranking changes. This suggests that <strong>the evaluation measures the capability produced jointly by the model and its agent design.</strong></p>
+<p>There is also a discrepancy between sources: the paper specifies 12 hours for its main experiment, while the <a href="https://raw.githubusercontent.com/openai/preparedness/main/project/paperbench/README.md" target="_blank" rel="noopener noreferrer">official repository README</a> labels o1's 24.4% result as 24 hours. The change in that row therefore cannot be read directly as a pure prompting gain under strictly equal budgets. IterativeAgent also changes both the stopping mechanism and the prompts, so this comparison does not isolate their individual contributions.</p>
+<h3 id="section-13">Human comparison: does more time enable continued progress?</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/paperbench/human-comparison.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/paperbench/human-comparison.png" alt="Replication progress over work time for humans and o1 on four papers" loading="lazy" decoding="async"></a><figcaption>Figure 3. Human and o1 progress. Orange denotes humans and blue denotes o1; line styles distinguish four papers. Human curves use best-of-3; model error bars show standard errors over three runs. The horizontal axis places selected checkpoints at unequal time intervals. Source: original Figure 3, PDF page 8; only surrounding page material was cropped. Click to enlarge.</figcaption></figure>
+<p>o1's scores rise quickly at the beginning, after which most curves flatten. Human progress begins more slowly but continues substantially later on.</p>
+<p>On the three-paper subset with complete later human records, human best-of-3 reaches <strong>41.4%</strong> after 48 hours, compared with o1's average <strong>26.6%</strong> after 36 hours. The fourth paper's human record ends at 24 hours, so it is excluded from this three-paper aggregate.</p>
+<p>The conditions matter: the subset is small, human results use best-of-3, humans may use AI assistants, and the time budgets differ. Some human attempts use an A100, while independent reproduction uses an A10 for every submission. The stronger supported conclusion is that <strong>in this setting, AI's advantage in early output has not translated into similarly strong continued improvement.</strong> <a href="https://arxiv.org/html/2504.01848v3#S5.S4" target="_blank" rel="noopener noreferrer">Human baseline experiment</a></p>
+<h3 id="section-14">Automated grading: how reliable are the scores?</h3>
+<p>With o3-mini-high, SimpleJudge achieves a <strong>macro-averaged F1 of 0.83</strong> across papers on JudgeEval. JudgeEval uses partial replication artifacts from five papers, with expert leaf labels as the reference. F1 measures agreement with expert labels; it is not a replication success rate.</p>
+<p>Overall scores therefore provide a capability signal. Important conclusions still warrant inspection of execution artifacts and human review. The paper explicitly notes grading errors and nondeterministic results. <a href="https://arxiv.org/html/2504.01848v3#S4" target="_blank" rel="noopener noreferrer">JudgeEval</a></p>
+<p>The paper also offers PaperBench Code-Dev, which checks only code development; o1 scores 43.4%. Because it skips independent reproduction and the other requirement types, that result cannot be compared directly with 21.0% or 24.4% on the full evaluation.</p>
+<h2 id="section-15">6. Our reflections</h2>
+<h3 id="section-16">Topic reflection: what is this field studying?</h3>
+<p>Research-agent evaluation needs to move toward checking whether evidence can be regenerated: does the system understand the objective, implement methods, organize experiments, and continue in response to results?</p>
+<p>We regard replication as a useful window into these capabilities. It fixes the research objective and makes execution gaps easier to identify. However, <strong>topic selection, hypothesis generation, and assessment of research value still need evaluation between successful replication and original research.</strong></p>
+<h3 id="section-17">Limitations: what problems remain?</h3>
+<p><strong>First, an overall score can hide the practical bottleneck.</strong> The same score might reflect substantial code implementation or a few genuinely completed experiments, which have different practical research value.</p>
+<p><strong>Second, continued work does not establish continued learning.</strong> More time and restrictions on early stopping can increase activity, but we still need to establish whether the system changes its approach in response to errors.</p>
+<p><strong>Third, evaluation is expensive and its coverage remains limited.</strong> The 8,316 requirements come from 20 papers; they are not that many independent research settings. Rubrics also require expert effort and are affected by paper specifications, judging decisions, and possible training contamination.</p>
+<h3 id="section-18">Possible solutions: which directions could address these problems?</h3>
+<p>The following are directions we think are worth testing, corresponding to the limitations above.</p>
+<ol>
+<li><strong>Report both progress and empirical completion.</strong> Keep separate code, execution, and result scores, and also count fully completed core experiments so that one aggregate score does not carry too much interpretation.</li>
+<li><strong>Design sustained iteration around failure feedback.</strong> Preserve records linking failure causes, corrections, and rerun results. Under equal budgets, compare whether systems reduce repeated errors and advance unfinished experiments.</li>
+<li><strong>Expand independent tasks and strengthen evidence checks.</strong> Introduce newer, unpublished paper tasks; use programmatic checks for execution facts; focus expert review on key conclusions and disputed judgments; and evaluate original research separately.</li>
+</ol>
+<p>The most direct lesson for our own research agents is this: <strong>each step should leave enough evidence to justify the next decision.</strong> PaperBench's category results show that, for the tested systems, this chain is especially fragile between implementation and empirical verification.</p>
+<p><em>Based on PaperBench arXiv v3. Figures: Giulio Starace et al., original Figures 1–3, reused under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>; only surrounding page material was cropped. Tables select core results from the paper. Interpretations and proposed follow-up experiments are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: how can we assess AI&#39;s ability to execute research?</a></li><li><a href="#section-2">2. Related work: what did earlier evaluations cover?</a></li><li><a href="#section-3">3. Research questions: what must this paper resolve?</a></li><li><a href="#section-4">4. Method: following the evaluation workflow</a></li><li><a href="#section-9">5. Experimental design and results</a></li><li><a href="#section-15">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../exp-bench/"><span>Paper reading</span><strong>EXP-Bench: can AI complete a research experiment correctly?</strong><i aria-hidden="true">↗</i></a><a href="../astabench/"><span>Paper reading</span><strong>AstaBench: how to evaluate research agents fairly</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

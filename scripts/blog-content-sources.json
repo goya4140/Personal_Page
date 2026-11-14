@@ -1,0 +1,120 @@
+[
+  {
+    "slug": "autoscientists",
+    "source": "https://arxiv.org/abs/2605.28655v2",
+    "source_pdf": "https://arxiv.org/pdf/2605.28655v2",
+    "source_pdf_sha256": "a7acbb210898b7e85fdd6365066f06e2e08ce6aef8385bd8e3b0d7b54bbcc1a7",
+    "figure_manifest": "assets/img/blog/autoscientists/sources.json",
+    "scope": "Bilingual six-section reading with original Figures 1 and 3, BioML-Bench and GPT matched experimental resources, matched trial counts versus measured wall-clock, aggregate ProteinGym results, and reorganization controls.",
+    "related_sources": [
+      "https://github.com/karpathy/autoresearch",
+      "https://arxiv.org/abs/2502.18864",
+      "https://arxiv.org/abs/2603.08127v2",
+      "https://arxiv.org/html/2605.28655v2#A2.SS1"
+    ],
+    "imported_on": "2026-11-14"
+  },
+  {
+    "slug": "autoscirub",
+    "source": "https://arxiv.org/abs/2608.31076v1",
+    "source_pdf": "https://arxiv.org/pdf/2608.31076v1",
+    "source_pdf_sha256": "5b395ea3888d07cd59f725138451ed5d7c6ee42cc9912f14bf48aa0c82629dfc",
+    "source_archive_sha256": "29922694439a8c9ceaace2dc3916cb20f432e5565eccdad4f16b580cc0a09846",
+    "figure_manifest": "assets/img/blog/autoscirub/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 2, 3, 4a, 5 and 6a; main ResearchClawBench and sampled AstaBench results before cumulative ablation, rubric-quality and revision analysis; single research execution versus three judge scores, unmatched compute/workspaces, same-agent verifier, overall_pass semantics, carried-forward checkpoints, scorable submission counts versus full scientific success distinguished.",
+    "related_sources": [
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://arxiv.org/abs/2606.07591v5",
+      "https://arxiv.org/abs/2510.21652v2",
+      "https://arxiv.org/abs/2303.17651v2",
+      "https://github.com/zjunlp/AutoSciRub"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
+    "slug": "exp-bench",
+    "source": "https://arxiv.org/abs/2505.24785v2",
+    "source_pdf": "https://arxiv.org/pdf/2505.24785v2",
+    "source_pdf_sha256": "e90e40d9fdb08a83eac2a8b20064bcc5d4b81a1acbe800e8f109207ead7f95df",
+    "figure_manifest": "assets/img/blog/exp-bench/sources.json",
+    "scope": "Complete bilingual six-section reading; original Figures 1, 2, 4, 6; full main Table 1 followed by scoring, cost and failure analysis. Distinguishes partial credit, strict joint success, unequal execution coverage, subset averages, automated judging and error-taxonomy prevalence.",
+    "related_sources": [
+      "https://arxiv.org/abs/2410.05080v3",
+      "https://arxiv.org/abs/2410.07095v6",
+      "https://arxiv.org/abs/2504.01848v1",
+      "https://github.com/Just-Curieous/Curie/tree/main/benchmark/exp_bench"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
+    "slug": "researchclawbench",
+    "source": "https://arxiv.org/abs/2606.07591v5",
+    "source_pdf": "https://arxiv.org/pdf/2606.07591v5",
+    "source_pdf_sha256": "30389c1af9d445b1031e25da797b9645809d39f6bcb5a17a12fcb037054e94ef",
+    "figure_manifest": "assets/img/blog/researchclawbench/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; PDF Figures 2, 4, 6 with HTML numbering differences noted. Main Tables 5 and 6, task example Table 2, and independently recomputed Table 8 frontier scopes. Distinguish average scores from completion rates, per-task oracle frontier from a deployed system, expert-authored rubrics from human scoring, and discovery potential from validated discovery. Note case weight inconsistency and current-code versus paper-snapshot boundaries. Added bilingual introductory orientation and source-grounded popovers on task visibility, RADS versus success rates with an explicitly hypothetical weighted example, and the later AutoSciRub execution rubric versus hidden benchmark rubric. Added a bilingual overview of the public ResearchHarness runtime and report gate, plus an interpretation of Table 5 and the LLM frontier mean.",
+    "related_sources": [
+      "https://arxiv.org/abs/2407.13168",
+      "https://arxiv.org/abs/2410.05080",
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py",
+      "https://arxiv.org/abs/2608.31076v1",
+      "https://arxiv.org/html/2608.31076v1#S3.SS2",
+      "https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/agent_base/react_agent.py",
+      "https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/benchmarks/ResearchClawBench/adapter.py",
+      "https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/cli_eval.py"
+    ],
+    "imported_on": "2026-11-10",
+    "updated_on": "2026-11-11",
+    "annotation_manifest": "content/annotations/researchclawbench.json"
+  },
+  {
+    "slug": "astabench",
+    "source": "https://arxiv.org/abs/2510.21652v2",
+    "source_pdf": "https://arxiv.org/pdf/2510.21652v2",
+    "source_pdf_sha256": "5bf79b03472bfb22b7826c62206bd0dfafaa849920888210c1ae31c0eed2df33",
+    "source_archive_sha256": "65ba8942b24cb3454405c20c87b5a61d0aa8c1453c1cb68b953d8f109826b59f",
+    "figure_manifest": "assets/img/blog/astabench/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1, 2, 8, 10; eleven benchmarks and test/validation counts; overall main results before category, end-to-end completion and judge validation analyses; tool controls, macro scores, normalized cost, CIs and partial versus all-criteria success distinguished.",
+    "related_sources": [
+      "https://arxiv.org/abs/2410.05080v3",
+      "https://arxiv.org/abs/2407.01725",
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://github.com/princeton-pli/hal-harness"
+    ],
+    "imported_on": "2026-11-10"
+  },
+  {
+    "slug": "evoscientist",
+    "source": "https://arxiv.org/abs/2603.08127v2",
+    "source_pdf": "https://arxiv.org/pdf/2603.08127v2",
+    "source_pdf_sha256": "4f3bb021aad6510861ab7a65cb9db1a2e16bcd50295695bb60d28293306568d3",
+    "figure_manifest": "assets/img/blog/evoscientist/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1 and 2; human Table 2 and ablation Table 3; distinguish proposal preference, stage-averaged execution success and selected submission outcomes; retain candidate and execution budgets, inference boundaries, and future evaluation proposals. Expanded model and search settings, an explicitly illustrative cross-task memory example, and the Appendix C.3 judge-agreement figures.",
+    "related_sources": [
+      "https://arxiv.org/abs/2504.08066",
+      "https://arxiv.org/abs/2502.18864",
+      "https://arxiv.org/abs/2303.11366",
+      "https://arxiv.org/abs/2409.07429",
+      "https://airaxiv.com/papers/view/2510.0018/",
+      "https://arxiv.org/html/2603.08127v2#S4.SS5",
+      "https://arxiv.org/html/2603.08127v2#A3.SS3"
+    ],
+    "imported_on": "2026-11-10",
+    "updated_on": "2026-11-13"
+  },
+  {
+    "slug": "autosota",
+    "source": "https://arxiv.org/abs/2604.05550v2",
+    "source_pdf": "https://arxiv.org/pdf/2604.05550v2",
+    "source_pdf_sha256": "9b36a77e45f5df117a9de4a74c03ceadd48ffc1c2df9c41efc1884d00581657a",
+    "figure_manifest": "assets/img/blog/autosota/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 2, 6, 8a and 8b; main experiment and selection denominators before outcome classification and case studies; distinguish measured versus reported baselines, SEM, invalid optimization wording, retrospective classes and inference cost.",
+    "related_sources": [
+      "https://arxiv.org/abs/2506.13131",
+      "https://arxiv.org/abs/2504.01848v3",
+      "https://arxiv.org/abs/2504.08066"
+    ],
+    "imported_on": "2026-11-10"
+  }
+]

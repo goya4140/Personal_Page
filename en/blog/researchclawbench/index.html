@@ -1,0 +1,364 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResearchClawBench: how far are complete reports from reliable research? | Linhao Wang</title>
+  <meta name="description" content="From hidden targets and task inputs to weighted RADS scoring: scientific evidence, report quality, a labeled teaching example, expandable notes, and the link to AutoSciRub.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="ResearchClawBench: how far are complete reports from reliable research?">
+  <meta property="og:description" content="From hidden targets and task inputs to weighted RADS scoring: scientific evidence, report quality, a labeled teaching example, expandable notes, and the link to AutoSciRub.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/researchclawbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="ResearchClawBench：完整报告距离可靠科研还有多远" data-title-en="ResearchClawBench: how far are complete reports from reliable research?" data-language-url="../../../blog/researchclawbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>14 min read</span><span>English translation</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>ResearchClawBench: how far are complete reports from reliable research?</h1><p class="article-summary">From hidden targets and task inputs to weighted RADS scoring: scientific evidence, report quality, a labeled teaching example, expandable notes, and the link to AutoSciRub.</p><div class="post-topics"><span>AI for Science</span><span>Scientific capability evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/researchclawbench/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/researchclawbench/overview.png" alt="ResearchClawBench: how far are complete reports from reliable research?" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2606.07591v5" target="_blank" rel="noopener noreferrer">ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research ↗</a><small>arXiv · 2026 / v5 · 2026-07-03</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the Topic: How Can We Tell Whether AI Completed Research?</a></li><li><a href="#section-2">2. Understanding Related Work: From Scientific Code to Paper Replication</a></li><li><a href="#section-3">3. Understanding the Research Questions: What Does This Benchmark Ask?</a></li><li><a href="#section-4">4. Understanding the Method: From Published Research to Checkable Tasks</a></li><li><a href="#section-9">5. Experimental Design and Results: How Far Are Complete Reports from Reliable Research?</a></li><li><a href="#section-14">6. Our Reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>A research agent can read papers, run code, generate figures, and deliver a complete report. But do those artifacts answer the question, follow the right experimental protocol, and provide sufficient evidence? ResearchClawBench evaluates this chain by supplying a research objective, related literature, and data while retaining the target paper on the evaluation side.</p>
+<p>This article reads <strong>ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research</strong>, by Wanghan Xu and colleagues at Shanghai Artificial Intelligence Laboratory, using <a href="https://arxiv.org/abs/2606.07591v5" target="_blank" rel="noopener noreferrer">arXiv v5</a>, updated July 3, 2026. Results refer to that paper snapshot, separately from the continually updated project leaderboard.</p>
+<p>For an introductory reading, follow one chain: <strong>receive a research objective and materials → conduct analyses → submit code, figures, and a report → assess the evidence against hidden reference research.</strong> Independence here operates within a supplied objective. The reference anchor of 50 and the tested system's task-average score of 21.5 are scores, rather than complete-research success rates. Expandable notes at relevant sentences explain inputs and outputs, a scoring example, and the connection to AutoSciRub.</p>
+<h2 id="section-1">1. Understanding the Topic: How Can We Tell Whether AI Completed Research?</h2>
+<p>Suppose an AI system is asked to explain a delayed rainy season using climate data. It must understand the background, inspect variables and time ranges, design analyses, execute code, and explain how evidence supports its hypotheses.</p>
+<p>A fluent report with many figures can still use the wrong timescale, omit necessary comparisons, or present correlation as mechanism. The existence of output files and academic-looking prose does not resolve these issues.</p>
+<p><strong>End-to-end research evaluation asks whether a system can connect data, experiments, evidence, and conclusions around a scientific objective.</strong> Execution and scientific judgment both matter.</p>
+<p>Research permits multiple valid routes. A rigid answer key can penalize useful alternatives; unconstrained judgment can mistake plausible presentation for discovery. Evaluation needs both verifiable references and room to surpass them.</p>
+<h2 id="section-2">2. Understanding Related Work: From Scientific Code to Paper Replication</h2>
+<p>Three benchmarks provide direct context.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main evaluation target</th>
+<th>Difference from this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2407.13168" target="_blank" rel="noopener noreferrer">SciCode</a></td>
+<td>Scientific problems decomposed into coding subproblems involving knowledge, reasoning, and implementation</td>
+<td>Focuses on scientific programming within a smaller workflow scope</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>Data-driven tasks from real research, evaluated through generated programs, execution results, and costs</td>
+<td>Focuses on particular workflow tasks with program-file outputs</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Implementing methods and executing replication experiments from a supplied target paper</td>
+<td>Exposes the target paper to the system</td>
+</tr>
+</tbody>
+</table></div><p>ResearchClawBench emphasizes <strong>re-discovery with a hidden target paper</strong>. Systems receive task descriptions, related literature, and data, then develop and execute their analyses. Evaluators use the target paper as a scoring reference. Coverage includes astronomy, chemistry, Earth science, energy, information, life science, materials, mathematics, neuroscience, and physics.</p>
+<p>The scope of re-discovery is specific: tasks supply the scientific objective and sometimes method requirements. They do not fully evaluate autonomous problem selection. <a href="https://arxiv.org/html/2606.07591v5#S2" target="_blank" rel="noopener noreferrer">Sections 2–3</a>.</p>
+<h2 id="section-3">3. Understanding the Research Questions: What Does This Benchmark Ask?</h2>
+<p>The following questions are our reading synthesis, rather than a verbatim list from the authors.</p>
+<ol>
+<li><strong>How can real research become executable tasks?</strong> Objectives, available data, and scoring requirements must align.</li>
+<li><strong>How can open-ended artifacts be evaluated?</strong> A target-paper reference should support verification while allowing alternative routes and stronger evidence.</li>
+<li><strong>Where do current systems struggle?</strong> Evaluation should distinguish execution failure, goal deviation, insufficient evidence, and missing scientific mechanisms.</li>
+</ol>
+<p>The method therefore centers on task construction, execution environments, and scoring. The experiments examine aggregate performance, disciplinary variation, and concrete failure behaviors.</p>
+<h2 id="section-4">4. Understanding the Method: From Published Research to Checkable Tasks</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/researchclawbench/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/researchclawbench/overview.png" alt="ResearchClawBench task packages, action space, system interfaces, and report evaluation" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Task materials and expert criteria appear at upper left, research actions in the center, and agents or ResearchHarness at right. The lower pipeline links code, artifacts, and reports. Rubrics remain on the evaluation side. Source: v5 PDF Figure 2, page 6; HTML Figure 1. Original image unchanged; click to enlarge.</figcaption></figure>
+<h3 id="section-5">Step 1: Select Reference Research and Build Task Packages</h3>
+<p>Domain experts select papers with clear questions, accessible data, and research value. They extract the question, collect literature and data, and construct rubrics around key scientific artifacts. Cross-checking then corrects or removes unsuitable tasks.</p>
+<p>Version v5 contains <strong>40 tasks across 10 domains, with 4 tasks per domain</strong>. The two main types are diagnostic analysis and target optimization, emphasizing explanations and mechanisms or quantitative objectives and performance.</p>
+<p>Systems receive <button type="button" class="reading-note-trigger" popovertarget="reading-note-task-boundary" aria-controls="reading-note-task-boundary" aria-expanded="false" aria-haspopup="dialog">task descriptions, related literature, and data</button>. <strong>Target papers and associated evaluation materials remain on the evaluation side.</strong> Packages include experimental or simulated results as well as processed features, posterior samples, and figure data. Starting from raw data should therefore be interpreted task by task. <a href="https://arxiv.org/html/2606.07591v5#S3" target="_blank" rel="noopener noreferrer">Sections 3.1–3.2 and Appendix B</a>.</p>
+<h3 id="section-6">Step 2: Conduct Research with Tools and Submit Artifacts</h3>
+<p>Existing research and coding agents use their own frameworks. The paper also runs 17 base models in a common tool environment, <strong>ResearchHarness</strong>. Its single-agent ReAct loop works as follows: <strong>the model chooses an action → the harness runs the tool → results or errors return to the model → the model continues the analysis or submits its work</strong>. Tools cover web and scholarly search, PDF and image inspection, file editing, shell commands, and persistent terminals for longer jobs. Earlier interactions can be compacted into a summary, while code, data, and figures remain available in the workspace. <a href="https://arxiv.org/html/2606.07591v5#S3.SS3" target="_blank" rel="noopener noreferrer">Section 3.3 and Table 4</a> · <a href="https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/agent_base/react_agent.py#L1329-L1425" target="_blank" rel="noopener noreferrer">Runtime loop</a></p>
+<p>The public ResearchClawBench adapter disables user questions and checks for <code>report/report.md</code> when the model tries to finish with a plain-text response. The model delivers its analysis through the report and associated artifacts. <strong>Report presence is a submission condition. Scientific quality is judged afterward against the hidden expert rubric.</strong> The paper focuses on reports and images, with detailed research steps still awaiting a comprehensive audit. <a href="https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/benchmarks/ResearchClawBench/adapter.py#L10-L81" target="_blank" rel="noopener noreferrer">Public adapter</a> · <a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">Section 3.4</a></p>
+<h3 id="section-7">Step 3: Decompose the Reference into Weighted Scientific Requirements</h3>
+<p>Each rubric item contains a criterion, technical keywords, a weight, and a text or image type. Text items assess scientific content; image items compare target and generated figures for important trends, scales, and evidence.</p>
+<p>The paper's Table 2 example, <strong>Astronomy_000</strong>, constrains ultralight-boson properties from black-hole mass and spin posterior samples. Two input sets contain <strong>10,000</strong> and <strong>1,838</strong> samples. Its simplified rubric requires:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Scientific requirement</th>
+<th style="text-align:right">Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correctly ingest and summarize mass/spin posteriors as observational constraints</td>
+<td style="text-align:right">20%</td>
+</tr>
+<tr>
+<td>Integrate posterior samples to obtain the M33 X-7 exclusion curve at the 95% threshold</td>
+<td style="text-align:right">30%</td>
+</tr>
+<tr>
+<td>Derive upper limits on self-interaction coupling across the relevant mass range</td>
+<td style="text-align:right">50%</td>
+</tr>
+</tbody>
+</table></div><p>Reading the data is only part of the task. Greater weight is assigned to how observations support scientific constraints. This table follows the original example without treating its target-paper listing as an agent-visible input.</p>
+<h3 id="section-8">Step 4: Assess Evidence with a Reference-Anchored Score</h3>
+<p>The authors introduce <strong>Reference-Anchored Discovery Score, RADS</strong>. Items use a hundred-point scale with target-paper-level evidence anchored in the middle: <button type="button" class="reading-note-trigger" popovertarget="reading-note-rads-example" aria-controls="reading-note-rads-example" aria-expanded="false" aria-haspopup="dialog">the anchor of 50 and the weighted aggregate need to be interpreted together</button>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Score position</th>
+<th>Meaning</th>
+<th>Interpretation limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Below 50</td>
+<td>Important evidence or analysis remains weaker than the reference</td>
+<td>Useful partial results can still exist</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Reference-level scientific evidence</td>
+<td>Depends on the criteria and evaluator</td>
+</tr>
+<tr>
+<td>Above 50</td>
+<td>Evidence, quantitative results, or mechanistic analysis is judged stronger than the reference</td>
+<td>Indicates discovery potential requiring independent validation</td>
+</tr>
+</tbody>
+</table></div><figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/researchclawbench/scoring.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/researchclawbench/scoring.png" alt="RADS reference levels for diagnostic analysis and target optimization" loading="lazy" decoding="async"></a><figcaption>Figure 2 · The upper panel illustrates mechanistic depth; the lower panel illustrates polymer optimization. A score of 50 is designed to represent reference-paper-level evidence. This is a scoring schematic, not experimental proof of new discoveries. Source: v5 PDF Figure 4, page 9; HTML Figure 3. Original image unchanged; click to enlarge.</figcaption></figure>
+<p>The paper reports that <strong>GPT-5.1</strong> evaluates the report against rubrics after each run. Experts construct the standards and a model applies them; this does not mean every report receives expert blind review. <a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">Sections 3.4 and 4.1</a>.</p>
+<p>As an implementation supplement, we inspected a <a href="https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py" target="_blank" rel="noopener noreferrer">pinned official scorer version</a>. It scores items and computes <code>total = sum(weight * item_score) / sum(weight)</code>. This snapshot clarifies aggregation; it does not reproduce every historical environment used for the paper.</p>
+<p>Connecting this benchmark to our preceding <a href="../autoscirub/">AutoSciRub reading</a>: ResearchClawBench uses expert-authored criteria on the evaluation side, while the later AutoSciRub method induces execution requirements from visible task materials and uses them to guide revision. <button type="button" class="reading-note-trigger" popovertarget="reading-note-autoscirub-connection" aria-controls="reading-note-autoscirub-connection" aria-expanded="false" aria-haspopup="dialog">The two rubrics differ in origin, visibility, and purpose</button>. This separates measuring research from helping a system conduct it.</p>
+<h2 id="section-9">5. Experimental Design and Results: How Far Are Complete Reports from Reliable Research?</h2>
+<h3 id="section-10">Main Evaluation: Agents and ResearchHarness Models</h3>
+<p>The paper compares <strong>7 agent families</strong> and <strong>17 models running through ResearchHarness</strong> on the same 40 tasks. Table 5 separately lists two EvoScientist versions, giving <strong>8 agent configurations</strong>. Values below are mean task rubric scores; higher is better.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Agent configuration</th>
+<th>Underlying model</th>
+<th style="text-align:right">Mean score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td>Claude-Opus-4.6</td>
+<td style="text-align:right">21.5</td>
+</tr>
+<tr>
+<td>EvoScientist v0.1.1</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">18.8</td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">18.4</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">16.6</td>
+</tr>
+<tr>
+<td>ResearchClaw</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">16.3</td>
+</tr>
+<tr>
+<td>EvoScientist v0.0.4</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">15.5</td>
+</tr>
+<tr>
+<td>ARIS Codex</td>
+<td>Codex / GPT-5.4</td>
+<td style="text-align:right">13.6</td>
+</tr>
+<tr>
+<td>Nanobot</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">12.8</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: v5 Table 5, PDF page 10.</em></p>
+<p>The leading five ResearchHarness score positions are shown below; see the original table for all models.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>ResearchHarness model</th>
+<th style="text-align:right">Mean score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude-Opus-4.7</td>
+<td style="text-align:right">20.7</td>
+</tr>
+<tr>
+<td>Claude-Opus-4.6</td>
+<td style="text-align:right">19.9</td>
+</tr>
+<tr>
+<td>Qwen3.7-Max</td>
+<td style="text-align:right">18.7</td>
+</tr>
+<tr>
+<td>GLM-5.1</td>
+<td style="text-align:right">18.2</td>
+</tr>
+<tr>
+<td>Qwen3.6-Plus</td>
+<td style="text-align:right">18.0</td>
+</tr>
+<tr>
+<td>Kimi-K2.6</td>
+<td style="text-align:right">18.0</td>
+</tr>
+</tbody>
+</table></div><p><em>The fifth score is tied, so six rows are included. Source: the same table.</em></p>
+<p>The direct finding is that <strong>mean outputs remain substantially below the reference anchor of 50 under these tasks and criteria</strong>. A score of 21.5 is not a 21.5% research completion rate. A mean below the anchor also does not imply that every individual task falls below it.</p>
+<p>Overall ranking hides task variation. Claude Code leads on only 12 of 40 tasks. In the model group, different models lead different domains: Claude-Opus-4.6 leads astronomy, Earth science, energy, and mathematics; GLM-5.1 leads chemistry; Qwen3.7-Max leads physics. <a href="https://arxiv.org/html/2606.07591v5#S4" target="_blank" rel="noopener noreferrer">Sections 4.1–4.2 and Table 5</a>.</p>
+<p><strong>ResearchHarness results.</strong> The paper uses the same suite of 40 tasks and has GPT-5.1 judge reports against expert-authored rubrics after each run. <strong>Claude-Opus-4.7 leads the ResearchHarness group with 20.7 points.</strong> Selecting the best observed result in that group for each task after evaluation yields a mean of <strong>26.5 points</strong>, below the <strong>50-point</strong> anchor for reference-paper-level evidence. The first figure is a single configuration's mean. The second pools the best result across configurations for each task. <a href="https://arxiv.org/html/2606.07591v5#S4" target="_blank" rel="noopener noreferrer">Sections 4.1–4.2 and Table 5</a></p>
+<p><strong>Comparison with the same base model.</strong> Claude-Opus-4.6 scores <strong>19.9</strong> in ResearchHarness and <strong>21.5</strong> in Claude Code, a gap of <strong>1.6 points</strong> between the tested configurations. Estimating the effect of the harness itself would require matching tools and budgets with the base model held fixed, or ablating individual ResearchHarness components. <a href="https://arxiv.org/html/2606.07591v5#S4" target="_blank" rel="noopener noreferrer">Table 5</a></p>
+<h3 id="section-11">Supporting Analysis 1: Per-Task Frontiers and Report Quality</h3>
+<p>The <strong>frontier mean</strong> selects the highest observed system score for each task after evaluation, then averages those scores. It is a composite upper envelope of observed results. No deployed selector is shown to predict those winners, and it is not a single system's repeated-run average.</p>
+<p>The v5 introduction reports an agent frontier mean of <strong>24.6</strong>, while Section 4.2 reports <strong>25.8</strong>. Recomputing Appendix Table 8 gives approximately <strong>24.56</strong> without the added EvoScientist v0.1.1 configuration and <strong>25.84</strong> with all eight configurations, matching the two rounded values. The two agent figures use different sets of configurations.</p>
+<p>Report presentation and scientific evidence also need separate evaluation. Table 6 adds comprehensiveness, depth, instruction following, and professionalism. Three examples are extracted here:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Agent</th>
+<th style="text-align:right">Main rubric score</th>
+<th style="text-align:right">Depth</th>
+<th style="text-align:right">Professionalism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td style="text-align:right">21.5</td>
+<td style="text-align:right">58.0</td>
+<td style="text-align:right">76.4</td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td style="text-align:right">18.4</td>
+<td style="text-align:right">65.9</td>
+<td style="text-align:right">74.4</td>
+</tr>
+<tr>
+<td>ResearchClaw</td>
+<td style="text-align:right">16.3</td>
+<td style="text-align:right">62.2</td>
+<td style="text-align:right">74.8</td>
+</tr>
+</tbody>
+</table></div><p><em>Sources: Tables 5–6. Supplemental dimensions and the main rubric assess different objects with different anchors; subtracting their scores would not quantify a meaningful gap.</em></p>
+<p>Reports can exhibit professional presentation while lacking critical evidence. Table 6 covers the original seven agents, including EvoScientist v0.0.4 rather than the added version. <a href="https://arxiv.org/html/2606.07591v5#S4.SS3" target="_blank" rel="noopener noreferrer">Section 4.3</a>.</p>
+<h3 id="section-12">Supporting Analysis 2: Does Greater Resource Use Produce Better Research?</h3>
+<p>The authors compare mean cost, runtime, and score using Pareto frontiers: observed configurations for which improving cost and score simultaneously is difficult.</p>
+<p>Resource use and scores are positively associated overall, but this is an observational comparison across different systems. It cannot establish that increasing one system's budget improves research, or that additional computation must be ineffective. Model capability, framework, and stopping policy may vary together. <a href="https://arxiv.org/html/2606.07591v5#S4.SS4" target="_blank" rel="noopener noreferrer">Section 4.4</a>.</p>
+<p>The paper does not provide systematic component-isolating ablations. These results primarily compare systems and analyze behavior.</p>
+<h3 id="section-13">Supporting Analysis 3: Where Do Failures Occur?</h3>
+<p>The authors analyze <strong>280 runs</strong> from the original seven agents across 40 tasks and organize failures into six categories.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/researchclawbench/errors.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/researchclawbench/errors.png" alt="Six error categories and corresponding task examples in ResearchClawBench" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Experimental-design mismatch, evidence mismatch, and missing scientific core dominate the analysis. The displayed percentages should not be added as mutually exclusive shares; the paper does not provide item-level raw counts. Examples below compare expected and observed artifacts. Source: v5 PDF Figure 6, page 11; HTML Figure 5. Original image unchanged; click to enlarge.</figcaption></figure>
+<p>The leading categories illustrate what the benchmark examines:</p>
+<ul>
+<li><strong>Experimental-design mismatch:</strong> A task requiring longer-horizon weather forecasting against specified baselines becomes a short-horizon persistence or linear-extrapolation analysis. Code runs, but the protocol changes.</li>
+<li><strong>Evidence mismatch:</strong> Numbers, plots, or conclusions conflict with critical evidence.</li>
+<li><strong>Missing scientific core:</strong> Relevant terminology and tools appear, but the required mechanism is not implemented or validated.</li>
+</ul>
+<p>The remaining categories are goal misalignment, reliability/reporting failure, and execution failure. The analysis suggests that systems often perform substantial work before drifting away from the scientific requirements. <a href="https://arxiv.org/html/2606.07591v5#S4.SS5" target="_blank" rel="noopener noreferrer">Section 4.5</a>.</p>
+<p><strong>Physics_002</strong> illustrates this behavior. OpenClaw receives the reported score of 27.45 and recovers a direct trend of quantum-circuit fidelity declining with depth. It nevertheless omits multi-estimator consistency, mirror-circuit inference, and a gate-counting error model. The direct trend is only part of the evidence chain.</p>
+<p>The case also has a reporting inconsistency: its five displayed weights sum to <strong>105%</strong>, while the current official scorer normalizes by total weight. The figure therefore cannot strictly reproduce 27.45 as a normalized score. The text presents item values as 47/50 and 40/50; under RADS, these are near the reference anchor of 50, which is not the maximum of the hundred-point scale. We retain the reported case score and use it to explain the missing verification steps. <a href="https://arxiv.org/html/2606.07591v5#S4.SS6" target="_blank" rel="noopener noreferrer">Section 4.6</a>.</p>
+<h2 id="section-14">6. Our Reflections</h2>
+<h3 id="section-15">Topic Reflection: What Is This Field Studying?</h3>
+<p>Research-agent evaluation makes the claim of completed research checkable. Code, figures, and reports must be traced back to the scientific objective and the claims they support.</p>
+<p>The contribution here is to anchor evaluation in key artifacts of reference research while attempting to recognize stronger evidence. Workflow completeness and evidential sufficiency require separate examination.</p>
+<h3 id="section-16">Limitation Reflection: What Remains Unresolved?</h3>
+<p><strong>First, reference papers shape the evaluation boundary.</strong> A departure can be an error or a legitimate alternative. Model scores above the reference still require independent scientific validation, as the authors acknowledge.</p>
+<p><strong>Second, final reports cannot fully establish process integrity.</strong> Scoring emphasizes reports and images; data provenance, execution, metrics, and conclusions need finer audits. The paper does not report sufficient human–model calibration and cross-judge stability evidence to remove these uncertainties.</p>
+<p><strong>Third, task and run coverage remain limited.</strong> Four paper-derived tasks per domain, primarily computational research with existing materials, cannot represent an entire discipline or wet-lab capability. Repeated-run variation, strict budget matching, and target-paper leakage also require investigation. Omitting a paper from the supplied package does not exclude pretrained familiarity or external retrieval.</p>
+<p><strong>Fourth, versions and statistical scope affect reproducibility.</strong> Old and new EvoScientist configurations, frontier scopes, figure numbering, and case weights are not consistently updated. A growing project requires frozen paper, data, scorer, and system versions. <a href="https://arxiv.org/html/2606.07591v5#S6" target="_blank" rel="noopener noreferrer">Section 6</a>.</p>
+<h3 id="section-17">Solution Reflection: What Directions Could Address These Issues?</h3>
+<p>The following are our proposed directions, corresponding to those limitations.</p>
+<ol>
+<li><strong>Independently validate alternative research routes.</strong> Have domain experts blindly assess objective alignment, validity, and novelty. Require repeated experiments or external data for claims that surpass the reference.</li>
+<li><strong>Bind scoring to traceable artifacts.</strong> Connect each claim to input data, code versions, commands, logs, metrics, and figures. Independently replay high-weight requirements and compare multiple judges with expert decisions.</li>
+<li><strong>Expand tasks and control comparison conditions.</strong> Add tasks and repeated runs with confidence intervals. Compare frameworks under a fixed model and models under a fixed framework; test leakage, contamination, and real experimental feedback.</li>
+<li><strong>Release recomputable evaluation snapshots.</strong> Freeze data and code commits, configuration lists, and run outputs. Automatically compute means, per-task frontiers, and normalized weights, then verify that prose, figures, and leaderboards use the same scope.</li>
+</ol>
+<p><em>Based on ResearchClawBench arXiv v5. The three figures belong to the original authors and are reproduced unchanged for this paper reading. The arXiv page uses a non-exclusive distribution license; no CC BY license is claimed for these paper figures. Figure numbers follow the PDF, with HTML counterparts noted. Tables are extracted from the paper. Appendix recomputations, interpretations, and research proposals are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the Topic: How Can We Tell Whether AI Completed Research?</a></li><li><a href="#section-2">2. Understanding Related Work: From Scientific Code to Paper Replication</a></li><li><a href="#section-3">3. Understanding the Research Questions: What Does This Benchmark Ask?</a></li><li><a href="#section-4">4. Understanding the Method: From Published Research to Checkable Tasks</a></li><li><a href="#section-9">5. Experimental Design and Results: How Far Are Complete Reports from Reliable Research?</a></li><li><a href="#section-14">6. Our Reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../frontierscience/"><span>Paper reading</span><strong>FrontierScience: from science problem solving to research subtasks</strong><i aria-hidden="true">↗</i></a><a href="../scientific-discovery-evaluation/"><span>Paper reading</span><strong>SDE: do scientific Q&amp;A scores predict discovery?</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><aside id="reading-note-task-boundary" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-task-boundary-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-task-boundary" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-task-boundary-title">What does the system receive, and what must it submit?</p><div class="reading-note-answer"><p>The system receives a research task, related literature, data, and an executable tool environment. It submits code and execution processes, intermediate results and figures, and a final report. The evaluator retains the target paper and its associated assessment materials.</p>
+</div><details class="reading-note-detail"><summary>Expand inputs, outputs, and hidden materials</summary><div class="reading-note-answer"><p>Read the task definition in Section 3.1 as three layers:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Layer</th>
+<th>Contents</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visible during execution</td>
+<td>Task description, related literature, task data, and tools</td>
+<td>Support independent analysis and execution within the task</td>
+</tr>
+<tr>
+<td>System submission</td>
+<td>Code and execution processes, intermediate results, figures, output files, and report</td>
+<td>Show what was done and where the evidence comes from</td>
+</tr>
+<tr>
+<td>Evaluator-held materials</td>
+<td>Target paper and criteria built around its scientific artifacts</td>
+<td>Provide a reference without exposing the task's answer to the system</td>
+</tr>
+</tbody>
+</table></div><p>Independent research here starts from a supplied objective. Some tasks also constrain methods or evaluation targets, so this does not fully test autonomous problem selection. Data may include posterior samples, features, or processed observations; interpret raw data task by task.</p>
+<p><strong>Scope clarification:</strong> withholding the target paper from the task package does not itself rule out training memory or external retrieval exposure. This is our interpretation of the control boundary.</p>
+<p>Sources: <a href="https://arxiv.org/html/2606.07591v5#S3" target="_blank" rel="noopener noreferrer">Sections 3.1–3.2</a>; <a href="https://arxiv.org/pdf/2606.07591v5#page=7" target="_blank" rel="noopener noreferrer">Astronomy_000 example, PDF page 7</a>.</p>
+</div></details></aside><aside id="reading-note-rads-example" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-rads-example-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-rads-example" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-rads-example-title">How do the anchor of 50, weighted scores, and research success rates differ?</p><div class="reading-note-answer"><p>The anchor of 50 represents reference-paper-level evidence on a scale capped at 100. Criteria are aggregated by weight, so important items contribute more. A task-average score of 21.5 is not a 21.5% complete-success rate, and exceeding 50 does not establish a validated discovery.</p>
+</div><details class="reading-note-detail"><summary>Expand an explicitly labeled teaching example</summary><div class="reading-note-answer"><p><strong>Teaching example, not observed run results.</strong> We use the weights from the simplified Astronomy_000 checklist. Item scores of 30, 50, and 70 below are hypothetical values chosen to explain aggregation.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Requirement</th>
+<th style="text-align:right">Published weight</th>
+<th style="text-align:right">Hypothetical item score</th>
+<th style="text-align:right">Weighted contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ingest and summarize observational posteriors</td>
+<td style="text-align:right">0.20</td>
+<td style="text-align:right">30</td>
+<td style="text-align:right">6</td>
+</tr>
+<tr>
+<td>Construct an exclusion curve</td>
+<td style="text-align:right">0.30</td>
+<td style="text-align:right">50</td>
+<td style="text-align:right">15</td>
+</tr>
+<tr>
+<td>Derive coupling constraints</td>
+<td style="text-align:right">0.50</td>
+<td style="text-align:right">70</td>
+<td style="text-align:right">35</td>
+</tr>
+</tbody>
+</table></div><p>Weights sum to 1.00, giving an illustrative total of <code>6 + 15 + 35 = 56</code>. The pinned official scorer uses the general formula <code>sum(weight * score) / sum(weight)</code>; input weights need not sum exactly to 1.</p>
+<p>The example also shows that an aggregate above 50 can coexist with an item below reference level. Weighted averaging does not ensure that every necessary requirement passed. RADS assesses evidence level; genuine discoveries still require independent verification.</p>
+<p>Sources: <a href="https://arxiv.org/pdf/2606.07591v5#page=7" target="_blank" rel="noopener noreferrer">Table 2, example weights</a>; <a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">Section 3.4, RADS</a>; <a href="https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py" target="_blank" rel="noopener noreferrer">pinned official scorer</a>. Item scores and the resulting total are instructional assumptions.</p>
+</div></details></aside><aside id="reading-note-autoscirub-connection" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-autoscirub-connection-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-autoscirub-connection" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-autoscirub-connection-title">Are the ResearchClawBench and AutoSciRub rubrics the same?</p><div class="reading-note-answer"><p>They serve assessment and execution guidance respectively. The evaluator retains ResearchClawBench expert criteria. The later AutoSciRub method constructs its own rubric from instructions, literature, and visible data to guide experiments, verification, and revision, without reading the hidden official checklist.</p>
+</div><details class="reading-note-detail"><summary>Expand the comparison of criteria and visibility</summary><div class="reading-note-answer"><div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Object</th>
+<th>Origin and visibility</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Official ResearchClawBench rubric</td>
+<td>Experts derive it from scientific artifacts in the hidden target paper; execution systems cannot read it</td>
+<td>Assess final evidence on the evaluation side</td>
+</tr>
+<tr>
+<td>AutoSciRub induced rubric</td>
+<td>Constructed at inference time from instructions, literature, and visible task data; available to the execution agent</td>
+<td>Guide analyses, gap checking, and targeted revision</td>
+</tr>
+</tbody>
+</table></div><p>AutoSciRub is a later method. Its ResearchClawBench experiments compare original systems with systems augmented by this control layer, while final evaluation still uses official benchmark criteria. Induced requirements can miss the scientific core, so internal passes and official scores should be reported separately.</p>
+<p>One connection for readers is to first ask how research evidence should be assessed, then how execution can generate better evidence. This is our synthesis, rather than a claim that ResearchClawBench itself already implements automatic rubric induction.</p>
+<p>Sources: <a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">ResearchClawBench Section 3.4</a>; <a href="https://arxiv.org/html/2608.31076v1#S3.SS2" target="_blank" rel="noopener noreferrer">AutoSciRub Section 3.2</a>; <a href="https://arxiv.org/pdf/2608.31076v1#page=10" target="_blank" rel="noopener noreferrer">AutoSciRub Appendix A.1, evaluation and information isolation</a>.</p>
+</div></details></aside><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

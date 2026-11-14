@@ -1,0 +1,14 @@
+{
+  "name": "linhao-homepage",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "check": "node scripts/check-site.mjs"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0",
+    "katex": "^0.19.1"
+  }
+}

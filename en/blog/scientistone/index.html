@@ -1,0 +1,244 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScientistOne: linking papers, code, and experiments through evidence | Linhao Wang</title>
+  <meta name="description" content="An illustrated reading of evidence grounding across literature, experiments, and writing, with four artifact integrity checks and their limits.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="ScientistOne: linking papers, code, and experiments through evidence">
+  <meta property="og:description" content="An illustrated reading of evidence grounding across literature, experiments, and writing, with four artifact integrity checks and their limits.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/scientistone/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="ScientistOne：用证据链连接论文、代码与实验" data-title-en="ScientistOne: linking papers, code, and experiments through evidence" data-language-url="../../../blog/scientistone/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>9 min read</span><span>English translation</span><time datetime="2026-11-09">2026-11-09</time></div><div class="article-heading-layout has-art"><div><h1>ScientistOne: linking papers, code, and experiments through evidence</h1><p class="article-summary">An illustrated reading of evidence grounding across literature, experiments, and writing, with four artifact integrity checks and their limits.</p><div class="post-topics"><span>AI for Science</span><span>Research agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/scientistone/pipeline.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/scientistone/pipeline.png" alt="ScientistOne: linking papers, code, and experiments through evidence" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2605.26340v1" target="_blank" rel="noopener noreferrer">ScientistOne: Towards Human-Level Autonomous Research via Chain-of-Evidence ↗</a><small>arXiv · 2026</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Background: making autonomous research artifacts verifiable</a></li><li><a href="#section-2">2. Related work: from completing research to checking its basis</a></li><li><a href="#section-3">3. Research questions: what should be answered?</a></li><li><a href="#section-4">4. Method: establishing evidence chains throughout the workflow</a></li><li><a href="#section-9">5. Experiments and results: overall performance before evidence analysis</a></li><li><a href="#section-14">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>When a paper reports better results, we often ask: which experiment produced those numbers? Does the submitted code implement the described method? Are the references real? ScientistOne organizes these questions into a chain of evidence connecting the research process, manuscript claims, and verification.</p>
+<h2 id="section-1">1. Background: making autonomous research artifacts verifiable</h2>
+<p>Autonomous research systems connect literature review, idea exploration, code execution, and writing. In a long workflow, errors can propagate: an experiment selects one version, but the manuscript uses another version’s score; the code uses a simple strategy, but the method section describes a more sophisticated algorithm.</p>
+<p>A central task in this field is preserving checkable support for research claims. Numbers should connect to experimental records, methods to actual implementations, and statements about literature to original sources.</p>
+<p><strong>We ask whether readers can follow a conclusion back to the materials that produced it and check whether the inference holds.</strong> This requirement applies equally to human and AI-generated research.</p>
+<h2 id="section-2">2. Related work: from completing research to checking its basis</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main focus</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.08066" target="_blank" rel="noopener noreferrer">AI Scientist-v2</a></td>
+<td>Organizes hypotheses, experimental search, analysis, and writing</td>
+<td>Papers generated by a complete workflow still require claim-by-claim checks</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.16069" target="_blank" rel="noopener noreferrer">Curie</a></td>
+<td>Strengthens reliability, process control, and interpretability in automated experiments</td>
+<td>Reliable execution must remain connected to final reporting</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>Decomposes replication into scorable subtasks and evaluates artifacts</td>
+<td>Artifact evaluation can further examine the relationship between claims and evidence</td>
+</tr>
+</tbody>
+</table></div><p>The paper presents three complementary parts: <strong>CoE defines evidence-chain requirements, ScientistOne preserves support during generation, and CoE Integrity Audit checks final artifacts.</strong> These three levels organize the paper’s argument.</p>
+<h2 id="section-3">3. Research questions: what should be answered?</h2>
+<p>We organize the goals into three reading questions that guide the methods and experiments.</p>
+<ol>
+<li><strong>How can literature review, experiments, and writing remain traceable?</strong> Sources must be retained, and distortions of numbers, citations, and method descriptions reduced during writing.</li>
+<li><strong>How can research artifacts from different systems be checked consistently?</strong> Papers, code, and references need a shared audit protocol.</li>
+<li><strong>Can evidence preservation and verification coexist with competitive solutions?</strong> Actual task performance must be checked, beyond manuscript completeness.</li>
+</ol>
+<h2 id="section-4">4. Method: establishing evidence chains throughout the workflow</h2>
+<p>CoE stands for Chain-of-Evidence. It separates four relationships: citation claims to literature, numbers to records, method descriptions to implementations, and conclusions to supporting claims and reasoning. The standard specifies what support is needed; individual systems decide how to preserve and check it.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scientistone/pipeline.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scientistone/pipeline.png" alt="ScientistOne’s literature tracing, parallel exploration, and evidence-checked writing" loading="lazy" decoding="async"></a><figcaption>Figure 1 · System workflow. Read left to right: retrieve literature and prepare a research brief, explore solutions in parallel while recording experiments, then write and check using verified materials. Source: original Figure 1, PDF p. 5. Only surrounding material was cropped; not redrawn. Click to enlarge.</figcaption></figure>
+<h3 id="section-5">Step 1: build a research brief from retrieved literature</h3>
+<p>Problem Investigator builds a citation graph from seed papers, reads full texts, preserves source information, and prepares a brief. The brief provides context for candidate approaches and support for later citations.</p>
+<p>For example, when citing another work’s results, the system should be able to return to the document it actually retrieved and its reading records. This primarily addresses literature provenance.</p>
+<h3 id="section-6">Step 2: explore solutions in parallel and preserve experimental materials</h3>
+<p>The system generates and screens ideas, running solve–evaluate–adjust loops across multiple branches. Each round retains stronger branches to produce further attempts. Final selection filters approaches flagged for task-rule violations and performs ablations on the selected solution.</p>
+<p>Writing receives more than a final score: it also receives code, evaluation records, execution logs, and ablation results. Later claims can therefore bind to concrete materials rather than relying solely on a prose summary.</p>
+<h3 id="section-7">Step 3: bind evidence before composing the paper</h3>
+<p>Writing proceeds through ideation, evidence checking, critique, revision, and composition. Initial research statements attach source markers to factual claims, pointing to log lines, score records, reference entries, or ablation results.</p>
+<p>Deterministic checks verify files and numbers. Model-based critique examines contradictions, overstatement, and comparisons. Revision removes or adjusts unsupported claims. After typesetting, Claim Verifier checks sources again to address distortions introduced by rewriting.</p>
+<p>The key, in our view, is <strong>recording support when a claim is created</strong>. The final implementation’s score and an ablated variant’s score, for example, must remain separate records to avoid mixing them during writing.</p>
+<h3 id="section-8">Step 4: audit final artifacts under a common protocol</h3>
+<p>The first three steps describe internal generation. CoE Integrity Audit instead examines completed papers, code, and references through four checks:</p>
+<ul>
+<li><strong>I1, score reproduction:</strong> Rerun the submitted solution and compare with manuscript scores, allowing evaluation noise.</li>
+<li><strong>I2, rule compliance:</strong> Determine whether code violates task constraints, such as exploiting evaluator rules to inflate scores.</li>
+<li><strong>I3, references:</strong> Check bibliographic records against scholarly databases to identify fabricated or mismatched entries.</li>
+<li><strong>I4, method–code agreement:</strong> Compare the method section with implementation to identify fundamentally different algorithms.</li>
+</ul>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scientistone/integrity-audit.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scientistone/integrity-audit.png" alt="Four independent CoE checks over standardized papers, code, and references" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Four audit checks. Standardize system outputs, then separately inspect scores, task rules, references, and agreement between methods and code. Some judgments use model voting and can still miss errors. Source: original Figure 2, PDF p. 6; not redrawn. Click to enlarge.</figcaption></figure>
+<p>An important distinction: CoE’s full objective includes whether a citation supports a particular statement; the post-hoc I3 audit mainly checks bibliographic records. A reference’s existence does not establish support for the current claim. <a href="https://arxiv.org/pdf/2605.26340v1#page=4" target="_blank" rel="noopener noreferrer">See Sections 3–5</a>.</p>
+<h2 id="section-9">5. Experiments and results: overall performance before evidence analysis</h2>
+<p>The main experiments use five ADRS computer-systems optimization tasks covering model placement, network cost, load balancing, data layout, and transaction scheduling. Five research systems run three seeds per task, generating 75 papers. All use Gemini 3.1 Pro and are adapted to the tasks.</p>
+<p>Overall effectiveness has three aspects: <strong>artifact verifiability, manuscript quality, and competitive task-solving ability.</strong> The first two assess how research is reported; the third checks whether the system finds useful solutions. We first examine these main experiments, then numerical provenance.</p>
+<h3 id="section-10">Main experiment 1: are research artifacts more verifiable?</h3>
+<p>The following excerpts original Table 1. Arrows indicate the preferred direction. Denominators use different units across columns.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>System</th>
+<th style="text-align:right">Score reproduction ↑</th>
+<th style="text-align:right">Rule violations ↓</th>
+<th style="text-align:right">Fabricated references ↓</th>
+<th style="text-align:right">Method–code agreement ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AutoResearchClaw</td>
+<td style="text-align:right">5 / 12</td>
+<td style="text-align:right">0 / 15</td>
+<td style="text-align:right">3 / 196</td>
+<td style="text-align:right">3 / 15</td>
+</tr>
+<tr>
+<td>DeepScientist</td>
+<td style="text-align:right">11 / 12</td>
+<td style="text-align:right">0 / 15</td>
+<td style="text-align:right">42 / 201</td>
+<td style="text-align:right">5 / 15</td>
+</tr>
+<tr>
+<td>AI-Researcher</td>
+<td style="text-align:right">9 / 12</td>
+<td style="text-align:right">1 / 15</td>
+<td style="text-align:right">21 / 222</td>
+<td style="text-align:right">12 / 15</td>
+</tr>
+<tr>
+<td>ScientistOne</td>
+<td style="text-align:right"><strong>12 / 12</strong></td>
+<td style="text-align:right"><strong>0 / 15</strong></td>
+<td style="text-align:right"><strong>0 / 337</strong></td>
+<td style="text-align:right"><strong>14 / 15</strong></td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 1, PDF p. 8. Score reproduction excludes three EPLB papers because that task includes hardware-dependent runtime. References are counted as entries; other columns count papers. The original also includes AI Scientist-v2, but the authors note that adaptation differences affect its rule and method-consistency checks, so it is omitted from this cross-system excerpt.</em></p>
+<p>The system maintains strong evidence consistency on the evaluated samples. Yet <strong>14 / 15 retains a failure case</strong>: one paper describes algorithmic features absent from its actual code. Internal checks do not cover everything.</p>
+<p>The audit itself also needs evaluation. The authors manually checked failures flagged by I1–I3 and sampled I4 judgments, but did not systematically estimate false negatives. Thus, “zero detected violations” must retain the scope of those checks; it is not proof of absolute absence.</p>
+<h3 id="section-11">Main experiment 2: what is the overall quality of generated papers?</h3>
+<p>The authors use the automated reviewer ScholarPeer. This excerpt of original Table 2 reports averages over 15 papers per system.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>System</th>
+<th style="text-align:right">Rigor (1–4) ↑</th>
+<th style="text-align:right">Clarity (1–4) ↑</th>
+<th style="text-align:right">Overall (1–10) ↑</th>
+<th style="text-align:right">Accepted ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Scientist-v2</td>
+<td style="text-align:right">1.5</td>
+<td style="text-align:right">3.1</td>
+<td style="text-align:right">2.5</td>
+<td style="text-align:right">0 / 15</td>
+</tr>
+<tr>
+<td>AutoResearchClaw</td>
+<td style="text-align:right">1.1</td>
+<td style="text-align:right">2.5</td>
+<td style="text-align:right">1.9</td>
+<td style="text-align:right">0 / 15</td>
+</tr>
+<tr>
+<td>DeepScientist</td>
+<td style="text-align:right">1.7</td>
+<td style="text-align:right">3.1</td>
+<td style="text-align:right">2.5</td>
+<td style="text-align:right">1 / 15</td>
+</tr>
+<tr>
+<td>AI-Researcher</td>
+<td style="text-align:right">1.9</td>
+<td style="text-align:right">3.1</td>
+<td style="text-align:right">3.4</td>
+<td style="text-align:right">2 / 15</td>
+</tr>
+<tr>
+<td>ScientistOne</td>
+<td style="text-align:right"><strong>2.3</strong></td>
+<td style="text-align:right">3.0</td>
+<td style="text-align:right"><strong>4.5</strong></td>
+<td style="text-align:right"><strong>6 / 15</strong></td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 2, PDF p. 11. Acceptance is an AI-review judgment, not a real conference decision. Rating columns use different scales.</em></p>
+<p>ScientistOne has a higher average overall rating and more acceptances, but does not lead in clarity. We therefore focus on rigor and research content rather than fluency alone. However, <strong>6 / 15 also means most outputs fail to meet this reviewer’s acceptance threshold</strong>. The paper identifies inadequate baseline comparisons and end-to-end measurements as recurring concerns.</p>
+<p>The original table also selects the best seed per task: ScientistOne then scores 6.6 overall, with 4 / 5 accepted. This shows potential after selection and cannot replace the average performance above. Cross-system comparisons also do not isolate the causal contribution of verification modules.</p>
+<h3 id="section-12">Main experiment 3: do actual solutions remain competitive?</h3>
+<p>Original Table 3 compares task performance. This excerpt includes human references, AI-Researcher, DeepScientist, and ScientistOne. Scores for the three agents come from independent re-evaluation of submitted code and use best-of-3 results.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Task and direction</th>
+<th style="text-align:right">Human reference</th>
+<th style="text-align:right">AI-Researcher</th>
+<th style="text-align:right">DeepScientist</th>
+<th style="text-align:right">ScientistOne</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prism model placement ↑</td>
+<td style="text-align:right">21.89</td>
+<td style="text-align:right">26.26</td>
+<td style="text-align:right">26.26</td>
+<td style="text-align:right">26.26</td>
+</tr>
+<tr>
+<td>Cloudcast network cost ↓</td>
+<td style="text-align:right">626.24</td>
+<td style="text-align:right">734.28</td>
+<td style="text-align:right">620.09</td>
+<td style="text-align:right">618.08</td>
+</tr>
+<tr>
+<td>EPLB load balancing ↑</td>
+<td style="text-align:right">0.1265</td>
+<td style="text-align:right">0.1449</td>
+<td style="text-align:right">0.1284</td>
+<td style="text-align:right">0.1459</td>
+</tr>
+<tr>
+<td>LLM-SQL data layout ↑</td>
+<td style="text-align:right">0.6920</td>
+<td style="text-align:right">0.7148</td>
+<td style="text-align:right">0.7307</td>
+<td style="text-align:right">0.7222</td>
+</tr>
+<tr>
+<td>TXN transaction scheduling ↑</td>
+<td style="text-align:right">2724.8</td>
+<td style="text-align:right">4311</td>
+<td style="text-align:right">4286</td>
+<td style="text-align:right">3906</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 3, PDF p. 12. ↑ means higher is better; ↓ means lower is better. Human references are published results cited by the authors. Metrics differ across tasks and should not be directly averaged. Best-of-3 selects the strongest of three seeds and does not represent average runs.</em></p>
+<p>ScientistOne exceeds the human references on these tasks, but does not lead other agents everywhere. It is strong on Cloudcast and EPLB, ties multiple systems on Prism, and does not lead on LLM-SQL or TXN.</p>
+<p>Together, the main experiments suggest that <strong>the complete system improves artifact verifiability and automated review performance while retaining competitive task-solving ability</strong>. This supports the overall design, without implying optimality on every task or attributing all gains to one component. Task-adaptation differences also remain a condition of cross-system comparisons.</p>
+<h3 id="section-13">Additional analysis: can numerical claims be matched to records?</h3>
+<p>The authors additionally measure ScientistOne’s numerical source-matching rate, CPR. Of 639 numerical claims across 15 papers, 627 pass: <strong>98.1%</strong>. The check allows 5% relative tolerance and measures agreement with the indicated experimental records.</p>
+<p>This adds evidence about provenance coverage, but is not equivalent to rerunning code or validating experimental design. Other systems do not generate the required source records, so no equivalent cross-system CPR comparison is available. This analysis cannot replace the overall comparisons above. <a href="https://arxiv.org/pdf/2605.26340v1#page=10" target="_blank" rel="noopener noreferrer">See Section 6.2</a>.</p>
+<h2 id="section-14">6. Our reflections</h2>
+<h3 id="section-15">Understanding the field: what is being studied?</h3>
+<p>Reliability in autonomous research involves connections among literature, experiments, implementation, and reporting. A valuable direction is making those connections checkable artifacts, so readers can see results and trace the conditions under which they hold.</p>
+<h3 id="section-16">Remaining limitations: which problems are unresolved?</h3>
+<ul>
+<li><strong>Semantic support remains incomplete.</strong> Existing references and matching numbers do not establish that conclusions are sufficiently supported. Qualitative overstatement and inferential gaps also need checks.</li>
+<li><strong>Audits still miss errors.</strong> Model voting can reduce some variability, but unanimous judgments may still be wrong. Counting detected errors alone does not measure audit capability.</li>
+<li><strong>Scope needs expansion.</strong> Optimization tasks with fixed evaluators are relatively easy to verify. Open domains introduce protocols, measurement error, and specialist knowledge. Independent component benefits also require further experiments.</li>
+</ul>
+<h3 id="section-17">Possible solutions: which directions are worth exploring?</h3>
+<p>These directions correspond to the limitations above.</p>
+<ul>
+<li><strong>Move from record matching to semantic verification.</strong> Locate citations in source passages and decompose conclusions into premises, comparison conditions, and reasoning steps, checking each support relationship.</li>
+<li><strong>Build audit tests with known errors.</strong> Inject mixed-up scores, rule violations, and method mismatches; measure both false positives and false negatives, with domain-expert spot checks.</li>
+<li><strong>Expand evidence types and compare modules.</strong> Record data, protocols, versions, and uncertainty across domains. Under similar budgets, compare the contributions of provenance recording, writing-time verification, and post-hoc audits.</li>
+</ul>
+<p>Continue with <a href="../scientisttwo/">ScientistTwo: from research ideas to experimental feedback</a>. Together, the papers show how research support is preserved and how feedback influences subsequent experiments.</p>
+<p><em>Based on <a href="https://arxiv.org/abs/2605.26340v1" target="_blank" rel="noopener noreferrer">ScientistOne arXiv v1</a>. Figures belong to Rui Meng et al. and are reproduced under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>, with surrounding material cropped and no redrawing. Tables excerpt original data. Interpretations and future directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Background: making autonomous research artifacts verifiable</a></li><li><a href="#section-2">2. Related work: from completing research to checking its basis</a></li><li><a href="#section-3">3. Research questions: what should be answered?</a></li><li><a href="#section-4">4. Method: establishing evidence chains throughout the workflow</a></li><li><a href="#section-9">5. Experiments and results: overall performance before evidence analysis</a></li><li><a href="#section-14">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>Paper reading</span><strong>AutoSciRub: specify evidence before improving research</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>Paper reading</span><strong>Learning from research experience: EvoScientist’s dual memory and cross-task evolution</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

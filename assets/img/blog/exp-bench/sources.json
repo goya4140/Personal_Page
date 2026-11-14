@@ -1,0 +1,58 @@
+{
+  "paper": "EXP-Bench: Can AI Conduct AI Research Experiments?",
+  "authors": "Patrick Tser Jern Kon, Jiachen Liu et al.",
+  "version": "arXiv:2505.24785v2",
+  "source": "https://arxiv.org/abs/2505.24785v2",
+  "source_pdf": "https://arxiv.org/pdf/2505.24785v2",
+  "source_pdf_sha256": "e90e40d9fdb08a83eac2a8b20064bcc5d4b81a1acbe800e8f109207ead7f95df",
+  "arxiv_license": "CC0 1.0 Universal",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "retrieved_on": "2026-11-10",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": 1,
+      "pdf_page": 1,
+      "source_image": "https://arxiv.org/html/2505.24785v2/exp-bench-overview-v2.png",
+      "width": 878,
+      "height": 152,
+      "sha256": "fada56fcc3d53483e4cdd232fd6b2abb4c63a677eec77a388a38cf96a22bfff4",
+      "operation": "Original image from versioned arXiv HTML; no cropping or redrawing"
+    },
+    {
+      "file": "task-example.png",
+      "figure": 2,
+      "pdf_page": 3,
+      "source_image": "https://arxiv.org/html/2505.24785v2/task-example.png",
+      "width": 3856,
+      "height": 1256,
+      "sha256": "e628c1881f931b1e5b0eec153231102e8ce427b445a0b1d74ca43b4200e0bc9e",
+      "operation": "Original image from versioned arXiv HTML; no cropping or redrawing"
+    },
+    {
+      "file": "construction.png",
+      "figure": 4,
+      "pdf_page": 5,
+      "source_image": "https://arxiv.org/html/2505.24785v2/construction.png",
+      "width": 3068,
+      "height": 1232,
+      "sha256": "084cfd467b8e63ed90d44961f390a18bce8616fcc2341983ddb0c50044bc8668",
+      "operation": "Original image from versioned arXiv HTML; no cropping or redrawing"
+    },
+    {
+      "file": "metric-analysis.png",
+      "figure": 6,
+      "pdf_page": 8,
+      "crop_pdf_points": [
+        90.0,
+        68.0,
+        507.0,
+        205.0
+      ],
+      "width": 1668,
+      "height": 548,
+      "sha256": "c03ca8cad0f5533344b88b75283a4c9a5465395ef0afe902b5d772a82ad2da9a",
+      "operation": "Rendered original PDF figure at 4x; cropped surrounding page content; both panels, axes, legends and panel labels retained; no redrawing"
+    }
+  ]
+}

@@ -1,0 +1,306 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepRare：罕见病诊断中的工具、证据与可追溯推理 | Linhao Wang</title>
+  <meta name="description" content="从系统架构、实验与失败案例出发，区分带引用的解释、诊断准确性与真正的临床效用。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="DeepRare：罕见病诊断中的工具、证据与可追溯推理">
+  <meta property="og:description" content="从系统架构、实验与失败案例出发，区分带引用的解释、诊断准确性与真正的临床效用。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/deeprare/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="DeepRare：罕见病诊断中的工具、证据与可追溯推理" data-title-en="DeepRare: tools, evidence, and traceable reasoning" data-language-url="../../en/blog/deeprare/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 10 分钟</span><span>中文原稿</span></div><div class="article-heading-layout has-art"><div><h1>DeepRare：罕见病诊断中的工具、证据与可追溯推理</h1><p class="article-summary">从系统架构、实验与失败案例出发，区分带引用的解释、诊断准确性与真正的临床效用。</p><div class="post-topics"><span>医学 AI</span><span>科研智能体</span><span>证据</span></div></div><a class="article-heading-art" href="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41586-025-10097-9/MediaObjects/41586_2025_10097_Fig1_HTML.png" target="_blank" rel="noopener"><img class="article-heading-image" src="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41586-025-10097-9/MediaObjects/41586_2025_10097_Fig1_HTML.png" alt="DeepRare：罕见病诊断中的工具、证据与可追溯推理" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://www.nature.com/articles/s41586-025-10097-9" target="_blank" rel="noopener noreferrer">An agentic system for rare disease diagnosis with traceable reasoning ↗</a><small>Nature · 2026</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">论文卡片</a></li><li><a href="#section-2">1. 这篇论文试图解决什么问题？</a></li><li><a href="#section-3">2. DeepRare 到底是怎样工作的？</a></li><li><a href="#section-6">3. 作者怎样评估它？</a></li><li><a href="#section-7">4. 最值得记住的结果</a></li><li><a href="#section-9">5. 失败在哪里？</a></li><li><a href="#section-10">6. 我的批判性解读</a></li><li><a href="#section-13">7. 对医疗 AI / Agent 设计的启发</a></li><li><a href="#section-14">8. 复习卡片</a></li><li><a href="#section-15">9. 推荐讨论题</a></li><li><a href="#section-16">延伸阅读与资源</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><blockquote>
+<p><strong>一句话结论：</strong> DeepRare 不是让一个大模型“凭记忆猜病”，而是让中央 LLM 调度表型、病例、知识与基因分析工具，在检索—假设—反证—核验的闭环中输出带证据的鉴别诊断。它在多套回顾性数据上显著领先，但距离证明真实临床获益仍有关键一步：前瞻性、多中心、工作流级验证。</p>
+</blockquote>
+<h2 id="section-1">论文卡片</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>题目</td>
+<td><em>An agentic system for rare disease diagnosis with traceable reasoning</em></td>
+</tr>
+<tr>
+<td>系统</td>
+<td><strong>DeepRare</strong></td>
+</tr>
+<tr>
+<td>期刊</td>
+<td><em>Nature</em> 651, 775–784 (2026)</td>
+</tr>
+<tr>
+<td>在线发表</td>
+<td>2026-02-18</td>
+</tr>
+<tr>
+<td>研究任务</td>
+<td>罕见病鉴别诊断决策支持</td>
+</tr>
+<tr>
+<td>输入</td>
+<td>自由文本、HPO 表型、WES 产生的 VCF，或其组合</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>Top-K 候选疾病 + 可追溯的证据化解释</td>
+</tr>
+<tr>
+<td>规模</td>
+<td>6,401 个病例、2,919 种疾病、14 个专科、亚洲/北美/欧洲来源</td>
+</tr>
+<tr>
+<td>原文</td>
+<td><a href="https://www.nature.com/articles/s41586-025-10097-9" target="_blank" rel="noopener noreferrer">Nature 论文</a></td>
+</tr>
+<tr>
+<td>代码与产品</td>
+<td><a href="https://github.com/MAGIC-AI4Med/DeepRare" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://deeprare.cn" target="_blank" rel="noopener noreferrer">DeepRare Web</a></td>
+</tr>
+</tbody>
+</table></div><hr>
+<h2 id="section-2">1. 这篇论文试图解决什么问题？</h2>
+<p>全球有超过 3 亿罕见病患者。单个疾病罕见、总体疾病谱却极宽，且约 80% 与遗传因素有关。临床困难主要来自：</p>
+<ul>
+<li><strong>表型异质性</strong>：同一种病表现不同，不同病又可能高度相似；</li>
+<li><strong>知识长尾</strong>：7,000 多种罕见病，单病训练样本稀少；</li>
+<li><strong>知识快速变化</strong>：新疾病、新基因—表型关系持续出现；</li>
+<li><strong>输入异构</strong>：主诉、病历、HPO、实验室检查与基因变异必须综合判断；</li>
+<li><strong>临床问责</strong>：只给疾病名远远不够，医生需要知道“为什么”和“证据在哪里”。</li>
+</ul>
+<p>传统 HPO 匹配工具擅长排序，却通常解释不足；单一 LLM 交互自然，但可能幻觉；基因工具较专业，却常高度依赖测序数据。作者的假设是：<strong>把 LLM 用作工作流的协调者，而不是唯一知识源，能同时提高准确性、可更新性与可追溯性。</strong></p>
+<h2 id="section-3">2. DeepRare 到底是怎样工作的？</h2>
+<p><a class="article-figure" href="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41586-025-10097-9/MediaObjects/41586_2025_10097_Fig1_HTML.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41586-025-10097-9/MediaObjects/41586_2025_10097_Fig1_HTML.png" alt="图 1｜DeepRare 三层架构、知识工具体系与基准对比（来源：论文）" loading="lazy" decoding="async"></a></p>
+<p><em>图 1｜DeepRare 三层架构、知识工具体系与基准对比（来源：论文）</em></p>
+<h3 id="section-4">三层架构</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>层级</th>
+<th>角色</th>
+<th>主要职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中央 Host</td>
+<td>默认本地 DeepSeek-V3 + Memory Bank</td>
+<td>拆解任务、调度工具、汇总证据、形成候选诊断、自反思</td>
+</tr>
+<tr>
+<td>Agent Servers</td>
+<td>六类专门代理</td>
+<td>表型抽取、疾病标准化、知识检索、相似病例检索、表型分析、基因分析</td>
+</tr>
+<tr>
+<td>外部环境</td>
+<td>40 多种工具与数据源</td>
+<td>PubMed、Crossref、Orphanet、OMIM、HPO、MedlinePlus、Web、病例库及生信工具等</td>
+</tr>
+</tbody>
+</table></div><h3 id="section-5">诊断流程：从病历到可核验候选</h3>
+<ol>
+<li><strong>标准化表型</strong>：把自然语言病历抽成候选表型，再用 BioLORD 映射为 HPO；相似度低于 0.8 的实体被丢弃。</li>
+<li><strong>并行收集证据</strong>：
+<ul>
+<li>知识代理检索论文、罕见病数据库与网页；</li>
+<li>病例代理先用 embedding 从 67,795 个病例中召回 Top-50，再用 MedCPT Cross-Encoder 重排；</li>
+<li>表型分析代理调用 PhenoBrain、PubCaseFinder 等专用工具。</li>
+</ul>
+</li>
+<li><strong>处理基因数据（若有）</strong>：注释 VCF 中的变异，结合频率、功能影响、保守性、致病性和遗传模式进行排序。</li>
+<li><strong>形成初步鉴别诊断</strong>：中央 Host 综合表型、基因、相似病例与知识证据。</li>
+<li><strong>自反思与反证</strong>：重新检索以支持或否定候选；若全部被排除，就扩大检索深度再循环。</li>
+<li><strong>输出与链接核验</strong>：给出 Top-K 疾病、证据化解释和来源链接，并在后处理阶段移除无效 URL。</li>
+</ol>
+<blockquote>
+<p><strong>关键理解：</strong> 论文的增益主要来自“系统编排”，而不是某个更强的底座模型。消融实验显示，更换中央 LLM 的影响相对有限；相似病例检索、Web/医学知识和自反思互补，完整系统始终优于任一局部配置。</p>
+</blockquote>
+<h2 id="section-6">3. 作者怎样评估它？</h2>
+<p>数据来自研究论文、病例报告和真实临床中心，难度逐级上升。主要使用 Recall@1、Recall@3、Recall@5：正确诊断是否出现在第 1、前 3 或前 5 个候选中。</p>
+<ul>
+<li>公开与院内数据合计 <strong>6,401 例</strong>，横跨 <strong>2,919 种疾病、14 个系统专科</strong>；</li>
+<li>其中新华医院 168 例、湖南儿童医院 162 例带 WES/VCF，用于多模态评估；</li>
+<li>对比 15 种以上基线：传统生信工具、通用 LLM、推理 LLM、医学 LLM和其他 agent 系统；</li>
+<li>8 位资深罕见病专家复核自动排名，医生与 LLM 评估的 Pearson 相关系数为 <strong>0.8689</strong>；</li>
+<li>10 位副主任医师级专家对 180 例中的参考证据进行核验；</li>
+<li>另有 5 位临床经验超过 10 年的医生，与 DeepRare 在 163 例新华医院病例上比较。</li>
+</ul>
+<h2 id="section-7">4. 最值得记住的结果</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>场景</th>
+<th style="text-align:right">DeepRare</th>
+<th style="text-align:right">对照</th>
+<th>如何理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HPO-only，跨数据集平均 Recall@1</td>
+<td style="text-align:right"><strong>57.18%</strong></td>
+<td style="text-align:right">次优 33.39%</td>
+<td>绝对领先 23.79 个百分点</td>
+</tr>
+<tr>
+<td>HPO-only，跨数据集平均 Recall@3</td>
+<td style="text-align:right"><strong>65.25%</strong></td>
+<td style="text-align:right">次优约 46.60%</td>
+<td>正确病进入前三的概率明显提高</td>
+</tr>
+<tr>
+<td>新华：HPO + 基因 Recall@1</td>
+<td style="text-align:right"><strong>69.1%</strong></td>
+<td style="text-align:right">Exomiser 55.9%</td>
+<td>多源证据整合优于单一生信流程</td>
+</tr>
+<tr>
+<td>湖南：HPO + 基因 Recall@1</td>
+<td style="text-align:right"><strong>63.6%</strong></td>
+<td style="text-align:right">Exomiser 58.0%</td>
+<td>第二中心仍保持优势，但差距较小</td>
+</tr>
+<tr>
+<td>新华：加入基因前后 Recall@1</td>
+<td style="text-align:right"><strong>39.9% → 69.1%</strong></td>
+<td style="text-align:right">—</td>
+<td>基因信息带来 29.2 个百分点增益</td>
+</tr>
+<tr>
+<td>湖南：加入基因前后 Recall@1</td>
+<td style="text-align:right"><strong>33.3% → 63.6%</strong></td>
+<td style="text-align:right">—</td>
+<td>基因信息带来 30.3 个百分点增益</td>
+</tr>
+<tr>
+<td>163 例专家对比 Recall@1</td>
+<td style="text-align:right"><strong>64.4%</strong></td>
+<td style="text-align:right">医生平均 54.6%</td>
+<td>特定受控任务中超过专家平均</td>
+</tr>
+<tr>
+<td>163 例专家对比 Recall@5</td>
+<td style="text-align:right"><strong>78.5%</strong></td>
+<td style="text-align:right">医生平均 65.6%</td>
+<td>作为候选生成器尤其有价值</td>
+</tr>
+<tr>
+<td>引用证据准确性</td>
+<td style="text-align:right"><strong>95.4%</strong></td>
+<td style="text-align:right">专家复核</td>
+<td>仍有约 4.6% 引用不准确或不相关</td>
+</tr>
+</tbody>
+</table></div><p><a class="article-figure" href="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41586-025-10097-9/MediaObjects/41586_2025_10097_Fig3_HTML.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="https://media.springernature.com/lw685/springer-static/image/art%3A10.1038%2Fs41586-025-10097-9/MediaObjects/41586_2025_10097_Fig3_HTML.png" alt="图 3｜跨专科、疾病长尾、专家对比及表型+基因多模态结果（来源：论文）" loading="lazy" decoding="async"></a></p>
+<p><em>图 3｜跨专科、疾病长尾、专家对比及表型+基因多模态结果（来源：论文）</em></p>
+<h3 id="section-8">消融实验告诉我们的事</h3>
+<ul>
+<li>GPT-4o 作为裸模型时，五个公开集平均 Recall@1 为 <strong>25.60%</strong>；嵌入 DeepRare 后为 <strong>54.67%</strong>。</li>
+<li>DeepSeek-V3 从 <strong>26.18%</strong> 提升至 <strong>56.94%</strong>。</li>
+<li>相似病例丰富时，病例检索贡献大；缺少历史先例时，知识检索和自反思更重要。</li>
+</ul>
+<p>这说明论文最可迁移的发现是：<strong>可靠的医疗 AI 更像一个有工具、有记忆、有复核机制的工作流，而不是一个“背下更多医学知识”的聊天模型。</strong></p>
+<h2 id="section-9">5. 失败在哪里？</h2>
+<p>作者抽查了 200 个 Top-5 未命中病例，由三位资深医生分类：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>失败模式</th>
+<th style="text-align:right">比例</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>推理权重错误</td>
+<td style="text-align:right"><strong>41.0%</strong></td>
+<td>逻辑大体正确，但把非特异表型看得太重、关键表型看得太轻</td>
+</tr>
+<tr>
+<td>表型模拟病混淆</td>
+<td style="text-align:right"><strong>38.5%</strong></td>
+<td>临床表现高度重叠，单靠 HPO 难区分分子病因</td>
+</tr>
+<tr>
+<td>病因相关但分类不同</td>
+<td style="text-align:right"><strong>15.5%</strong></td>
+<td>抓住了病理方向，却没有命中正确疾病实体</td>
+</tr>
+<tr>
+<td>推理事实错误</td>
+<td style="text-align:right"><strong>2.5%</strong></td>
+<td>医学事实本身出错</td>
+</tr>
+<tr>
+<td>证据链接错误</td>
+<td style="text-align:right"><strong>2.5%</strong></td>
+<td>检索证据与诊断之间关联错误</td>
+</tr>
+</tbody>
+</table></div><p>引用错误主要有两类：生成看似合理但不存在的 URL，以及因诊断错误而引用与真病无关的材料。</p>
+<h2 id="section-10">6. 我的批判性解读</h2>
+<h3 id="section-11">哪些结论比较扎实？</h3>
+<ul>
+<li><strong>多工具编排确实优于裸 LLM</strong>：跨底座模型、跨数据集及消融结果方向一致。</li>
+<li><strong>表型与基因联合明显优于表型单模态</strong>：两个独立院内队列均获得约 30 个百分点提升。</li>
+<li><strong>Top-K 候选生成具有实际价值</strong>：罕见病场景中，先缩小搜索空间再由医生核验，比追求“一次定论”更符合临床现实。</li>
+<li><strong>失败分析有用</strong>：论文没有只报平均准确率，而是指出权重分配和模拟病区分是主要瓶颈。</li>
+</ul>
+<h3 id="section-12">哪些表述需要降温？</h3>
+<ol>
+<li><strong>“超过专家”不等于全面超过临床医生。</strong> 比较只涉及 163 个筛选后的病例；医生和系统都接收从门诊文本提取的结构化 HPO，且任务是列出最多 5 个候选，不是完整问诊、检查选择、结果解释和责任承担。</li>
+<li><strong>这是回顾性 benchmark，不是前瞻性临床试验。</strong> 尚未证明它能缩短确诊时间、降低误诊成本、改善患者结局或在真实工作流中安全使用。论文关于节省时间和成本的语句更接近潜在推论，而非直接测得的因果结果。</li>
+<li><strong>95.4% 衡量的是参考材料可靠且相关，不等同于推理链“忠实”。</strong> 一个解释可以引用正确材料，却未必真实反映模型内部形成答案的因果过程；“可追溯证据”比“可解释模型机制”更准确。</li>
+<li><strong>自动评估仍可能带来偏差。</strong> 正确诊断在自由文本候选中的位置由 GPT-4o 判定，尽管与专家高度相关，仍可能对同类 LLM 输出存在风格偏好；医生在 10% 病例中给出了更有利于正确诊断的排名。</li>
+<li><strong>数据泄漏风险未被完全排除。</strong> 作者去除了病例库中的完全重复，但文献病例、公开基准、基础模型预训练语料和语义近重复之间仍可能重叠。对 literature-derived 数据集尤其要谨慎。</li>
+<li><strong>缺少校准与弃权分析。</strong> Recall@K 不告诉我们置信度是否可信，也不能回答系统何时应明确说“不知道”、何时必须升级给遗传专科团队。</li>
+<li><strong>部署安全仍是核心问题。</strong> 动态 Web 检索会引入网页质量变化、提示注入、知识版本漂移与隐私风险；本地推理缓解数据外传，但并不自动解决这些问题。</li>
+</ol>
+<blockquote>
+<p><strong>合适定位：</strong> 目前最合理的产品定义是“罕见病医生的证据检索与鉴别诊断副驾”，而不是自主诊断系统。Top-5 候选、证据出处、反证点和人工复核入口，比单一 Top-1 结论更重要。</p>
+</blockquote>
+<h2 id="section-13">7. 对医疗 AI / Agent 设计的启发</h2>
+<ul>
+<li><strong>把知识放在工具与数据源里，把 LLM 放在协调层。</strong> 医学知识更新时，不必重新训练整个模型。</li>
+<li><strong>结构化中间表示很关键。</strong> HPO、标准疾病 ID、变异注释让不同工具可以互操作，也便于审计。</li>
+<li><strong>检索必须支持“相似病例 + 权威知识”双通道。</strong> 一个提供经验先例，一个提供规范与最新证据。</li>
+<li><strong>验证应成为产品能力，而非论文附录。</strong> URL 存活检查、来源级别、证据相关性、反证搜索、版本戳都应进入正式工作流。</li>
+<li><strong>人机交互应围绕不确定性设计。</strong> 允许医生编辑 HPO、查看支持/反对证据、理解候选间差异，并保留最终决策权。</li>
+<li><strong>未来评估要从模型指标走向临床效用。</strong> 建议测量确诊时间、检查数量、转诊路径、医生工作负荷、遗漏严重疾病率、置信校准和患者结局。</li>
+</ul>
+<h2 id="section-14">8. 复习卡片</h2>
+<p><strong>Q1：DeepRare 与普通医学聊天机器人最大的区别是什么？</strong><br>
+A：它让中央 LLM 调度 40 多个外部工具和实时知识源，并通过记忆、自反思、反证检索与链接核验形成可审计流程。</p>
+<p><strong>Q2：HPO 是什么，为什么重要？</strong><br>
+A：Human Phenotype Ontology，是标准化描述人类表型异常的词表。它把自然语言病历转成可计算、可检索、可跨工具交换的表示。</p>
+<p><strong>Q3：论文中最重要的系统性证据是什么？</strong><br>
+A：不同底座 LLM 接入完整 agent 流程后，Recall@1 都大幅提高，说明收益主要来自流程与工具协同。</p>
+<p><strong>Q4：最主要的失败来源是什么？</strong><br>
+A：表型权重分配错误（41.0%）和高度相似疾病混淆（38.5%），而不是纯粹的医学事实错误。</p>
+<p><strong>Q5：为什么不能仅凭 95.4% 就说推理完全可靠？</strong><br>
+A：该指标主要评价引用是否可靠且与结论相关；它不直接证明诊断正确、推理因果忠实或系统在临床工作流中安全。</p>
+<h2 id="section-15">9. 推荐讨论题</h2>
+<ol>
+<li>如果只能增加一个安全模块，应优先做置信校准、弃权机制还是证据分级？为什么？</li>
+<li>如何设计前瞻性随机研究，证明 DeepRare 真正缩短诊断历程而不增加不必要检查？</li>
+<li>相似病例检索怎样避免把历史误诊和人群偏差复制到新患者？</li>
+<li>面对表型模拟病，系统应主动追问哪些能最大化信息增益的问题？</li>
+<li>“带引用的解释”与“忠实的模型解释”之间，应如何向医生清楚区分？</li>
+</ol>
+<hr>
+<h2 id="section-16">延伸阅读与资源</h2>
+<ul>
+<li><a href="https://www.nature.com/articles/s41586-025-10097-9" target="_blank" rel="noopener noreferrer">论文全文（Nature，开放获取）</a></li>
+<li><a href="https://github.com/MAGIC-AI4Med/DeepRare" target="_blank" rel="noopener noreferrer">DeepRare 源代码</a></li>
+<li><a href="https://deeprare.cn" target="_blank" rel="noopener noreferrer">DeepRare Web 应用</a></li>
+<li><a href="https://huggingface.co/datasets/chenxz/RareBench" target="_blank" rel="noopener noreferrer">RareBench 数据集</a></li>
+<li><a href="https://hpo.jax.org" target="_blank" rel="noopener noreferrer">Human Phenotype Ontology</a></li>
+<li><a href="https://www.orpha.net" target="_blank" rel="noopener noreferrer">Orphanet</a></li>
+<li><a href="https://www.omim.org" target="_blank" rel="noopener noreferrer">OMIM</a></li>
+</ul>
+<blockquote>
+<p>本笔记用于论文学习与研究讨论，不构成医疗建议，也不应替代临床医生、遗传咨询与规范诊疗流程。</p>
+</blockquote>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">论文卡片</a></li><li><a href="#section-2">1. 这篇论文试图解决什么问题？</a></li><li><a href="#section-3">2. DeepRare 到底是怎样工作的？</a></li><li><a href="#section-6">3. 作者怎样评估它？</a></li><li><a href="#section-7">4. 最值得记住的结果</a></li><li><a href="#section-9">5. 失败在哪里？</a></li><li><a href="#section-10">6. 我的批判性解读</a></li><li><a href="#section-13">7. 对医疗 AI / Agent 设计的启发</a></li><li><a href="#section-14">8. 复习卡片</a></li><li><a href="#section-15">9. 推荐讨论题</a></li><li><a href="#section-16">延伸阅读与资源</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../autoscientists/"><span>论文阅读</span><strong>AutoScientists：科研智能体怎样组队，决定下一次实验</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>论文阅读</span><strong>AutoSciRub：先明确证据要求，再推进自主科研</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>论文阅读</span><strong>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

@@ -1,0 +1,364 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ResearchClawBench：完整报告距离可靠科研还有多远 | Linhao Wang</title>
+  <meta name="description" content="从隐藏目标、任务输入到加权 RADS 评分，理解科研证据与报告外观的差别；附评分教学算例、可展开说明及与 AutoSciRub 的连接。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="ResearchClawBench：完整报告距离可靠科研还有多远">
+  <meta property="og:description" content="从隐藏目标、任务输入到加权 RADS 评分，理解科研证据与报告外观的差别；附评分教学算例、可展开说明及与 AutoSciRub 的连接。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/researchclawbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="ResearchClawBench：完整报告距离可靠科研还有多远" data-title-en="ResearchClawBench: how far are complete reports from reliable research?" data-language-url="../../en/blog/researchclawbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 15 分钟</span><span>中文原稿</span><time datetime="2026-11-10">2026-11-10</time></div><div class="article-heading-layout has-art"><div><h1>ResearchClawBench：完整报告距离可靠科研还有多远</h1><p class="article-summary">从隐藏目标、任务输入到加权 RADS 评分，理解科研证据与报告外观的差别；附评分教学算例、可展开说明及与 AutoSciRub 的连接。</p><div class="post-topics"><span>AI for Science</span><span>科研能力评测</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/researchclawbench/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/researchclawbench/overview.png" alt="ResearchClawBench：完整报告距离可靠科研还有多远" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2606.07591v5" target="_blank" rel="noopener noreferrer">ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research ↗</a><small>arXiv · 2026 / v5 · 2026-07-03</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样判断 AI 完成了一项研究</a></li><li><a href="#section-2">二、相关文献解读：从科学代码到论文复现</a></li><li><a href="#section-3">三、研究问题解读：这套评测想回答什么</a></li><li><a href="#section-4">四、方法解读：从真实论文到可检查的研究任务</a></li><li><a href="#section-9">五、实验设计与结果：完整报告距离可靠研究还有多远</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>一个科研智能体能够读论文、运行代码、画出图表，最后交出一份完整报告。但这些产物是否回答了研究问题，是否遵循正确的实验协议，又是否提供了足够证据？ResearchClawBench 将这些问题放进同一套评测：给出研究目标、相关文献和数据，把目标论文留在评价端，再检查系统能独立走到哪里。</p>
+<p>本文解读 Wanghan Xu 等人、上海人工智能实验室的 <strong>ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research</strong>，依据 <a href="https://arxiv.org/abs/2606.07591v5" target="_blank" rel="noopener noreferrer">arXiv v5</a>，更新于 2026 年 7 月 3 日。正文结果限定在这一版本；持续更新的项目榜单与论文快照分开理解。</p>
+<p>入门时可以先抓住一条线：<strong>给定研究目标与材料 → 自行开展分析 → 提交代码、图表和报告 → 用隐藏参考研究评价证据。</strong> 这里的“独立”发生在已给定目标之下；50 是参照论文水平的评分锚点，21.5 是被测系统的任务平均分，两者都不是完整研究成功率。下文在对应句子旁提供可展开的输入输出说明、评分算例和与 AutoSciRub 的关系。</p>
+<h2 id="section-1">一、课题解读：怎样判断 AI 完成了一项研究</h2>
+<p>假设我们让 AI 根据气候数据分析雨季推迟的原因。它需要理解研究背景，检查数据中的变量和时间范围，设计分析，运行代码，再解释证据如何支持假设。</p>
+<p>一份报告可能语言流畅、图表齐全，却使用了错误时间尺度，遗漏必要的对照，或者把相关关系写成因果机制。这些问题很难通过“有没有输出文件”或“答案是否像论文”来判断。</p>
+<p><strong>端到端科研评测关注的是：系统能否围绕一个科学目标，把数据、实验、证据和结论连续组织起来。</strong> 它既需要检查执行，也需要检查科学判断。</p>
+<p>评价的困难在于，研究结果并不只有一种表达方式，也可能存在多条合理路线。完全固定答案，会限制有价值的新方案；完全开放打分，又容易把可信表述误当作可信发现。因此，需要可核验的参照，也需要允许超出参照的空间。</p>
+<h2 id="section-2">二、相关文献解读：从科学代码到论文复现</h2>
+<p>先认识下面三个直接相关的评测。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要测什么</th>
+<th>与本篇的区别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2407.13168" target="_blank" rel="noopener noreferrer">SciCode</a></td>
+<td>把科学问题拆为代码子问题，检查科学知识、推理与程序实现</td>
+<td>主要评价科学编程，研究流程的范围较小</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2410.05080" target="_blank" rel="noopener noreferrer">ScienceAgentBench</a></td>
+<td>从真实研究中提取数据驱动任务，检查生成程序、执行结果和成本</td>
+<td>聚焦研究工作流中的具体任务，输出统一为程序文件</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2504.01848v3" target="_blank" rel="noopener noreferrer">PaperBench</a></td>
+<td>给出目标论文，让智能体实现方法并执行复现实验</td>
+<td>目标论文对系统可见，重点是按论文完成复现</td>
+</tr>
+</tbody>
+</table></div><p>ResearchClawBench 的重点是<strong>隐藏目标论文的再发现任务</strong>：系统获得研究描述、相关文献和数据，需要自行设计与完成分析；评价端则利用目标论文构造评分参照。它覆盖的学科也更广，包括天文、化学、地球科学、能源、信息、生命、材料、数学、神经科学和物理。</p>
+<p>这里的“再发现”具有具体边界：研究问题由任务包给出，有些描述还指定方法或目标。因此，它考察的是在已给定科学目标下完成研究的能力，尚未完整涵盖自主选题。<a href="https://arxiv.org/html/2606.07591v5#S2" target="_blank" rel="noopener noreferrer">原论文第 2—3 节</a>。</p>
+<h2 id="section-3">三、研究问题解读：这套评测想回答什么</h2>
+<p>下面三个问题是我们的阅读归纳，并非作者逐字列出的研究问题。</p>
+<ol>
+<li><strong>怎样构造真实且可执行的研究任务？</strong> 让研究目标、提供的数据与最终评分要求彼此对应。</li>
+<li><strong>怎样评价开放的科研产物？</strong> 用目标论文提供参照，同时保留不同路线和更强证据得到认可的可能。</li>
+<li><strong>当前系统的困难集中在哪里？</strong> 区分不能执行、偏离问题、证据不足与科学机制缺失，避免只看最终报告是否完整。</li>
+</ol>
+<p>相应地，本文的方法重点是任务构建、执行环境和评分机制；实验重点则是整体得分、不同领域的差异，以及失败产物的具体表现。</p>
+<h2 id="section-4">四、方法解读：从真实论文到可检查的研究任务</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/researchclawbench/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/researchclawbench/overview.png" alt="ResearchClawBench 的任务、行动空间、系统接入与报告评价流程" loading="lazy" decoding="async"></a><figcaption>图 1 · 左上是任务、文献、数据和专家评分标准；中间是读写、执行与分析；右侧接入现成智能体或 ResearchHarness；下半部分展示代码、产物与报告的连接。评分标准位于评价端。来源：原论文 v5 PDF Figure 2，第 6 页；HTML 对应 Figure 1。原图未改绘，点击查看大图。</figcaption></figure>
+<h3 id="section-5">第一步：选择目标研究，构造任务包</h3>
+<p>领域专家选择科学问题明确、数据可获得且有研究价值的论文，提取核心问题，整理相关文献和数据，并围绕论文的关键产物设计评分项。之后进行交叉检查，修正或剔除不合适的任务。</p>
+<p>v5 包含 <strong>40 个任务、10 个领域，每个领域 4 个任务</strong>。主要任务类型是诊断分析和目标优化：前者关注机制与解释，后者关注定量目标与性能。</p>
+<p>系统实际接收的是<button type="button" class="reading-note-trigger" popovertarget="reading-note-task-boundary" aria-controls="reading-note-task-boundary" aria-expanded="false" aria-haspopup="dialog">任务描述、相关文献和数据</button>。<strong>目标论文及由它建立的评分材料留在评价端。</strong> 数据包既包括实验或模拟结果，也包括整理后的特征、后验样本和图表数据；“从原始数据开始”应当按每个任务的具体材料理解。<a href="https://arxiv.org/html/2606.07591v5#S3" target="_blank" rel="noopener noreferrer">第 3.1—3.2 节及附录 B</a>。</p>
+<h3 id="section-6">第二步：在工具环境中完成研究并提交产物</h3>
+<p>现成科研或编程智能体沿用各自的框架。论文另外用 <strong>ResearchHarness</strong> 为 17 个底层模型提供同一套工具运行环境。它的核心是单 Agent 的 ReAct 循环：<strong>模型决定下一步 → 框架执行工具 → 结果或报错返回模型 → 模型继续分析或提交</strong>。模型可以检索网页与论文、读取 PDF 和图像、编辑文件、执行 Shell 命令，也可以通过持续终端跟踪长任务。较早的交互可压缩成摘要，代码、数据和图表仍可从工作区读取。<a href="https://arxiv.org/html/2606.07591v5#S3.SS3" target="_blank" rel="noopener noreferrer">论文第 3.3 节与表 4</a> · <a href="https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/agent_base/react_agent.py#L1329-L1425" target="_blank" rel="noopener noreferrer">运行循环源码</a></p>
+<p>公开的 ResearchClawBench 适配器禁用向用户提问，并在模型尝试以纯文本结束时检查工作区是否已生成 <code>report/report.md</code>。模型须把分析结果落实到报告和相关产物中。<strong>报告存在是交付条件，科学质量由评测端随后按隐藏的专家评分细则判断。</strong> 论文的评价主要围绕报告与图像，细粒度研究步骤仍缺少完整审计。<a href="https://github.com/InternScience/ResearchHarness/blob/72e8a44737aadabc8c3f9e5c7ea76883b9c7032f/benchmarks/ResearchClawBench/adapter.py#L10-L81" target="_blank" rel="noopener noreferrer">公开适配器源码</a> · <a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">论文第 3.4 节</a></p>
+<h3 id="section-7">第三步：把目标论文拆成带权重的科学要求</h3>
+<p>评分项包含具体标准、技术关键词、权重，以及文本或图像类型。文本项检查研究内容；图像项结合目标图与生成图，检查关键趋势、尺度和证据。</p>
+<p>以原文 Table 2 的 <strong>Astronomy_000</strong> 为例，任务从黑洞质量和自旋的后验样本出发，约束超轻玻色子的参数。输入包含两组后验样本，分别有 <strong>10,000</strong> 和 <strong>1,838</strong> 条记录。评分关注以下三件事：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>科学要求</th>
+<th style="text-align:right">权重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正确读取并总结质量、自旋后验，明确观测约束</td>
+<td style="text-align:right">20%</td>
+</tr>
+<tr>
+<td>对后验样本积分，得到 M33 X-7 的 95% 排除曲线</td>
+<td style="text-align:right">30%</td>
+</tr>
+<tr>
+<td>利用排除曲线，推导相关质量范围内自相互作用耦合的上限</td>
+<td style="text-align:right">50%</td>
+</tr>
+</tbody>
+</table></div><p>这说明，完成数据读取只是研究的一部分；更大的权重放在数据如何支持最终科学约束上。表格来自原论文示例，未将目标论文列表误写成系统可见的输入。</p>
+<h3 id="section-8">第四步：用参考锚定分数衡量证据水平</h3>
+<p>作者提出 <strong>Reference-Anchored Discovery Score，RADS</strong>。单项在百分制下评价，但把目标论文水平放在中间位置：<button type="button" class="reading-note-trigger" popovertarget="reading-note-rads-example" aria-controls="reading-note-rads-example" aria-expanded="false" aria-haspopup="dialog">50 分锚点与加权总分需要一起理解</button>。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>分数位置</th>
+<th>含义</th>
+<th>解释边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低于 50</td>
+<td>相对参考研究，关键证据或分析仍不足</td>
+<td>可能有局部有效结果，不能一概理解为完全无价值</td>
+</tr>
+<tr>
+<td>50</td>
+<td>达到目标论文参照下的证据水平</td>
+<td>是评分锚点，仍然依赖具体标准与评价者</td>
+</tr>
+<tr>
+<td>高于 50</td>
+<td>评价认为证据、定量结果或机制分析超出参照</td>
+<td>表示新发现潜力，仍需独立科学验证</td>
+</tr>
+</tbody>
+</table></div><figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/researchclawbench/scoring.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/researchclawbench/scoring.png" alt="RADS 在诊断分析和目标优化中如何定义参考水平与更强证据" loading="lazy" decoding="async"></a><figcaption>图 2 · 上半部分用机制分析说明证据深度，下半部分用聚合物优化说明定量目标；50 分被设计为参考论文水平。这里是评分机制示意，不能当作系统已经完成新发现的实验结果。来源：原论文 v5 PDF Figure 4，第 9 页；HTML 对应 Figure 3。原图未改绘，点击查看大图。</figcaption></figure>
+<p>论文报告由 <strong>GPT-5.1</strong> 在运行结束后按 rubric 评价报告。这是专家构建标准、模型执行打分的评价，不能等同于每份报告都经过领域专家盲评。<a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">第 3.4、4.1 节</a>。</p>
+<p>作为实现补充，我们核对了<a href="https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py" target="_blank" rel="noopener noreferrer">官方评分器的固定版本</a>：它按评分项给出分数，再计算 <code>总分 = Σ(权重 × 单项分数) / Σ权重</code>。这个代码快照帮助解释汇总方式；它不是论文全部历史运行环境的复现证明。</p>
+<p>联系刚读过的 <a href="../autoscirub/">AutoSciRub</a>：ResearchClawBench 在评价端用专家构建的要求检查产物，后续的 AutoSciRub 则根据可见任务材料自动生成执行准则，并用它指导修订。<button type="button" class="reading-note-trigger" popovertarget="reading-note-autoscirub-connection" aria-controls="reading-note-autoscirub-connection" aria-expanded="false" aria-haspopup="dialog">两者的 rubric 来源、可见范围和作用不同</button>。把它们连起来，有助于区分“怎样衡量研究”与“怎样帮助系统做好研究”。</p>
+<h2 id="section-9">五、实验设计与结果：完整报告距离可靠研究还有多远</h2>
+<h3 id="section-10">主实验：智能体与 ResearchHarness 模型的整体表现</h3>
+<p>论文比较 <strong>7 类智能体</strong>和 <strong>17 个通过 ResearchHarness 执行任务的模型</strong>，均使用上述 40 个任务。Table 5 还单列两个 EvoScientist 版本，因此智能体部分实际有 <strong>8 个配置行</strong>。下列数字是任务平均 rubric 分数，分数越高越好。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>智能体配置</th>
+<th>底层模型</th>
+<th style="text-align:right">平均分</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td>Claude-Opus-4.6</td>
+<td style="text-align:right">21.5</td>
+</tr>
+<tr>
+<td>EvoScientist v0.1.1</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">18.8</td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">18.4</td>
+</tr>
+<tr>
+<td>OpenClaw</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">16.6</td>
+</tr>
+<tr>
+<td>ResearchClaw</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">16.3</td>
+</tr>
+<tr>
+<td>EvoScientist v0.0.4</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">15.5</td>
+</tr>
+<tr>
+<td>ARIS Codex</td>
+<td>Codex / GPT-5.4</td>
+<td style="text-align:right">13.6</td>
+</tr>
+<tr>
+<td>Nanobot</td>
+<td>GPT-5.4</td>
+<td style="text-align:right">12.8</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：原论文 v5 Table 5，PDF 第 10 页。</em></p>
+<p>ResearchHarness 的前五个模型结果如下；完整模型列表见原表。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>ResearchHarness 模型</th>
+<th style="text-align:right">平均分</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude-Opus-4.7</td>
+<td style="text-align:right">20.7</td>
+</tr>
+<tr>
+<td>Claude-Opus-4.6</td>
+<td style="text-align:right">19.9</td>
+</tr>
+<tr>
+<td>Qwen3.7-Max</td>
+<td style="text-align:right">18.7</td>
+</tr>
+<tr>
+<td>GLM-5.1</td>
+<td style="text-align:right">18.2</td>
+</tr>
+<tr>
+<td>Qwen3.6-Plus</td>
+<td style="text-align:right">18.0</td>
+</tr>
+<tr>
+<td>Kimi-K2.6</td>
+<td style="text-align:right">18.0</td>
+</tr>
+</tbody>
+</table></div><p><em>第五名分数存在并列，因此列出六行。来源同上。</em></p>
+<p>最直接的结论是：<strong>在这套任务和评分标准下，各系统的平均产出距离 50 分参照仍有明显差距。</strong> 21.5 是平均分，不能写成“成功完成了 21.5% 的科研任务”。均值低于参照，也不表示每一道题都低于参照。</p>
+<p>总体排名还掩盖了任务差异。Claude Code 在 40 个任务中仅有 12 个任务取得最佳结果；模型组的不同领域也由不同模型领先。例如 Claude-Opus-4.6 在天文、地球、能源和数学领先，GLM-5.1 在化学领先，Qwen3.7-Max 在物理领先。<a href="https://arxiv.org/html/2606.07591v5#S4" target="_blank" rel="noopener noreferrer">第 4.1—4.2 节及 Table 5</a>。</p>
+<p><strong>ResearchHarness 的实测表现。</strong> 论文使用同一套 40 个任务，并在运行后由 GPT-5.1 按专家评分细则评价报告。ResearchHarness 组最高是 <strong>Claude-Opus-4.7，20.7 分</strong>。即使事后为每题选取该组的最高分再求平均，也只有 <strong>26.5 分</strong>，低于参考论文的 <strong>50 分</strong>证据锚点。前者是一个模型配置的平均分，后者是逐题取优的组合结果。<a href="https://arxiv.org/html/2606.07591v5#S4" target="_blank" rel="noopener noreferrer">论文第 4.1–4.2 节与表 5</a></p>
+<p><strong>同底模对照。</strong> Claude-Opus-4.6 在 ResearchHarness 中为 <strong>19.9 分</strong>，通过 Claude Code 则为 <strong>21.5 分</strong>，相差 <strong>1.6 分</strong>。这个对照显示了两套实际配置的分数差。要估计框架本身的增益，还需要在同一底模下对齐工具和预算，或对 ResearchHarness 的组件逐项消融。<a href="https://arxiv.org/html/2606.07591v5#S4" target="_blank" rel="noopener noreferrer">论文表 5</a></p>
+<h3 id="section-11">补充分析一：逐题最优与报告质量分别说明什么</h3>
+<p>作者还计算了 <strong>frontier mean</strong>：对每个任务，事后选出所有被测系统中的最高分，再对任务求平均。它表示已有结果的组合上界，实际部署时并没有一个已知选择器能够提前挑中每题赢家，也不是某个系统多次尝试的平均值。</p>
+<p>v5 引言的智能体 frontier mean 为 <strong>24.6</strong>，第 4.2 节则为 <strong>25.8</strong>。我们按附录 Table 8 的逐任务表复算：排除新增 EvoScientist v0.1.1 时约为 <strong>24.56</strong>，包含全部八个配置时约为 <strong>25.84</strong>，分别对应这两个舍入值。两个数字对应的智能体配置范围不同。</p>
+<p>报告外观与科学证据也需要分开看。Table 6 的四个补充维度为全面性、深度、指令遵循和专业性；这里摘录三组：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>智能体</th>
+<th style="text-align:right">主 rubric 分数</th>
+<th style="text-align:right">深度</th>
+<th style="text-align:right">专业性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td style="text-align:right">21.5</td>
+<td style="text-align:right">58.0</td>
+<td style="text-align:right">76.4</td>
+</tr>
+<tr>
+<td>Codex CLI</td>
+<td style="text-align:right">18.4</td>
+<td style="text-align:right">65.9</td>
+<td style="text-align:right">74.4</td>
+</tr>
+<tr>
+<td>ResearchClaw</td>
+<td style="text-align:right">16.3</td>
+<td style="text-align:right">62.2</td>
+<td style="text-align:right">74.8</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：Tables 5—6。补充维度与主 rubric 的评分对象和锚点不同，不能用两列相减来衡量差距。</em></p>
+<p>这些结果支持：报告可以有较好的专业表达，而关键科学证据仍不足。Table 6 使用的是原七类智能体，其中 EvoScientist 为 v0.0.4，未覆盖新增版本。<a href="https://arxiv.org/html/2606.07591v5#S4.SS3" target="_blank" rel="noopener noreferrer">第 4.3 节</a>。</p>
+<h3 id="section-12">补充分析二：更高成本是否带来更好的研究</h3>
+<p>作者比较各系统的平均费用、耗时与分数，并画出资源—分数的 Pareto 前沿，即当前结果中难以同时改善成本和分数的配置。</p>
+<p>资源投入与得分总体有正关联，但这属于不同系统之间的观察比较。它不能单独证明增加同一系统的预算就会改善研究，也不能证明额外计算必然无效。模型能力、工具框架和停止策略都可能同时变化。<a href="https://arxiv.org/html/2606.07591v5#S4.SS4" target="_blank" rel="noopener noreferrer">第 4.4 节</a>。</p>
+<p>本文没有提供隔离单个组件贡献的系统性消融；上述结果主要是系统对比与行为分析。</p>
+<h3 id="section-13">补充分析三：失败主要发生在什么地方</h3>
+<p>作者分析原七类智能体在 40 个任务上的 <strong>280 次运行</strong>，把错误分成六类。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/researchclawbench/errors.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/researchclawbench/errors.png" alt="ResearchClawBench 的六类错误及对应的任务实例" loading="lazy" decoding="async"></a><figcaption>图 3 · 主要问题集中在实验设计不匹配、证据不匹配和科学核心缺失。各项图示比例不能相加解释为互斥分布；论文未给出逐项原始计数。下方每列给出预期产物、实际产物和差异。来源：原论文 v5 PDF Figure 6，第 11 页；HTML 对应 Figure 5。原图未改绘，点击查看大图。</figcaption></figure>
+<p>前三类最能说明这套评测关注什么：</p>
+<ul>
+<li><strong>实验设计不匹配：</strong> 原本需要检验长期天气预测与指定基线，系统改做短期持续性或线性外推分析。代码可以运行，却换了实验协议。</li>
+<li><strong>证据不匹配：</strong> 数字、图表或结论与关键证据不一致。</li>
+<li><strong>科学核心缺失：</strong> 报告使用了相关领域的术语和工具，却没有实现或验证目标机制。</li>
+</ul>
+<p>另外三类是目标偏移、可靠性或报告失败，以及执行失败。作者的分析支持：问题常常发生在已经完成了一些工作之后，系统逐步偏离了应当验证的科学要求。<a href="https://arxiv.org/html/2606.07591v5#S4.SS5" target="_blank" rel="noopener noreferrer">第 4.5 节</a>。</p>
+<p><strong>Physics_002</strong> 提供了一个具体例子。OpenClaw 得到论文报告的 27.45 分，并恢复了量子电路保真度随深度下降的直接趋势，但遗漏了多估计器一致性、镜像电路推断和门计数误差模型。直接趋势只是完整证据链的一部分。</p>
+<p>这组案例也有数值呈现问题：原图五项权重合计为 <strong>105%</strong>，而当前官方评分器会按权重总和归一化，因此不能用该图严格复现 27.45 的归一化总分。原文把分项写为 47/50、40/50；结合 RADS 定义，应理解为接近 50 分参考锚点，不能把 50 当作百分制满分。这里保留作者报告值，仅用案例解释缺失的验证步骤。<a href="https://arxiv.org/html/2606.07591v5#S4.SS6" target="_blank" rel="noopener noreferrer">第 4.6 节</a>。</p>
+<h2 id="section-14">六、我们自己的思考</h2>
+<h3 id="section-15">课题思考：这个领域在研究什么</h3>
+<p>科研智能体评测的关键，是让“完成研究”变成可以逐项核对的主张。运行代码、生成图表和写成报告，都需要回到科学目标，检查它们究竟支持了什么。</p>
+<p>这篇论文的价值在于，把目标论文的关键产物作为评价参照，同时尝试容纳更强的证据。它让我们看到，科研流程的完整性与科学证据的充分性，需要分别检查。</p>
+<h3 id="section-16">局限问题思考：目前还存在哪些问题</h3>
+<p><strong>第一，参考论文会影响评价边界。</strong> 某项方案偏离参考，可能是犯错，也可能是一条合理的新路线。高于参考的模型评分，同样需要独立科学验证；论文也承认，真正新发现需要更可靠的评价方式。</p>
+<p><strong>第二，最终报告不能完全证明研究过程。</strong> 当前评分以报告和图像为主，代码执行、数据来源、指标计算及结论之间，还需要更细的审计。论文没有报告足够的人类—模型评分校准和跨评价器稳定性结果，来消除这些不确定性。</p>
+<p><strong>第三，任务与运行覆盖仍有限。</strong> 每领域只有四个论文任务，且主要是基于已有材料的计算研究，不能代表整门学科或真实湿实验能力。重复运行方差、严格预算对齐及目标论文泄漏风险也需要进一步检验；“任务包不提供目标论文”本身，无法排除预训练记忆或外部检索中的接触。</p>
+<p><strong>第四，版本和统计口径影响可复现性。</strong> 新旧 EvoScientist 配置、不同 frontier 范围、图号与案例权重存在更新不一致。项目还在发展，评价需要固定论文、数据、评分器和系统版本。<a href="https://arxiv.org/html/2606.07591v5#S6" target="_blank" rel="noopener noreferrer">原论文第 6 节</a>。</p>
+<h3 id="section-17">解决方案思考：这些问题有哪些解决方向</h3>
+<p>下面是我们提出的后续方向，与上述问题逐项对应。</p>
+<ol>
+<li><strong>为不同研究路线提供独立验证。</strong> 让领域专家盲评偏离参考的方案，检查其科学目标、有效性和新颖性；对声称超出参考的结果增加重复实验或外部数据验证。</li>
+<li><strong>把评分绑定到可追溯产物。</strong> 将每项主张对应到输入数据、代码版本、命令、日志、指标和图表；对高权重要求进行独立重放，并比较多评价器与专家判断的一致性。</li>
+<li><strong>扩展任务并控制比较条件。</strong> 增加每领域任务与重复运行，报告置信区间；在固定模型下比较框架、在固定框架下比较模型，同时测试文献泄漏、数据污染和接入真实实验反馈后的表现。</li>
+<li><strong>发布可复算的评测快照。</strong> 固定数据与代码提交、配置列表和运行结果，自动计算均值、逐题最优与权重归一化，并检查正文、图表和榜单是否使用同一统计范围。</li>
+</ol>
+<p><em>依据 ResearchClawBench arXiv v5。三张插图归原作者所有，引用用于本文论文解读，未改绘；arXiv 页面标注的是非独占传播许可，本文不将论文插图宣称为 CC BY。图号以 PDF 为准，同时注明 HTML 对应编号。表格摘录自原文，附录复算、解释和后续研究建议为本文分析。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样判断 AI 完成了一项研究</a></li><li><a href="#section-2">二、相关文献解读：从科学代码到论文复现</a></li><li><a href="#section-3">三、研究问题解读：这套评测想回答什么</a></li><li><a href="#section-4">四、方法解读：从真实论文到可检查的研究任务</a></li><li><a href="#section-9">五、实验设计与结果：完整报告距离可靠研究还有多远</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../frontierscience/"><span>论文阅读</span><strong>FrontierScience：从科学解题到研究子问题评测</strong><i aria-hidden="true">↗</i></a><a href="../scientific-discovery-evaluation/"><span>论文阅读</span><strong>SDE：答对科学题，能否做好科学研究</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>论文阅读</span><strong>AutoScientists：科研智能体怎样组队，决定下一次实验</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><aside id="reading-note-task-boundary" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-task-boundary-title" tabindex="-1"><div class="reading-note-top"><span>阅读问答</span><button type="button" class="reading-note-close" popovertarget="reading-note-task-boundary" popovertargetaction="hide" aria-label="关闭解释">×</button></div><p class="reading-note-title" id="reading-note-task-boundary-title">系统拿到什么，又需要交出什么？</p><div class="reading-note-answer"><p>系统获得研究任务、相关文献、数据和可执行工具环境，交付代码与执行过程、中间结果和图表，以及最终报告。目标论文和由它建立的评分材料由评价端保留。</p>
+</div><details class="reading-note-detail"><summary>展开输入、输出与隐藏材料</summary><div class="reading-note-answer"><p>可以按三层理解第 3.1 节的任务定义：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>层次</th>
+<th>内容</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>执行时可见</td>
+<td>任务描述、相关文献、任务数据和工具环境</td>
+<td>支持系统自行选择分析并执行</td>
+</tr>
+<tr>
+<td>系统交付</td>
+<td>代码与执行过程、中间结果、图表、输出文件、研究报告</td>
+<td>展示做了什么以及证据来自哪里</td>
+</tr>
+<tr>
+<td>评价端保留</td>
+<td>目标论文及围绕其关键科学产物构建的评分材料</td>
+<td>提供评价参照，不作为任务包中的答案交给系统</td>
+</tr>
+</tbody>
+</table></div><p>这里的“自行研究”以给定的任务目标为起点，部分任务还约束方法或评价对象，并未完整测试独立选题。数据也可能是后验样本、特征或已整理的观测结果，需要按任务理解“原始数据”。</p>
+<p><strong>边界说明：</strong> 任务包隐藏目标论文，并不能单独排除模型预训练记忆或外部检索接触；这是我们对评测控制范围的解释。</p>
+<p>来源：<a href="https://arxiv.org/html/2606.07591v5#S3" target="_blank" rel="noopener noreferrer">第 3.1—3.2 节</a>；<a href="https://arxiv.org/pdf/2606.07591v5#page=7" target="_blank" rel="noopener noreferrer">Astronomy_000 示例，PDF 第 7 页</a>。</p>
+</div></details></aside><aside id="reading-note-rads-example" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-rads-example-title" tabindex="-1"><div class="reading-note-top"><span>阅读问答</span><button type="button" class="reading-note-close" popovertarget="reading-note-rads-example" popovertargetaction="hide" aria-label="关闭解释">×</button></div><p class="reading-note-title" id="reading-note-rads-example-title">50 分、加权总分和研究成功率怎样区分？</p><div class="reading-note-answer"><p>50 分是参考论文级证据的锚点，量表上限是 100。总分按准则权重聚合；高权重项更影响结果。任务平均分 21.5 不是 21.5% 的完整成功率，高于 50 也不自动证明新发现成立。</p>
+</div><details class="reading-note-detail"><summary>展开一个明确标注的教学算例</summary><div class="reading-note-answer"><p><strong>教学示例，不是真实运行成绩。</strong> 权重取自原文 Astronomy_000 的简化清单；下面的单项分数 30、50、70 是我们为说明算法而设定的假设值。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>评价要求</th>
+<th style="text-align:right">原文权重</th>
+<th style="text-align:right">假设单项分数</th>
+<th style="text-align:right">加权贡献</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取并总结观测后验</td>
+<td style="text-align:right">0.20</td>
+<td style="text-align:right">30</td>
+<td style="text-align:right">6</td>
+</tr>
+<tr>
+<td>建立排除曲线</td>
+<td style="text-align:right">0.30</td>
+<td style="text-align:right">50</td>
+<td style="text-align:right">15</td>
+</tr>
+<tr>
+<td>推导耦合约束</td>
+<td style="text-align:right">0.50</td>
+<td style="text-align:right">70</td>
+<td style="text-align:right">35</td>
+</tr>
+</tbody>
+</table></div><p>权重和为 1.00，所以示例总分为 <code>6 + 15 + 35 = 56</code>。固定版本官方评分器的一般公式为 <code>Σ(权重 × 分数) / Σ权重</code>；权重不需要在输入时恰好加到 1。</p>
+<p>这个例子也显示：总分高于 50，仍可能有某项低于参考水平；加权平均不保证所有必要要求逐项通过。RADS 是证据水平评价，真正的新发现仍需独立核验。</p>
+<p>来源：<a href="https://arxiv.org/pdf/2606.07591v5#page=7" target="_blank" rel="noopener noreferrer">Table 2，权重示例</a>；<a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">第 3.4 节，RADS 定义</a>；<a href="https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py" target="_blank" rel="noopener noreferrer">固定版本官方评分器</a>。算例中的单项得分与计算结果为教学设定。</p>
+</div></details></aside><aside id="reading-note-autoscirub-connection" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-autoscirub-connection-title" tabindex="-1"><div class="reading-note-top"><span>阅读问答</span><button type="button" class="reading-note-close" popovertarget="reading-note-autoscirub-connection" popovertargetaction="hide" aria-label="关闭解释">×</button></div><p class="reading-note-title" id="reading-note-autoscirub-connection-title">ResearchClawBench 与 AutoSciRub 的 rubric 是同一份吗？</p><div class="reading-note-answer"><p>两者分别承担评价与执行指导。ResearchClawBench 的专家准则由评价端掌握；后续 AutoSciRub 从任务指令、文献和可见数据生成自己的准则，用来组织实验、核验和修订。生成准则不是直接读取隐藏官方清单。</p>
+</div><details class="reading-note-detail"><summary>展开两种准则及可见范围的对照</summary><div class="reading-note-answer"><div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>对象</th>
+<th>来源与可见范围</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ResearchClawBench 官方 rubric</td>
+<td>专家依据隐藏目标论文的关键科学产物构建，执行系统不能读取</td>
+<td>在评价端衡量最终证据</td>
+</tr>
+<tr>
+<td>AutoSciRub 生成的 rubric</td>
+<td>根据研究指令、相关文献与任务可见数据在推理时构造，执行系统可以使用</td>
+<td>指导分析、核验缺口和定向修订</td>
+</tr>
+</tbody>
+</table></div><p>AutoSciRub 是这篇基准论文之后的方法。它在 ResearchClawBench 上比较原版与增加该控制层的系统，最终仍用基准官方规则评价。自动生成的规范可能遗漏核心科学要求，所以内部“通过”与官方评分应分别报告。</p>
+<p>对读者而言，可以把两篇论文连成一个问题链：先定义怎样检查研究证据，再研究怎样在执行过程中产生更充分的证据。这是我们的阅读联系，并非 ResearchClawBench 已经实现了自动 rubric 诱导。</p>
+<p>来源：<a href="https://arxiv.org/html/2606.07591v5#S3.SS4" target="_blank" rel="noopener noreferrer">ResearchClawBench 第 3.4 节</a>；<a href="https://arxiv.org/html/2608.31076v1#S3.SS2" target="_blank" rel="noopener noreferrer">AutoSciRub 第 3.2 节</a>；<a href="https://arxiv.org/pdf/2608.31076v1#page=10" target="_blank" rel="noopener noreferrer">AutoSciRub 附录 A.1，评分与信息隔离</a>。</p>
+</div></details></aside><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>
