@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具 | Linhao Wang</title>
+  <meta name="description" content="从成败轨迹积累经验，用 LinUCB 决定搜哪里，再把成功使用的工具写入图谱。解读两项基准、迁移消融和推理成本。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具">
+  <meta property="og:description" content="从成败轨迹积累经验，用 LinUCB 决定搜哪里，再把成功使用的工具写入图谱。解读两项基准、迁移消融和推理成本。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/scitoolagent-evo/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具" data-title-en="SciToolAgent-Evo: how research agents acquire and reuse scientific tools" data-language-url="../../en/blog/scitoolagent-evo/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 7 分钟</span><span>中文原稿</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具</h1><p class="article-summary">从成败轨迹积累经验，用 LinUCB 决定搜哪里，再把成功使用的工具写入图谱。解读两项基准、迁移消融和推理成本。</p><div class="post-topics"><span>AI for Science</span><span>科研智能体</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/scitoolagent-evo/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/scitoolagent-evo/overview.png" alt="SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2607.28692v1" target="_blank" rel="noopener noreferrer">SciToolAgent-Evo: An Ontology-Aware Self-Evolving Agent for Open-World Scientific Tool Acquisition ↗</a><small>arXiv · 2026 / v1 · 2026-07-30</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：找到一个工具之后，还要判断能不能接上</a></li><li><a href="#section-2">二、相关文献解读：工具图谱、经验与探索决策</a></li><li><a href="#section-3">三、研究问题解读：系统到底学会了什么</a></li><li><a href="#section-4">四、方法解读：从失败与成功的轨迹，到下一次工具选择</a></li><li><a href="#section-5">五、实验设计与结果：整体收益、组件贡献和开销</a></li><li><a href="#section-8">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>科研 Agent 拿到一个任务时，工具库里可能已有合适工具，也可能只有功能相近但输入不兼容的候选。SciToolAgent-Evo 研究的是如何识别这种缺口、从候选池取得新工具，再把成功的使用方式保存下来。在 OpenSciToolBench 上，它把 GPT-5.4-mini 的最终答案准确率从该组最强基线的 <strong>52.17% 提高到 64.28%</strong>，最难一级仍只有 <strong>32.89%</strong>。<a href="https://arxiv.org/html/2607.28692v1#S5.SS4" target="_blank" rel="noopener noreferrer">原论文表 1</a></p>
+<p>本文依据 Yuqi Tang 等人于 2026 年 7 月 30 日提交的 <a href="https://arxiv.org/abs/2607.28692v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>。</p>
+<h2 id="section-1">一、课题解读：找到一个工具之后，还要判断能不能接上</h2>
+<p>假设要比较两份材料测量数据。一个工具能读入谱图，另一个工具能比较曲线，但它要求两条曲线使用相同坐标和单位。如果只按功能描述匹配，「曲线比较」似乎已经找到；真正执行前，还得判断是否需要转换坐标、哪些值要保留，以及转换后的输出能否作为下一步输入。</p>
+<p>科研工具链因此有两层判断：<strong>单个工具能否完成所需操作，多个工具能否在同一组约束下接起来。</strong> 工具描述不完整时，Agent 还要决定是复用熟悉路径，还是花预算搜索其他候选。</p>
+<h2 id="section-2">二、相关文献解读：工具图谱、经验与探索决策</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要做法</th>
+<th>与本文的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2507.20280" target="_blank" rel="noopener noreferrer">SciToolAgent</a></td>
+<td>用科学工具知识图谱检索并组织多工具调用</td>
+<td>本篇继承图谱思路，并允许成功使用的未知工具补齐属性后进入图谱</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">EvoScientist</a></td>
+<td>把构思和实验经验写入持久记忆</td>
+<td>两者都复用历史经验，SciToolAgent-Evo 的记忆直接服务于选择工具和拼接工具链</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/1003.0146" target="_blank" rel="noopener noreferrer">LinUCB</a></td>
+<td>用上下文估计行动收益，再给不确定的行动加探索分</td>
+<td>本篇把动作设为「选已知工具」或「探索未知工具」</td>
+</tr>
+</tbody>
+</table></div><h2 id="section-3">三、研究问题解读：系统到底学会了什么</h2>
+<p>按论文的评测设计，可以问三个问题：</p>
+<ol>
+<li>起初只有一半工具具有完整描述时，Agent 能否组成正确工具链，并给出正确答案？</li>
+<li>可复用的工具链、细粒度经验和工具入图分别带来多少变化？积累阶段与推理期间的入图作用是否相同？</li>
+<li>难题、更稀疏的已知图谱和额外推理开销，会怎样影响系统表现？<a href="https://arxiv.org/html/2607.28692v1#S3" target="_blank" rel="noopener noreferrer">论文第 3–5 节</a></li>
+</ol>
+<h2 id="section-4">四、方法解读：从失败与成功的轨迹，到下一次工具选择</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/scitoolagent-evo/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/scitoolagent-evo/overview.png" alt="训练侧积累经验，推理侧检索、探索并更新工具图谱" loading="lazy" decoding="async"></a><figcaption>图 1 · 左侧对比轨迹并沉淀知识，中间存放技能、经验和工具图谱，右侧从任务路由走到执行和回写。来源：原论文 v1 Figure 2，PDF 第 4 页，原图未改绘。</figcaption></figure>
+<p><strong>第一步，区分三种记忆。</strong> 技能保存一类任务的可复用工具链。经验保存较细的选工具规则，分通用和领域两类。工具图谱保存功能、输入输出类型、适用对象和场景等属性，以及工具间的关系。这里的本体可以理解为「这个工具能做什么、接收什么、在什么条件下适用」的结构化说明。<a href="https://arxiv.org/html/2607.28692v1#S4.SS1" target="_blank" rel="noopener noreferrer">论文第 4.1 节</a></p>
+<p><strong>第二步，用同一道题的成败轨迹定位分叉。</strong> 训练任务先以温度 <strong>0</strong> 运行一次。成功时抽取技能；失败时再以 <strong>0.2、0.5 和 0.8</strong> 尝试三条轨迹。如果有探索轨迹成功，就用一条成功轨迹与初始失败轨迹比较，找出改变结果的关键决策，再提炼领域经验和通用经验。与已有经验过度相似的条目会被丢弃。模型权重保持固定。<a href="https://arxiv.org/html/2607.28692v1#S4.SS2" target="_blank" rel="noopener noreferrer">论文第 4.2 节与附录 G</a></p>
+<p><strong>第三步，先明确需要的能力，再决定搜哪里。</strong> 新任务如果匹配已有技能，就执行该技能的工具链；否则按任务难度走轻量规划或主动获取。主动获取先把目标写成一个个工具需求，例如「输出坐标一致的曲线」，再用语义检索、图谱关系与重排找到候选。LinUCB 对每个需求比较两个动作，参考当前最佳候选的可行性、前两名的分差、本体匹配程度和过去探索成功的先验。每个动作的分数包含估计收益与不确定性加成。<a href="https://arxiv.org/html/2607.28692v1#S4.SS3" target="_blank" rel="noopener noreferrer">论文第 4.3 节</a></p>
+<p><strong>第四步，执行并回写。</strong> 计划完成后由执行器顺序调用工具，再汇总答案。如果一次轨迹成功使用了未知工具，系统根据交互补全工具描述，将它移入已知图谱，并可沉淀新技能。执行反馈也用于更新门控的奖励估计。这里的「未知」指<strong>预设池中未加入已知图谱、只披露少量基本属性的工具</strong>。<a href="https://arxiv.org/html/2607.28692v1#S4" target="_blank" rel="noopener noreferrer">论文第 4.1、4.3 节</a></p>
+<h2 id="section-5">五、实验设计与结果：整体收益、组件贡献和开销</h2>
+<h3 id="section-6">主实验：工具链匹配与最终答案</h3>
+<p>OpenSciToolBench 从已有工具图谱构造题目，先由模型检查题意和工具链，再由人工验证。总计 <strong>900</strong> 题，附录表 A5 列出 <strong>539</strong> 道训练题和 <strong>361</strong> 道测试题。四级测试分别有 <strong>105、95、85、76</strong> 题，从显式调用到最长 <strong>10</strong> 步的策略题。另一组 SciToolEval 含 <strong>531</strong> 题。主对照采用 <strong>50% 已知、50% 未知</strong>的工具划分，并共享下游执行、汇总和评估流程。工具准确率衡量对参考工具链的匹配，最终答案由 GPT-5-mini 评价。<a href="https://arxiv.org/html/2607.28692v1#S5" target="_blank" rel="noopener noreferrer">论文第 5.1–5.3 节及附录 G</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>基准</th>
+<th>底模</th>
+<th style="text-align:right">工具准确率</th>
+<th style="text-align:right">答案准确率</th>
+<th style="text-align:right">最强基线答案准确率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenSciToolBench</td>
+<td>GPT-5.4-mini</td>
+<td style="text-align:right">66.76 ± 0.74</td>
+<td style="text-align:right">64.28 ± 0.85</td>
+<td style="text-align:right">CoT 52.17 ± 0.89</td>
+</tr>
+<tr>
+<td>OpenSciToolBench</td>
+<td>Gemini-3-flash</td>
+<td style="text-align:right">69.53 ± 2.77</td>
+<td style="text-align:right">67.26 ± 0.96</td>
+<td style="text-align:right">Reflexion 57.71 ± 1.21</td>
+</tr>
+<tr>
+<td>SciToolEval</td>
+<td>GPT-5.4-mini</td>
+<td style="text-align:right">83.91 ± 1.75</td>
+<td style="text-align:right">82.84 ± 1.87</td>
+<td style="text-align:right">CoT 76.73 ± 1.73</td>
+</tr>
+<tr>
+<td>SciToolEval</td>
+<td>Gemini-3-flash</td>
+<td style="text-align:right">78.79 ± 1.40</td>
+<td style="text-align:right">77.97 ± 1.75</td>
+<td style="text-align:right">ReAct 75.08 ± 0.76</td>
+</tr>
+</tbody>
+</table></div><p><em>表中为百分制，三次独立运行的均值 ± 标准差。来源为论文表 1–2。</em></p>
+<p>两个基准、两个底模的总体答案分均领先。GPT-5.4-mini 在 OpenSciToolBench 的优势为 <strong>12.11 个百分点</strong>，但最高难度的答案正确率从一级的 <strong>83.49%</strong> 降至四级的 <strong>32.89%</strong>。另外，Gemini-3-flash 在 SciToolEval 的单工具组中，Reflexion 的答案分为 <strong>88.16%</strong>，高于完整方法的 <strong>86.84%</strong>。优势主要体现在总体配置，单个任务组仍可能由其他方法领先。<a href="https://arxiv.org/html/2607.28692v1#S5.SS4" target="_blank" rel="noopener noreferrer">论文表 1–2</a></p>
+<h3 id="section-7">补充实验：为什么要先积累，再在线更新</h3>
+<p>表 3 的完整配置总分为 <strong>67.22</strong>。移除全部工具迁移后为 <strong>51.53</strong>，差 <strong>15.69</strong> 个百分点；仅移除推理时迁移为 <strong>63.71</strong>，差 <strong>3.51</strong> 个百分点。移除知识积累差 <strong>14.87</strong> 个百分点。这组消融表明，两阶段都允许入图时得分最高，且只禁止推理期间入图的影响较小。这些是表 3 内部对照，和表 1 的三次主结果分列解读。<a href="https://arxiv.org/html/2607.28692v1#S5.SS5" target="_blank" rel="noopener noreferrer">论文表 3</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/scitoolagent-evo/accumulation.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/scitoolagent-evo/accumulation.png" alt="知识积累期间，计划准确率和初始未知工具命中率随进度变化" loading="lazy" decoding="async"></a><figcaption>图 2 · 横轴为积累进度，两条线分别是计划准确率和初始未知工具命中率。来源：原论文 v1 Figure 4，PDF 第 7 页，仅裁出图表区域。</figcaption></figure>
+<p>图 4 的 GPT-5.4-mini 曲线上，初始未知工具命中率从 <strong>55.30%</strong> 到 <strong>88.24%</strong>，大部分提升发生在前四分之一的积累阶段。该指标描述工具命中。代价方面，附录 A4 中，相较原版 SciToolAgent，完整方法每题平均用时由 <strong>17.2 秒</strong>升至 <strong>26.4 秒</strong>，估算 API 成本由 <strong>0.007 美元</strong>升至 <strong>0.018 美元</strong>。<a href="https://arxiv.org/html/2607.28692v1#S5.SS6" target="_blank" rel="noopener noreferrer">论文图 4 和表 A4</a></p>
+<h2 id="section-8">六、我们自己的思考</h2>
+<h3 id="section-9">课题思考：这个领域在研究什么</h3>
+<p>工具库变大之后，核心问题是如何保存对未来有用的证据。一次成功可以留下整条链、解释某个选择为什么有效，也可以补全单个工具的适用条件。三种信息的复用范围不同，论文把它们存为不同对象，便于下次按任务重新组合。</p>
+<h3 id="section-10">局限问题思考：目前还存在哪些问题</h3>
+<p><strong>未知工具来自预设池。</strong> OpenSciToolBench 从已有图谱生成，再限制 Agent 初始可见的属性。真实服务可能还有接口变化、权限和运行环境问题。<strong>参考链是评价参照。</strong> 同一个问题可能有功能等价的其他路径。最终答案正确也需要与执行轨迹分开核查。<strong>反馈用于在线更新。</strong> 论文描述了按成功信号更新门控与图谱，但上线后往往没有可直接对照的标准答案，迁移是否可靠取决于反馈质量。<a href="https://arxiv.org/html/2607.28692v1#A1" target="_blank" rel="noopener noreferrer">论文第 3、4 节与附录 A</a></p>
+<h3 id="section-11">解决方案思考：这些问题有哪些解决方向</h3>
+<p>可以按工具版本、服务提供者和时间划分测试集，保留真正未见过的接口，记录接入失败与运行成本。对多解任务，用输出契约和可独立检查的中间产物评价等价路径。对在线工具入图，可先用可跑的最小用例核对输入、输出和失败状态，再固定图谱版本，在后续任务上测复用收益和错误迁移率。</p>
+<p><em>插图来自 Tang 等人的 SciToolAgent-Evo v1，按 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 引用。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：找到一个工具之后，还要判断能不能接上</a></li><li><a href="#section-2">二、相关文献解读：工具图谱、经验与探索决策</a></li><li><a href="#section-3">三、研究问题解读：系统到底学会了什么</a></li><li><a href="#section-4">四、方法解读：从失败与成功的轨迹，到下一次工具选择</a></li><li><a href="#section-5">五、实验设计与结果：整体收益、组件贡献和开销</a></li><li><a href="#section-8">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../autoscientists/"><span>论文阅读</span><strong>AutoScientists：科研智能体怎样组队，决定下一次实验</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>论文阅读</span><strong>AutoSciRub：先明确证据要求，再推进自主科研</strong><i aria-hidden="true">↗</i></a><a href="../evoscientist/"><span>论文阅读</span><strong>让 AI 科研系统积累经验：EvoScientist 的双记忆与跨任务演化</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

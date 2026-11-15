@@ -1,5 +1,19 @@
 [
   {
+    "slug": "scitoolagent-evo",
+    "source": "https://arxiv.org/abs/2607.28692v1",
+    "source_pdf": "https://arxiv.org/pdf/2607.28692v1",
+    "source_pdf_sha256": "7852909c5ba3f404bd73c44363a26f1387c76bf1babc8f44ee1421b16080939b",
+    "figure_manifest": "assets/img/blog/scitoolagent-evo/sources.json",
+    "scope": "Bilingual six-section reading with Figures 2 and 4, Tables 1–3 and Appendix Tables A4–A5. Separates tool and answer accuracy, acquisition and deployment claims, and training versus inference migration.",
+    "related_sources": [
+      "https://arxiv.org/abs/2507.20280",
+      "https://arxiv.org/abs/2603.08127v2",
+      "https://arxiv.org/abs/1003.0146"
+    ],
+    "imported_on": "2026-11-15"
+  },
+  {
     "slug": "gan-jiang-xrd",
     "source": "https://arxiv.org/abs/2610.07862v1",
     "source_pdf": "https://arxiv.org/pdf/2610.07862v1",

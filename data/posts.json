@@ -1,5 +1,30 @@
 [
   {
+    "slug": "scitoolagent-evo",
+    "title_zh": "SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具",
+    "title_en": "SciToolAgent-Evo: how research agents acquire and reuse scientific tools",
+    "summary_zh": "从成败轨迹积累经验，用 LinUCB 决定搜哪里，再把成功使用的工具写入图谱。解读两项基准、迁移消融和推理成本。",
+    "summary_en": "Learning from contrasting runs, choosing where to search with LinUCB, and adding successful tools to a graph, with benchmark, ablation, and cost results.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-15",
+    "paper": {
+      "title": "SciToolAgent-Evo: An Ontology-Aware Self-Evolving Agent for Open-World Scientific Tool Acquisition",
+      "url": "https://arxiv.org/abs/2607.28692v1",
+      "venue": "arXiv · 2026 / v1 · 2026-07-30"
+    },
+    "cover": "assets/img/blog/scitoolagent-evo/overview.png"
+  },
+  {
     "slug": "gan-jiang-xrd",
     "title_zh": "干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能",
     "title_en": "Gan Jiang: turning X-ray diffraction analysis into testable skills",
