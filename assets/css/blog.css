@@ -186,7 +186,7 @@ html[lang=en] .article-prose { line-height:1.85; }
  .poster-heading { align-items:flex-start; }
 }
 
-/* Personal notes on selected text */
+/* Public notes on selected text */
 .reading-comments-tools { display:flex;justify-content:flex-end;margin:0 0 18px; }
 .reading-comments-open,.reading-comment-dialog button {
   padding:5px 11px;border:1px solid var(--luka-border);border-radius:6px;
@@ -213,7 +213,7 @@ html[lang=en] .article-prose { line-height:1.85; }
 .reading-comment-dialog header h2 { margin:0;font-size:19px;font-weight:600; }
 .reading-comment-dialog .reading-comment-close { min-width:34px;font-size:20px;line-height:1.15; }
 .reading-comment-local { margin:6px 0 16px;color:var(--luka-secondary);font-size:12px; }
-.reading-comment-error { margin:0 0 12px;color:var(--luka-text);border-left:3px solid #b75f23;padding-left:9px; }
+.reading-comment-status { margin:0 0 12px;color:var(--luka-text);border-left:3px solid #b75f23;padding-left:9px; }
 .reading-comment-card { border-top:1px solid var(--luka-border);padding:12px 0; }
 .reading-comment-dialog blockquote {
   overflow-wrap:anywhere;margin:0 0 9px;padding:3px 10px;border-left:2px solid var(--luka-accent);
@@ -232,3 +232,11 @@ html[lang=en] .article-prose { line-height:1.85; }
   .reading-comment-action { top:auto!important;left:50%!important;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);min-height:44px; }
   .reading-comment-dialog button { min-height:44px; }
 }
+
+.reading-comment-navigation { margin:0 0 14px;align-items:center; }
+.reading-comment-dialog a { color:var(--luka-accent);text-decoration:underline;text-underline-offset:3px; }
+.reading-comment-controls a { align-self:center;margin:0 4px; }
+.reading-comment-byline { margin:0 0 6px;font-size:12px; }
+.reading-comment-card details { margin-top:10px; }
+.reading-comment-card summary { cursor:pointer;color:var(--luka-accent); }
+.reading-comment-reply { margin:8px 0 0;padding:6px 0 0 12px;border-left:1px solid var(--luka-border); }
