@@ -31,6 +31,8 @@ for(const p of posts){
  for(const [prefix,language] of [['','zh-CN'],['en/','en']]){
   const html=fs.readFileSync(`dist/${prefix}blog/${p.slug}/index.html`,'utf8');
   assert(html.includes(`<article class="article-prose" id="article-content" data-article-id="${p.slug}" lang="${language}">`));
+  assert(html.includes(`<link rel="canonical" href="https://goya4140.github.io/${prefix}blog/${p.slug}/">`));
+  assert(html.includes('<script src="https://hypothes.is/embed.js" async></script>'));
  }
  const notesFile=`content/annotations/${p.slug}.json`;
  if(fs.existsSync(notesFile)){
