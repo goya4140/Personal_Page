@@ -1,0 +1,114 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evo-Harness: turning failed agent runs into reusable skills | Linhao Wang</title>
+  <meta name="description" content="Failure reflection, skill compilation, five main benchmarks, train-split transfer, online updates, and feedback ablations.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Evo-Harness: turning failed agent runs into reusable skills">
+  <meta property="og:description" content="Failure reflection, skill compilation, five main benchmarks, train-split transfer, online updates, and feedback ablations.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/evo-harness/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="Evo-Harness：Agent 怎样把失败轨迹编成可复用技能" data-title-en="Evo-Harness: turning failed agent runs into reusable skills" data-language-url="../../../blog/evo-harness/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>6 min read</span><span>English translation</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>Evo-Harness: turning failed agent runs into reusable skills</h1><p class="article-summary">Failure reflection, skill compilation, five main benchmarks, train-split transfer, online updates, and feedback ablations.</p><div class="post-topics"><span>AI Agents</span><span>Agent skill learning</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/evo-harness/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/evo-harness/overview.png" alt="Evo-Harness: turning failed agent runs into reusable skills" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2608.15071v2" target="_blank" rel="noopener noreferrer">Evo-Harness: Context-to-Harness Skill Compilation for Self-Evolving Agents ↗</a><small>EMNLP 2026 Main · arXiv v2 · 2026-08-30</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the Topic: What Should a Failed Run Leave Behind?</a></li><li><a href="#section-2">2. Related Work: From Reflection to Skill-Library Management</a></li><li><a href="#section-3">3. Research Questions: How Does Learning Change the Next Batch?</a></li><li><a href="#section-4">4. Understanding the Method: Solve, Reflect, Compile, and Reuse</a></li><li><a href="#section-5">5. Experimental Design and Results: How Much Does It Help?</a></li><li><a href="#section-9">6. Our Reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>After a failed task, should an agent carry the whole log into its next assignment or extract a check it can apply directly? Evo-Harness calls this step context-to-harness skill compilation. After execution, the solver extracts candidate lessons from failed runs. A separate process decides which lessons to add, merge, revise, or skip. The model weights stay fixed as the external skill library changes across batches. <a href="https://arxiv.org/abs/2608.15071v2" target="_blank" rel="noopener noreferrer">Paper v2, Tianxin Wei et al.</a></p>
+<h2 id="section-1">1. Understanding the Topic: What Should a Failed Run Leave Behind?</h2>
+<p>Suppose a data analysis agent produces a summary table and leaves out one group. The original log helps diagnose this instance, but the next assignment may have different files, fields, and objectives. A reusable check can record the trigger and action: when a task calls for group-level results, verify that each required group appears in the output before submitting it.</p>
+<p>The difficult part is choosing the scope. A missing group could result from data loading, the group definition, or output formatting. A rule derived from one local mistake may add unnecessary work elsewhere. The relevant test is whether lessons from earlier assignments help with subsequent tasks.</p>
+<h2 id="section-2">2. Related Work: From Reflection to Skill-Library Management</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>How it preserves experience</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">Reflexion</a></td>
+<td>Turns task feedback into verbal reflections for future attempts</td>
+<td>Evo-Harness also reflects in text and then curates the resulting candidate lessons</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2409.07429" target="_blank" rel="noopener noreferrer">Agent Workflow Memory</a></td>
+<td>Extracts reusable workflows and retrieves them by task</td>
+<td>Evo-Harness maintains general patterns and topic procedures separately and compares against AWM under the same evaluation protocol</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2610.07862v1" target="_blank" rel="noopener noreferrer">Gan Jiang</a></td>
+<td>Revises diffraction skills using execution and physical diagnostics, then evaluates frozen versions</td>
+<td>Gan Jiang uses domain-specific refinement tools. Evo-Harness uses general agent tasks to study skill scope, transfer, and feedback</td>
+</tr>
+</tbody>
+</table></div><h2 id="section-3">3. Research Questions: How Does Learning Change the Next Batch?</h2>
+<p>Section 4 asks four questions. Can a fixed solver improve by updating its harness? How much do general and topic guidance contribute? Can skills learned on a training split transfer across tasks and models? How do environmental feedback and model self-judgment affect updates?</p>
+<p>Here a <strong>harness</strong> is a budgeted external collection of behavioral guidance that the agent retrieves and inserts into its prompt. The experiments use natural-language skills. Compilation means turning noisy records into concise rules with conditions for use. <a href="https://arxiv.org/html/2608.15071v2#S3" target="_blank" rel="noopener noreferrer">Sections 3–4</a></p>
+<h2 id="section-4">4. Understanding the Method: Solve, Reflect, Compile, and Reuse</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/evo-harness/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/evo-harness/overview.png" alt="Evo-Harness from task execution and failure reflection to updated guidance" loading="lazy" decoding="async"></a><figcaption>Figure 1 · From left to right, the solver uses current skills, captures execution context, extracts candidate lessons, and updates the skill library. The return arrow points to later tasks. Source: v2 Figure 3, PDF page 4, reproduced unchanged.</figcaption></figure>
+<p><strong>Step 1. Retrieve current skills and solve the batch.</strong> Relevant entries are injected before execution, which produces an instruction, trajectory, outcome, and available feedback. The default batch contains <strong>16</strong> tasks. The current harness serves the batch, and updates guide later batches. Appendix F reports that Claude Sonnet 4.5 selects the guidance. The general library and each topic are capped at <strong>5</strong> skills each. <a href="https://arxiv.org/html/2608.15071v2#S3.SS1" target="_blank" rel="noopener noreferrer">Section 3.1 and Appendix F</a></p>
+<p><strong>Step 2. Reflect on failures to propose lessons.</strong> After failure or negative feedback, the solver extracts a lesson, trigger, supporting evidence, and scope hint from the execution context. Reflection focuses on the current trajectory. Overlap and conflicts with existing guidance are handled in the next stage. In the table example, an external check that detects an omitted group can ground the proposed validation step. <a href="https://arxiv.org/html/2608.15071v2#S3.SS2" target="_blank" rel="noopener noreferrer">Section 3.2</a></p>
+<p><strong>Step 3. Curate candidates and update the harness.</strong> The evolver reads candidate lessons and existing guidance, then adds, merges, revises, or skips entries. Patterns spanning tasks enter the general library. Procedures tied to an interface or local rule stay within a topic. The solver retains its original weights. Separating the solver, evolver, and feedback source makes them easier to compare experimentally. <a href="https://arxiv.org/html/2608.15071v2#S3" target="_blank" rel="noopener noreferrer">Sections 3.2–3.4</a></p>
+<h2 id="section-5">5. Experimental Design and Results: How Much Does It Help?</h2>
+<h3 id="section-6">Main Evaluation: Success Rates Across Five Benchmarks</h3>
+<p>Claude Opus 4.6 is the default solver and evolver. The authors compare No Evolve with AWM, Dynamic Cheatsheet, Evo-Memory, ACE, XSkill, and Evo-Harness under the same splits and evaluation protocol. Benchmarks evaluate outcomes through tests, environment states, or rubric criteria. The table reports success rates from Table 1 and task counts from Appendix Table 5. <a href="https://arxiv.org/html/2608.15071v2#S4" target="_blank" rel="noopener noreferrer">Sections 4.1–4.2 and Appendix A</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Benchmark</th>
+<th style="text-align:right">Tasks</th>
+<th style="text-align:right">No Evolve</th>
+<th style="text-align:right">Strongest prior method, XSkill</th>
+<th style="text-align:right">Evo-Harness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CL-Bench</td>
+<td style="text-align:right">1,899</td>
+<td style="text-align:right">29.54%</td>
+<td style="text-align:right">31.44%</td>
+<td style="text-align:right">34.02%</td>
+</tr>
+<tr>
+<td>TerminalBench-2</td>
+<td style="text-align:right">89</td>
+<td style="text-align:right">62.92%</td>
+<td style="text-align:right">66.29%</td>
+<td style="text-align:right">73.03%</td>
+</tr>
+<tr>
+<td>SWE-bench Lite</td>
+<td style="text-align:right">300</td>
+<td style="text-align:right">63.67%</td>
+<td style="text-align:right">64.67%</td>
+<td style="text-align:right">67.00%</td>
+</tr>
+<tr>
+<td>τ-bench</td>
+<td style="text-align:right">165</td>
+<td style="text-align:right">72.73%</td>
+<td style="text-align:right">73.94%</td>
+<td style="text-align:right">76.97%</td>
+</tr>
+<tr>
+<td>WebArena-Infinity</td>
+<td style="text-align:right">80</td>
+<td style="text-align:right">72.50%</td>
+<td style="text-align:right">73.75%</td>
+<td style="text-align:right">76.25%</td>
+</tr>
+</tbody>
+</table></div><p>Gains over No Evolve range from <strong>3.33 to 10.11 percentage points</strong>, with the largest gap on TerminalBench-2. On WebArena-Infinity, <strong>3.75 points</strong> across <strong>80</strong> tasks correspond to <strong>3</strong> additional passes. Each benchmark uses its own success criterion. <a href="https://arxiv.org/html/2608.15071v2#S4.SS2" target="_blank" rel="noopener noreferrer">Paper Table 1</a></p>
+<h3 id="section-7">Supporting Evaluation: Two Forms of Transfer</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/evo-harness/transfer.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/evo-harness/transfer.png" alt="SWE-bench Lite success rates without updates, with train-split transfer, and with online updates" loading="lazy" decoding="async"></a><figcaption>Figure 2 · The bars show no updates, train-split transfer, and updates during the test stream. The vertical axis starts near 67%. Source: v2 Figure 5, PDF page 7, reproduced unchanged.</figcaption></figure>
+<p>The SWE-bench Lite transfer experiment uses Opus 4.7 as the solver and Sonnet 4.5 to evolve skills. No Evolve scores <strong>68.8%</strong>. Skills evolved on the training split and used on the test split reach <strong>73.4%</strong>. Updating on earlier tasks in the test stream reaches <strong>75.0%</strong>. The first comparison tests transfer of train-derived guidance, while the second measures adaptation with earlier test-task feedback. In a separate pairing experiment with Sonnet 4.5 as the solver, both evolution settings score below its own no-evolution control. The ability to apply guidance matters alongside the guidance itself. <a href="https://arxiv.org/html/2608.15071v2#S4.SS5" target="_blank" rel="noopener noreferrer">Section 4.5 and Figures 5–6</a></p>
+<h3 id="section-8">Ablations: General Guidance, Topic Procedures, and Feedback</h3>
+<p>In Table 3, topic-only guidance reaches <strong>33.70%</strong> on CL-Bench, close to the full system's <strong>34.02%</strong>. General-only guidance reaches <strong>66.67%</strong> on SWE-bench Lite, close to <strong>67.00%</strong> for the full system. The useful scope varies across tasks. <a href="https://arxiv.org/html/2608.15071v2#S4.SS4" target="_blank" rel="noopener noreferrer">Table 3</a></p>
+<p>Table 4 varies feedback used <strong>for skill updates</strong>. With model self-judgment alone, CL-Bench falls from <strong>29.54% to 27.96%</strong>, and SWE-bench Lite from <strong>63.67% to 61.67%</strong>. External pass-or-fail feedback yields <strong>29.86%</strong> and <strong>67.33%</strong>, respectively. Detailed diagnostics yield <strong>34.02%</strong> and <strong>67.00%</strong>. Richer feedback helps on CL-Bench, while minimal and detailed feedback give similar scores on SWE-bench Lite. <a href="https://arxiv.org/html/2608.15071v2#S4.SS6" target="_blank" rel="noopener noreferrer">Table 4</a></p>
+<h2 id="section-9">6. Our Reflections</h2>
+<h3 id="section-10">Topic Reflection: What Is This Field Studying?</h3>
+<p>The paper turns remembering failures into two inspectable decisions: what lesson to extract and where in the guidance it belongs. Explicit triggers and checks make it possible to investigate whether an agent actually followed a rule and to trace a faulty instruction back to the relevant update.</p>
+<h3 id="section-11">Limitation Reflection: What Remains Unresolved?</h3>
+<p>The main experiments use a single agent in text and tool environments. Independent feedback may be slower or harder to obtain in actual research. Online scores can depend on task order, batch size, and early feedback. Overall pass rates compare configurations, while attributing a gain to a skill requires tracking what was injected and how actions changed. The paper leaves executable skills and multi-agent systems outside its evaluation. <a href="https://arxiv.org/html/2608.15071v2#Sx1" target="_blank" rel="noopener noreferrer">Limitations</a></p>
+<h3 id="section-12">Solution Reflection: What Directions Could Address These Issues?</h3>
+<p>Repeat experiments on several task orders and report early and late success rates, errors following skill updates, and additional model cost. Preserve both frozen transfer and online adaptation conditions, and record each skill injection. In data analysis, independent checks can report missing groups, ignored parameters, or inconsistent output files. Removing one skill at a time could help identify which check produces a gain.</p>
+<p><em>Figures are from Evo-Harness v2 by Wei et al., reproduced under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the Topic: What Should a Failed Run Leave Behind?</a></li><li><a href="#section-2">2. Related Work: From Reflection to Skill-Library Management</a></li><li><a href="#section-3">3. Research Questions: How Does Learning Change the Next Batch?</a></li><li><a href="#section-4">4. Understanding the Method: Solve, Reflect, Compile, and Reuse</a></li><li><a href="#section-5">5. Experimental Design and Results: How Much Does It Help?</a></li><li><a href="#section-9">6. Our Reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../scitoolagent-evo/"><span>Paper reading</span><strong>SciToolAgent-Evo: how research agents acquire and reuse scientific tools</strong><i aria-hidden="true">↗</i></a><a href="../gan-jiang-xrd/"><span>Paper reading</span><strong>Gan Jiang: turning X-ray diffraction analysis into testable skills</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "evo-harness": {
+      "source_sha256": "9389083a72f70ebc2c72061feff08185dc22112815db687e0ae0972f653544de",
+      "english_sha256": "f9680eff5b9814a402fd929970403f3adf7d28e9c1284d52d379fff23fcbbcbf"
+    },
     "scitoolagent-evo": {
       "source_sha256": "2a9700c957d6b63490bd26deb077cbf529f2c65dd2bfe19842a7cf0e94e08af5",
       "english_sha256": "0c807371cf6c22beee7ef4713a64c678b1a62e79a7e7fd92b7bbd154a19dc5b4"

@@ -1,5 +1,30 @@
 [
   {
+    "slug": "evo-harness",
+    "title_zh": "Evo-Harness：Agent 怎样把失败轨迹编成可复用技能",
+    "title_en": "Evo-Harness: turning failed agent runs into reusable skills",
+    "summary_zh": "从失败反思、候选经验到技能库更新，解读五项主实验、训练集技能迁移、在线更新和反馈消融。",
+    "summary_en": "Failure reflection, skill compilation, five main benchmarks, train-split transfer, online updates, and feedback ablations.",
+    "tags_zh": [
+      "AI Agents",
+      "智能体技能学习",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI Agents",
+      "Agent skill learning",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-15",
+    "paper": {
+      "title": "Evo-Harness: Context-to-Harness Skill Compilation for Self-Evolving Agents",
+      "url": "https://arxiv.org/abs/2608.15071v2",
+      "venue": "EMNLP 2026 Main · arXiv v2 · 2026-08-30"
+    },
+    "cover": "assets/img/blog/evo-harness/overview.png"
+  },
+  {
     "slug": "scitoolagent-evo",
     "title_zh": "SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具",
     "title_en": "SciToolAgent-Evo: how research agents acquire and reuse scientific tools",
