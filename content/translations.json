@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "gan-jiang-xrd": {
+      "source_sha256": "35368f7960b91f6b48357f9a08c031adfd826da94b50a44858821c357d76ee97",
+      "english_sha256": "275610a67be8bb8aa4c068629ee0943b674933c7864341f0413dc011a92c9015"
+    },
     "autoscientists": {
       "source_sha256": "4631822db113bbd16ec698a009842dd625c519ac88ab7799101750153cb6c8ed",
       "english_sha256": "972d24af7627e7bac6f3b6ce90a1bc1cc0ef2daee40541b25d73f63dd801d4cf"

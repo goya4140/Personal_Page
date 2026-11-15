@@ -1,5 +1,30 @@
 [
   {
+    "slug": "gan-jiang-xrd",
+    "title_zh": "干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能",
+    "title_en": "Gan Jiang: turning X-ray diffraction analysis into testable skills",
+    "summary_zh": "沿候选检索、证据核验、精修和技能回写，解读 DeltaXRDbench 主结果与冻结技能后的留出评估。",
+    "summary_en": "Candidate retrieval, evidence checks, refinement, and skill revision, with results from DeltaXRDbench and held-out evaluation of frozen workflows.",
+    "tags_zh": [
+      "AI for Science",
+      "材料表征智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Materials characterization agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-15",
+    "paper": {
+      "title": "A self-learning scientific agent for X-ray diffraction",
+      "url": "https://arxiv.org/abs/2610.07862v1",
+      "venue": "arXiv · 2026 / v1 · 2026-10-06"
+    },
+    "cover": "assets/img/blog/gan-jiang-xrd/workflow.svg"
+  },
+  {
     "slug": "autoscientists",
     "title_zh": "AutoScientists：科研智能体怎样组队，决定下一次实验",
     "title_en": "AutoScientists: how research agents form teams and choose the next experiment",

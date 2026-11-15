@@ -1,0 +1,159 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能 | Linhao Wang</title>
+  <meta name="description" content="沿候选检索、证据核验、精修和技能回写，解读 DeltaXRDbench 主结果与冻结技能后的留出评估。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能">
+  <meta property="og:description" content="沿候选检索、证据核验、精修和技能回写，解读 DeltaXRDbench 主结果与冻结技能后的留出评估。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/gan-jiang-xrd/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能" data-title-en="Gan Jiang: turning X-ray diffraction analysis into testable skills" data-language-url="../../en/blog/gan-jiang-xrd/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 7 分钟</span><span>中文原稿</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能</h1><p class="article-summary">沿候选检索、证据核验、精修和技能回写，解读 DeltaXRDbench 主结果与冻结技能后的留出评估。</p><div class="post-topics"><span>AI for Science</span><span>材料表征智能体</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/gan-jiang-xrd/workflow.svg" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/gan-jiang-xrd/workflow.svg" alt="干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2610.07862v1" target="_blank" rel="noopener noreferrer">A self-learning scientific agent for X-ray diffraction ↗</a><small>arXiv · 2026 / v1 · 2026-10-06</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样从一张衍射图判断材料结构</a></li><li><a href="#section-2">二、相关文献解读：从衍射工具到可更新的流程</a></li><li><a href="#section-3">三、研究问题解读：哪些能力需要分别验证</a></li><li><a href="#section-4">四、方法解读：观测谱怎样变成可审查的结构结论</a></li><li><a href="#section-5">五、实验设计与结果：鉴定领先多少，技能又改善了什么</a></li><li><a href="#section-8">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" lang="zh-CN"><p>拿到一张粉末 X 射线衍射图，科研 Agent 怎样判断某个晶体结构真的解释了测量结果？干将（Gan Jiang）把分析拆成两件事：先用专业工具提出候选，再用观测谱和物理约束检查候选。如果检查过程暴露出可重复的失败，系统可以修订分析技能，并在独立样本上检验修订后的版本。<a href="https://arxiv.org/abs/2610.07862v1" target="_blank" rel="noopener noreferrer">原论文 v1，Bin Cao 等，2026 年 10 月 6 日</a></p>
+<h2 id="section-1">一、课题解读：怎样从一张衍射图判断材料结构</h2>
+<p>粉末衍射仪记录不同散射角下的 X 射线强度。峰的位置约束晶面间距，相对强度提供原子排列的信息，峰宽还受晶粒尺寸、应变和仪器影响。几种晶相共存时，谱峰会叠在一起。同一个强峰可以支持多个候选，细小但可重复的额外峰则可能改变判断。</p>
+<p>因此要区分<strong>物相鉴定</strong>与<strong>结构精修</strong>。鉴定提出样品中可能有哪些晶相。精修从一个已提出的结构模型出发，调整允许变化的参数，让计算谱解释观测谱。即使总体残差降低，也需要看剩余峰出现在何处，参数是否合理，以及其他结构能否解释同一份数据。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F2" target="_blank" rel="noopener noreferrer">原论文图 2</a></p>
+<h2 id="section-2">二、相关文献解读：从衍射工具到可更新的流程</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>解决的问题</th>
+<th>与干将的关系</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2607.17162" target="_blank" rel="noopener noreferrer">XMatcher</a></td>
+<td>从已知晶体结构构建理论峰库，以峰位、强度和化学约束搜索候选</td>
+<td>提供可检查的峰匹配证据，并以 AutoMix 评估候选组合</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1107/S0021889813003531" target="_blank" rel="noopener noreferrer">GSAS-II</a></td>
+<td>提供晶体学计算及粉末衍射精修</td>
+<td>是干将可以路由到的数值后端之一</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2603.18743" target="_blank" rel="noopener noreferrer">Memento-Skills</a></td>
+<td>从任务轨迹反思并修订外部技能</td>
+<td>干将把这条机制用于衍射分析，用执行记录、残差和结构合理性指导修订</td>
+</tr>
+</tbody>
+</table></div><h2 id="section-3">三、研究问题解读：哪些能力需要分别验证</h2>
+<p>按论文的证据组织，可以提出三个阅读问题：</p>
+<ol>
+<li><strong>鉴定。</strong> 只有衍射图时，系统能否把正确结构排到前面，或找齐混合样品中的各相？额外给组成信息后会怎样？</li>
+<li><strong>精修。</strong> 当输入结构已给出或已通过证据检查，工具能否得到解释观测谱的参数和曲线？</li>
+<li><strong>技能迁移。</strong> 根据开发样本修订流程，再冻结版本，能否改善留出样本的精修表现？</li>
+</ol>
+<h2 id="section-4">四、方法解读：观测谱怎样变成可审查的结构结论</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/gan-jiang-xrd/workflow.svg" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/gan-jiang-xrd/workflow.svg" alt="从测量到结论，再从分析记录回到技能更新" loading="lazy" decoding="async"></a><figcaption>图 1 · 本文流程示意，依据原论文 Figures 3–4。上排是当前样品的分析路径，下排是技能修订、验证与冻结。</figcaption></figure>
+<p><strong>第一步，保留观测证据，再找候选。</strong> 原始角度范围和强度尺度保留给峰分析与精修。XQueryer-LW 使用独立重采样和归一化的输入。XMatcher 从观测峰搜索单相候选，用户提供元素信息时可增加 XQueryer-LW 的检索结果。候选以 CIF 晶体结构文件表示，同时保留来源和排名。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">原论文图 3a–b</a></p>
+<p><strong>第二步，检查候选，再决定是否进入多相分析。</strong> XRDinspector 对照计算谱与测量结果，验收还需要满足适用的组成约束与必需的峰证据。自动模式下，可用的单相假设被正式排除后，系统才回退到 XMatcher-AutoMix 或 XDecomposer。工具执行报错与单相证据不足是两种状态。AutoMix 拟合的是峰证据的贡献，质量分数需要后续定量精修。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">原论文图 3b–c 与 Methods</a></p>
+<p><strong>第三步，精修并留下审计记录。</strong> 通过核验的相集合或用户直接给出的 CIF，可以进入 FullProf、GSAS-II 或 PyWPEM。系统比较对齐后的计算谱和实测谱，记录峰覆盖、拟合诊断、参数及运行过程；符合预算或收敛条件的失败最多自动重试一次。若出现未解释的峰，则需要重新考虑结构假设。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">原论文图 3d</a></p>
+<p><strong>第四步，更新以后怎么做。</strong> 对一个样品调整晶格参数属于精修。根据多次执行记录修改何时释放参数、怎样核对保存结果，则会改变后续样品的分析流程。干将把后者写入可版本化的技能，包括指令与辅助代码，必要时也调整允许搜索的精修设置。底层语言模型参数和物理模型保持固定。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F4" target="_blank" rel="noopener noreferrer">原论文图 4</a></p>
+<h2 id="section-5">五、实验设计与结果：鉴定领先多少，技能又改善了什么</h2>
+<h3 id="section-6">主实验：DeltaXRDbench 的单相和多相鉴定</h3>
+<p>基准收录 <strong>62,044</strong> 条图谱，其中 <strong>12,044</strong> 条是单相，<strong>50,000</strong> 条由来源图谱构造为两相或三相混合。MP500 为模拟数据，RRUFF 与 opXRD 来自实验测量。评测比较提交的结构与参考结构，空结果仍计入分母。单相 Top-1 要求首个候选匹配。多相精确恢复要求整套相集合一对一匹配，多相宏平均 F1 则会给部分识别得分。<a href="https://github.com/DeltaGanjiang/deltaxrdbench" target="_blank" rel="noopener noreferrer">论文 Methods 与基准仓库</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>数据源</th>
+<th style="text-align:right">单相样本数</th>
+<th style="text-align:right">AutoXRD Top-1，仅 XRD</th>
+<th style="text-align:right">干将 Top-1，仅 XRD</th>
+<th style="text-align:right">干将 Top-1，给参考组成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MP500</td>
+<td style="text-align:right">10,000</td>
+<td style="text-align:right">58.00%</td>
+<td style="text-align:right">96.30%</td>
+<td style="text-align:right">99.90%</td>
+</tr>
+<tr>
+<td>RRUFF</td>
+<td style="text-align:right">1,164</td>
+<td style="text-align:right">58.47%</td>
+<td style="text-align:right">81.78%</td>
+<td style="text-align:right">92.16%</td>
+</tr>
+<tr>
+<td>opXRD</td>
+<td style="text-align:right">880</td>
+<td style="text-align:right">26.45%</td>
+<td style="text-align:right">40.83%</td>
+<td style="text-align:right">48.93%</td>
+</tr>
+</tbody>
+</table></div><p>单相比较包含 Uni3DAR、PXRDGen-Flow、XtalNet-HMOF100 和 AutoXRD。PXRDGen-Flow 的部分实验数据使用符合其原子数限制的子集。表中仅列与干将采用同一候选库构建方案的最强对手 AutoXRD。无组成条件下，干将三个来源均领先，但 opXRD 的绝对正确率仍不足一半。给参考组成是一种额外输入条件，实际可用性取决于独立的化学测量与样品信息。<a href="https://arxiv.org/html/2610.07862v1#Sx2.T1" target="_blank" rel="noopener noreferrer">论文表 1</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>多相来源</th>
+<th style="text-align:right">AutoXRD 精确恢复，仅 XRD</th>
+<th style="text-align:right">干将精确恢复，仅 XRD</th>
+<th style="text-align:right">干将宏平均 F1，仅 XRD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MP500</td>
+<td style="text-align:right">15.80%</td>
+<td style="text-align:right">22.80%</td>
+<td style="text-align:right">66.98%</td>
+</tr>
+<tr>
+<td>RRUFF</td>
+<td style="text-align:right">13.80%</td>
+<td style="text-align:right">15.90%</td>
+<td style="text-align:right">56.23%</td>
+</tr>
+<tr>
+<td>opXRD</td>
+<td style="text-align:right">1.30%</td>
+<td style="text-align:right">3.10%</td>
+<td style="text-align:right">27.04%</td>
+</tr>
+</tbody>
+</table></div><p>多相比较还包含 AutoAnalyzer 与 S-CNN。每个数据源用三个固定种子各抽取 <strong>1,000</strong> 个混合样本，再平均三次指标。opXRD 的 <strong>27.04% F1</strong> 与 <strong>3.10% 精确恢复</strong> 展示了认出部分相与找齐所有相的差距。由实验谱构造的混合物保留了实测峰的复杂性，实体混样仍需另行验证。<a href="https://arxiv.org/html/2610.07862v1#Sx2.T2" target="_blank" rel="noopener noreferrer">论文表 2</a></p>
+<h3 id="section-7">补充实验：冻结技能后，精修能否迁移</h3>
+<p>作者从专家优化的流程起步，在学习阶段根据执行轨迹提出修订，在开发数据上做配对比较，选定后冻结版本，再与原流程比较留出样本的表现。这里的分数是谱图一致性的复合诊断分，越高越好，失败或超时计零。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F4" target="_blank" rel="noopener noreferrer">原论文图 4</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>后端</th>
+<th style="text-align:right">初始流程</th>
+<th style="text-align:right">冻结后的流程</th>
+<th style="text-align:right">变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FullProf</td>
+<td style="text-align:right">46.90</td>
+<td style="text-align:right">72.38</td>
+<td style="text-align:right">+25.48</td>
+</tr>
+<tr>
+<td>GSAS-II</td>
+<td style="text-align:right">39.01</td>
+<td style="text-align:right">60.02</td>
+<td style="text-align:right">+21.01</td>
+</tr>
+<tr>
+<td>PyWPEM</td>
+<td style="text-align:right">31.74</td>
+<td style="text-align:right">38.33</td>
+<td style="text-align:right">+6.59</td>
+</tr>
+</tbody>
+</table></div><p>FullProf 的修订例子包括针对峰宽和角度偏移的有界搜索；GSAS-II 加入参数传递与保存结果检查。三个后端允许改变的内容不同，表格呈现的是各自的前后变化。论文还用强烈重叠的硫酸铅谱、五相古埃及化妆品、运行中电池及氧化物候选构型展示应用。案例展示了能交付的结构与曲线，留出数据对照才直接检验修订后的工作流是否迁移。<a href="https://arxiv.org/html/2610.07862v1#Sx2.F1" target="_blank" rel="noopener noreferrer">原论文图 1、图 4</a></p>
+<h2 id="section-8">六、我们自己的思考</h2>
+<h3 id="section-9">课题思考：这个领域在研究什么</h3>
+<p>干将的关键设计是给每个决定留下一份可回查的证据：候选从哪里来，哪些峰支持它，为什么切换分析分支，最终修改了什么。这些记录一方面让读者复核当前结论，另一方面让后续工作能针对具体失误调整流程。</p>
+<h3 id="section-10">局限问题思考：目前还存在哪些问题</h3>
+<p><strong>候选覆盖与证据判别仍会相互影响。</strong> 当正确晶相不在参考库里，或区分候选的角度没有被测到时，较好的拟合也不能替代缺失证据。<strong>流程改进的来源还有待拆分。</strong> 冻结测试支持最终工作流迁移，三个后端的修订范围各异，尚难估计单条规则的贡献。论文描述了上线后的回归测试与回滚机制，实际验证集中在受控修订与冻结测试。<a href="https://arxiv.org/html/2610.07862v1#Sx3" target="_blank" rel="noopener noreferrer">原论文讨论</a></p>
+<h3 id="section-11">解决方案思考：这些问题有哪些解决方向</h3>
+<p>可以在同一批谱图上控制候选库覆盖、遮蔽有区分力的角度范围，再分别报告正确鉴定率、弃答率和错误确认率。对技能学习，可固定后端及预算，分别开放指令、辅助代码和精修设置，比较它们在跨仪器留出集上的结果，并保留失败或超时样本。这样可以检验新增经验改善的是搜索范围、流程执行，还是对物理证据的判断。</p>
+<p><em>流程图为本文绘制。作者原图见<a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">执行架构图</a>和<a href="https://arxiv.org/html/2610.07862v1#Sx2.F4" target="_blank" rel="noopener noreferrer">技能学习图</a>。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样从一张衍射图判断材料结构</a></li><li><a href="#section-2">二、相关文献解读：从衍射工具到可更新的流程</a></li><li><a href="#section-3">三、研究问题解读：哪些能力需要分别验证</a></li><li><a href="#section-4">四、方法解读：观测谱怎样变成可审查的结构结论</a></li><li><a href="#section-5">五、实验设计与结果：鉴定领先多少，技能又改善了什么</a></li><li><a href="#section-8">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../autoscientists/"><span>论文阅读</span><strong>AutoScientists：科研智能体怎样组队，决定下一次实验</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>论文阅读</span><strong>AutoSciRub：先明确证据要求，再推进自主科研</strong><i aria-hidden="true">↗</i></a><a href="../exp-bench/"><span>论文阅读</span><strong>EXP-Bench：AI 能把研究实验完整做对吗？</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script></body></html>

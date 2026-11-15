@@ -1,0 +1,16 @@
+{
+  "source": "https://arxiv.org/abs/2610.07862v1",
+  "source_pdf": "https://arxiv.org/pdf/2610.07862v1",
+  "source_pdf_sha256": "be3ddd187f81265d829c719bee6362fd2832bdb128dc12466e4c99a376cc9aac",
+  "figures": [
+    {
+      "file": "workflow.svg",
+      "sha256": "f8d3705daf5b2b66c9645a25a85fa7588ddb2dd1709e3a23c18c3786ff2068d0",
+      "operation": "Original explanatory schematic based on the workflow described in Figures 3\u20134. Author figures are linked, not reproduced.",
+      "references": [
+        "https://arxiv.org/html/2610.07862v1#Sx2.F3",
+        "https://arxiv.org/html/2610.07862v1#Sx2.F4"
+      ]
+    }
+  ]
+}

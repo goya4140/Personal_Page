@@ -1,5 +1,20 @@
 [
   {
+    "slug": "gan-jiang-xrd",
+    "source": "https://arxiv.org/abs/2610.07862v1",
+    "source_pdf": "https://arxiv.org/pdf/2610.07862v1",
+    "source_pdf_sha256": "be3ddd187f81265d829c719bee6362fd2832bdb128dc12466e4c99a376cc9aac",
+    "figure_manifest": "assets/img/blog/gan-jiang-xrd/sources.json",
+    "scope": "Bilingual six-section reading. Original explanatory diagram, links to paper Figures 1–4, Tables 1–2 identification results, and Figure 4 held-out refinement comparisons.",
+    "related_sources": [
+      "https://arxiv.org/abs/2607.17162",
+      "https://doi.org/10.1107/S0021889813003531",
+      "https://arxiv.org/abs/2603.18743",
+      "https://github.com/DeltaGanjiang/deltaxrdbench"
+    ],
+    "imported_on": "2026-11-15"
+  },
+  {
     "slug": "autoscientists",
     "source": "https://arxiv.org/abs/2605.28655v2",
     "source_pdf": "https://arxiv.org/pdf/2605.28655v2",
