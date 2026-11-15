@@ -1,5 +1,80 @@
 [
   {
+    "slug": "harnessevolve",
+    "title_zh": "HarnessEvolve：怎样用参考轨迹修订 Agent 框架",
+    "title_en": "HarnessEvolve: revising agent harnesses with reference trajectories",
+    "summary_zh": "从同题轨迹对照到质量和性能门控，解读测试集和跨框架迁移结果。",
+    "summary_en": "Reference traces, quality and performance gates, and cross-framework transfer.",
+    "tags_zh": [
+      "AI for Science",
+      "Agent 运行框架",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Agent harnesses",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-15",
+    "paper": {
+      "title": "HarnessEvolve: Learning from Reference Trajectories for Reliable Agent Self-Evolution",
+      "url": "https://arxiv.org/abs/2609.00829v1",
+      "venue": "arXiv v1 · 2026-09-01"
+    },
+    "cover": "assets/img/blog/harnessevolve/workflow.svg"
+  },
+  {
+    "slug": "harnessdev",
+    "title_zh": "HarnessDev：Agent 能选出更好的框架版本吗？",
+    "title_en": "HarnessDev: can agents select better harness versions?",
+    "summary_zh": "区分框架创建、可见反馈优化、留出评估和更换执行模型后的表现。",
+    "summary_en": "Creation, feedback-driven evolution, held-out evaluation, and transfer across runtime models.",
+    "tags_zh": [
+      "AI for Science",
+      "Agent 运行框架",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Agent harnesses",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-15",
+    "paper": {
+      "title": "HarnessDev: Can LLMs Create and Evolve Their Own Agent Harness?",
+      "url": "https://arxiv.org/abs/2609.01437v1",
+      "venue": "arXiv v1 · 2026-09-01"
+    },
+    "cover": "assets/img/blog/harnessdev/architecture.png"
+  },
+  {
+    "slug": "darwin-godel-machine",
+    "title_zh": "Darwin Gödel Machine：为什么要保留暂时变弱的 Agent 版本",
+    "title_en": "Darwin Gödel Machine: why keep temporarily weaker agents?",
+    "summary_zh": "从版本档案和分支搜索理解编码 Agent 自改，区分搜索子集、完整评估与跨基准迁移。",
+    "summary_en": "Archive-based coding-agent improvement, with search subsets, full evaluation, and cross-benchmark transfer.",
+    "tags_zh": [
+      "AI for Science",
+      "Agent 运行框架",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Agent harnesses",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-15",
+    "paper": {
+      "title": "Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents",
+      "url": "https://arxiv.org/abs/2505.22954v3",
+      "venue": "ICLR 2026 / arXiv v3 · 2026-03-12"
+    },
+    "cover": "assets/img/blog/darwin-godel-machine/overview.png"
+  },
+  {
     "slug": "evo-harness",
     "title_zh": "Evo-Harness：Agent 怎样把失败轨迹编成可复用技能",
     "title_en": "Evo-Harness: turning failed agent runs into reusable skills",

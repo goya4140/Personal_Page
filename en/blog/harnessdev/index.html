@@ -1,0 +1,78 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HarnessDev: can agents select better harness versions? | Linhao Wang</title>
+  <meta name="description" content="Creation, feedback-driven evolution, held-out evaluation, and transfer across runtime models.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="HarnessDev: can agents select better harness versions?">
+  <meta property="og:description" content="Creation, feedback-driven evolution, held-out evaluation, and transfer across runtime models.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/harnessdev/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="HarnessDev：Agent 能选出更好的框架版本吗？" data-title-en="HarnessDev: can agents select better harness versions?" data-language-url="../../../blog/harnessdev/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>4 min read</span><span>English translation</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>HarnessDev: can agents select better harness versions?</h1><p class="article-summary">Creation, feedback-driven evolution, held-out evaluation, and transfer across runtime models.</p><div class="post-topics"><span>AI for Science</span><span>Agent harnesses</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/harnessdev/architecture.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/harnessdev/architecture.png" alt="HarnessDev: can agents select better harness versions?" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2609.01437v1" target="_blank" rel="noopener noreferrer">HarnessDev: Can LLMs Create and Evolve Their Own Agent Harness? ↗</a><small>arXiv v1 · 2026-09-01</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the Topic: How Should We Measure a Better Harness?</a></li><li><a href="#section-2">2. Related Work: From Optimizing a Harness to Evaluating Its Developer</a></li><li><a href="#section-3">3. Research Questions: Creation, Evolution, and Transfer</a></li><li><a href="#section-4">4. Understanding the Method: Frozen Commits Across Two Development Stages</a></li><li><a href="#section-5">5. Experimental Design and Results</a></li><li><a href="#section-9">6. Our Reflections</a></li></ol></details><article class="article-prose" id="article-content" lang="en"><p>Agents can write runnable harnesses. Can they also select versions that improve beyond their development feedback? HarnessDev evaluates the runnable artifacts and separates the model that creates a harness from the one that executes it. In only <strong>2 of 9</strong> evolution lineages did the creator declare the best version on the held-out set. <a href="https://arxiv.org/abs/2609.01437v1" target="_blank" rel="noopener noreferrer">Yuhao Wu et al., arXiv v1</a></p>
+<h2 id="section-1">1. Understanding the Topic: How Should We Measure a Better Harness?</h2>
+<p>A spreadsheet agent may declare completion after inserting formulas while leaving some cells empty. A completion check could catch that case and also impede legitimate exits. Evaluation needs to account for improvement on visible tasks, improvement on unseen tasks, and execution-token cost. Another runtime model may also have different stopping and tool-calling behavior.</p>
+<h2 id="section-2">2. Related Work: From Optimizing a Harness to Evaluating Its Developer</h2>
+<p>The <a href="https://arxiv.org/abs/2505.22954v3" target="_blank" rel="noopener noreferrer">Darwin Gödel Machine</a> studies branching search over coding-agent versions. <a href="https://arxiv.org/abs/2609.00829v1" target="_blank" rel="noopener noreferrer">HarnessEvolve</a> uses reference traces to diagnose failures and screen updates. HarnessDev measures <strong>whether a developer model can create and select reproducibly runnable artifacts</strong>, and compares those artifacts under their paired models and a common executor. <a href="https://arxiv.org/html/2609.01437v1#S5" target="_blank" rel="noopener noreferrer">Related work</a></p>
+<h2 id="section-3">3. Research Questions: Creation, Evolution, and Transfer</h2>
+<ol>
+<li>Can models turn a weak runnable seed and a few examples into an effective harness?</li>
+<li>Given task feedback, can a creator choose a version that also improves on unseen tasks?</li>
+<li>How much of a harness's performance survives a change of executor?</li>
+</ol>
+<h2 id="section-4">4. Understanding the Method: Frozen Commits Across Two Development Stages</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/harnessdev/architecture.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/harnessdev/architecture.png" alt="HarnessDev compares harness components across domains and stages" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Original Figure 5, PDF page 10, shows execution loops, tool policies, and other architecture features across domains and stages. Reproduced unchanged.</figcaption></figure>
+<p><strong>Creation.</strong> A creator starts from a weak runnable seed and edits an executable artifact within common entry-point and audit constraints. It can debug on visible examples. An independent environment evaluates the frozen submission. Self-Eval uses the creator as executor, while Unified-Eval uses Gemini 3.1 Pro for all submissions. <a href="https://arxiv.org/html/2609.01437v1#S1.F1" target="_blank" rel="noopener noreferrer">Paper workflow and Section 3</a></p>
+<p><strong>Evolution.</strong> The creator starts from its Code harness and improves it with feedback from <strong>100</strong> SWE-Pro tasks and <strong>89</strong> Terminal-Bench tasks. A commit enters the official trajectory only after both evaluations finish, and the feedback score equally weights the two percentages. After development, the authors evaluate each official version on <strong>630</strong> separate SWE-Pro tasks, withholding those scores from the creator. <a href="https://arxiv.org/html/2609.01437v1#S4.SS3" target="_blank" rel="noopener noreferrer">Sections 3 and 4.3</a></p>
+<h2 id="section-5">5. Experimental Design and Results</h2>
+<h3 id="section-6">Main Evaluation 1: Creation Depends on the Task and Executor</h3>
+<p>Creation covers <strong>6</strong> creator models, <strong>4</strong> domains, and <strong>5</strong> benchmarks with <strong>2,207</strong> unique downstream instances. Results typically average three independent creations per creator and benchmark. The table excerpts Opus 4.8 Self-Eval and the human-engineered reference, using each benchmark's native metric. <a href="https://arxiv.org/html/2609.01437v1#S4.SS2" target="_blank" rel="noopener noreferrer">Sections 4.1–4.2 and Table 3</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Benchmark</th>
+<th style="text-align:right">Opus 4.8</th>
+<th style="text-align:right">Human-engineered reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-Pro</td>
+<td style="text-align:right">69.3</td>
+<td style="text-align:right">80.0</td>
+</tr>
+<tr>
+<td>Terminal-Bench 2.1</td>
+<td style="text-align:right">64.8</td>
+<td style="text-align:right">88.8</td>
+</tr>
+<tr>
+<td>MLE-bench</td>
+<td style="text-align:right">32.9</td>
+<td style="text-align:right">24.0</td>
+</tr>
+<tr>
+<td>EQ-Bench3</td>
+<td style="text-align:right">84.6</td>
+<td style="text-align:right">83.7</td>
+</tr>
+<tr>
+<td>BrowseComp</td>
+<td style="text-align:right">52.4</td>
+<td style="text-align:right">92.2</td>
+</tr>
+</tbody>
+</table></div><p>Writing and machine-learning experimentation approach or exceed the selected references, while search shows a larger gap. Some references are external system results with different executors. Rankings change under a fixed executor, so Self-Eval also reflects harness–model compatibility. <a href="https://arxiv.org/html/2609.01437v1#S4.SS2" target="_blank" rel="noopener noreferrer">Tables 3–4</a></p>
+<h3 id="section-7">Main Evaluation 2: Held-Out Gains Are Smaller Than Feedback Gains</h3>
+<p>All five self-runtime declarations improve on the held-out set, by <strong>1.43–4.44</strong> percentage points with a mean of <strong>3.11</strong>. Under fixed Gemini, only Opus improves and the other three lineages regress. For example, GPT-5.5's fixed-executor feedback score moves from <strong>56.6</strong> to <strong>59.1</strong>, while its held-out score drops from <strong>42.22</strong> to <strong>31.90</strong>. <a href="https://arxiv.org/html/2609.01437v1#S4.SS3" target="_blank" rel="noopener noreferrer">Table 6 and Figure 8</a></p>
+<h3 id="section-8">Supporting Analysis: Trace the Score Back to the Executed Change</h3>
+<p>Feedback and held-out scores move in the same direction for <strong>34</strong> of <strong>64</strong> comparable switches (<strong>53.1%</strong>). One positive case is Opus detecting that many runs claimed success without passing the task and adding a completion check. Such changes can be inspected in the execution path. With one evolution trajectory per creator–executor setting and held-out evaluation limited to SWE-Pro, the comparisons support diagnosis more directly than statistical generalization. <a href="https://arxiv.org/html/2609.01437v1#S4.SS3" target="_blank" rel="noopener noreferrer">Section 4.3 and limitations</a></p>
+<h2 id="section-9">6. Our Reflections</h2>
+<h3 id="section-10">Topic Reflection: What Is This Field Studying?</h3>
+<p>HarnessDev makes <strong>version selection</strong> measurable. A developer needs to establish which change actually executed, whether a feedback change exceeds noise, and which executor behavior the change relies on.</p>
+<h3 id="section-11">Limitation Reflection: What Remains Unresolved?</h3>
+<p>Repeated use of visible tasks can amplify lucky runs. Held-out evolution covers one code benchmark, leaving writing, analysis, and research evolution untested. Specializing a harness for one model may also be useful and needs a separate assessment from portability. <a href="https://arxiv.org/html/2609.01437v1#S6" target="_blank" rel="noopener noreferrer">Section 6</a></p>
+<h3 id="section-12">Solution Reflection: What Directions Could Address These Issues?</h3>
+<p>Freeze the incumbent and candidate, rerun them with independent seeds and two executors, and select on reserved validation data. Then evaluate on a hidden set from a different task distribution, compare with a simple search baseline under matched budgets, and retain the execution paths and resource costs associated with each change.</p>
+<p><em>Figure 1 reproduces HarnessDev v1 Figure 5 unchanged under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-ND 4.0</a>.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the Topic: How Should We Measure a Better Harness?</a></li><li><a href="#section-2">2. Related Work: From Optimizing a Harness to Evaluating Its Developer</a></li><li><a href="#section-3">3. Research Questions: Creation, Evolution, and Transfer</a></li><li><a href="#section-4">4. Understanding the Method: Frozen Commits Across Two Development Stages</a></li><li><a href="#section-5">5. Experimental Design and Results</a></li><li><a href="#section-9">6. Our Reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../harnessevolve/"><span>Paper reading</span><strong>HarnessEvolve: revising agent harnesses with reference trajectories</strong><i aria-hidden="true">↗</i></a><a href="../darwin-godel-machine/"><span>Paper reading</span><strong>Darwin Gödel Machine: why keep temporarily weaker agents?</strong><i aria-hidden="true">↗</i></a><a href="../scitoolagent-evo/"><span>Paper reading</span><strong>SciToolAgent-Evo: how research agents acquire and reuse scientific tools</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script></body></html>

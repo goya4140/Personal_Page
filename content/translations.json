@@ -2,6 +2,18 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "harnessevolve": {
+      "source_sha256": "023979a6cbe0346193a4b0af38b6f40671e943d71423484136250b9310badeb2",
+      "english_sha256": "5f88e68c1d19b3589aa9686dc7443b27998e8ebc7097a979368c9bf09e774c82"
+    },
+    "harnessdev": {
+      "source_sha256": "951c94d8f9f48f57a293605fb0dc9849c0ac7df84c92d41e65f9ba6558018e40",
+      "english_sha256": "b7a9d6e0ab927b1686889a83c39de76392182c53c384111c6529f679cdcd5dbe"
+    },
+    "darwin-godel-machine": {
+      "source_sha256": "99842b58c04496fc2343ace98d625ca1f22b44ad7f1ff39a8d51e24940f90b05",
+      "english_sha256": "b02d6cb3fe2da7897204270f59648c98b03aa30809f16d78d65c60de87d8f3f8"
+    },
     "evo-harness": {
       "source_sha256": "9389083a72f70ebc2c72061feff08185dc22112815db687e0ae0972f653544de",
       "english_sha256": "f9680eff5b9814a402fd929970403f3adf7d28e9c1284d52d379fff23fcbbcbf"

@@ -1,5 +1,44 @@
 [
   {
+    "slug": "harnessevolve",
+    "source": "https://arxiv.org/abs/2609.00829v1",
+    "source_pdf": "https://arxiv.org/pdf/2609.00829v1",
+    "source_pdf_sha256": "6167f313ea5937bac630dd54de123bb58de7c66fa3e99b713393d7a2a8edfb0e",
+    "figure_manifest": "assets/img/blog/harnessevolve/sources.json",
+    "scope": "Bilingual six-section reading: method, main and supporting experiments, and scope of transfer and generalization.",
+    "related_sources": [
+      "https://arxiv.org/abs/2303.11366",
+      "https://arxiv.org/abs/2505.22954v3"
+    ],
+    "imported_on": "2026-11-15"
+  },
+  {
+    "slug": "harnessdev",
+    "source": "https://arxiv.org/abs/2609.01437v1",
+    "source_pdf": "https://arxiv.org/pdf/2609.01437v1",
+    "source_pdf_sha256": "1231454f0ae5ccffdb3d031dc8f42eae0cbbaeb61dcd25dddb1855074697dfc0",
+    "figure_manifest": "assets/img/blog/harnessdev/sources.json",
+    "scope": "Bilingual six-section reading: method, main and supporting experiments, and scope of transfer and generalization.",
+    "related_sources": [
+      "https://arxiv.org/abs/2505.22954v3",
+      "https://arxiv.org/abs/2609.00829v1"
+    ],
+    "imported_on": "2026-11-15"
+  },
+  {
+    "slug": "darwin-godel-machine",
+    "source": "https://arxiv.org/abs/2505.22954v3",
+    "source_pdf": "https://arxiv.org/pdf/2505.22954v3",
+    "source_pdf_sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
+    "figure_manifest": "assets/img/blog/darwin-godel-machine/sources.json",
+    "scope": "Bilingual six-section reading: method, main and supporting experiments, and scope of transfer and generalization.",
+    "related_sources": [
+      "https://arxiv.org/abs/cs/0309048",
+      "https://arxiv.org/abs/2408.08435"
+    ],
+    "imported_on": "2026-11-15"
+  },
+  {
     "slug": "evo-harness",
     "source": "https://arxiv.org/abs/2608.15071v2",
     "source_pdf": "https://arxiv.org/pdf/2608.15071v2",

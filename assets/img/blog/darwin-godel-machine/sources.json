@@ -1,0 +1,29 @@
+{
+  "paper": "Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents",
+  "authors": "Jenny Zhang et al.",
+  "version": "arXiv:2505.22954v3",
+  "source": "https://arxiv.org/abs/2505.22954v3",
+  "source_pdf": "https://arxiv.org/pdf/2505.22954v3",
+  "source_pdf_sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
+  "license": "CC BY 4.0",
+  "retrieved_on": "2026-11-15",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "1",
+      "pdf_page": 2,
+      "sha256": "358ed47ea44e2d26394a0836c912f7b7ee997a9e5f9a3afaee9d4653e2f6cb64",
+      "operation": "Original arXiv HTML image, unchanged",
+      "source_image": "https://arxiv.org/html/2505.22954v3/conceptual.png"
+    },
+    {
+      "file": "progress.png",
+      "figure": "3",
+      "pdf_page": 7,
+      "sha256": "304449ec0fbba096ec7f37e96843452325f7eaaba0a32986930f956b59ff3a2a",
+      "operation": "Original arXiv HTML image, unchanged",
+      "source_image": "https://arxiv.org/html/2505.22954v3/dgm_progress.png"
+    }
+  ],
+  "license_url": "https://creativecommons.org/licenses/by/4.0/"
+}
