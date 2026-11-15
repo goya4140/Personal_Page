@@ -30,7 +30,7 @@ for(const p of posts){
  assert(!/[\u3400-\u9fff]/u.test(en),`Untranslated Chinese in ${p.slug}`);
  for(const [prefix,language] of [['','zh-CN'],['en/','en']]){
   const html=fs.readFileSync(`dist/${prefix}blog/${p.slug}/index.html`,'utf8');
-  assert(html.includes(`<article class="article-prose" id="article-content" lang="${language}">`));
+  assert(html.includes(`<article class="article-prose" id="article-content" data-article-id="${p.slug}" lang="${language}">`));
  }
  const notesFile=`content/annotations/${p.slug}.json`;
  if(fs.existsSync(notesFile)){
