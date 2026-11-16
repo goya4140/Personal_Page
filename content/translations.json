@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "verifiedlab": {
+      "source_sha256": "ed6adf6a16cebcd0f98c37f5aea6b1c971ca9a6331c5df27e942340b9e5d9c95",
+      "english_sha256": "42dea28a01d4533f894487887772a5f96a636e1ef273fc289539691b6ca504a8"
+    },
     "harnessevolve": {
       "source_sha256": "023979a6cbe0346193a4b0af38b6f40671e943d71423484136250b9310badeb2",
       "english_sha256": "5f88e68c1d19b3589aa9686dc7443b27998e8ebc7097a979368c9bf09e774c82"

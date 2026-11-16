@@ -1,5 +1,30 @@
 [
   {
+    "slug": "verifiedlab",
+    "title_zh": "VerifiedLab：从逐字段核验到可追溯的科研推理",
+    "title_en": "VerifiedLab: from field-level verification to traceable research",
+    "summary_zh": "以钙钛矿太阳能电池为例，理解版本化 Skill 如何核验文献记录、支撑时间留出预测，并限定研究智能体可以发布的主张。",
+    "summary_en": "How versioned Skills verify perovskite literature records, support temporal prediction, and constrain what research agents can claim.",
+    "tags_zh": [
+      "AI for Science",
+      "科研智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Research agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-16",
+    "paper": {
+      "title": "VerifiedLab: Harnessing Knowns for Unknowns",
+      "url": "https://arxiv.org/abs/2610.37923v1",
+      "venue": "arXiv v1 · 2026-10-27"
+    },
+    "cover": "assets/img/blog/verifiedlab/harness.png"
+  },
+  {
     "slug": "harnessevolve",
     "title_zh": "HarnessEvolve：怎样用参考轨迹修订 Agent 框架",
     "title_en": "HarnessEvolve: revising agent harnesses with reference trajectories",

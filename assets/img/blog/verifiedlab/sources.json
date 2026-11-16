@@ -1,0 +1,44 @@
+{
+  "source": "https://arxiv.org/pdf/2610.37923v1",
+  "source_archive": "https://arxiv.org/src/2610.37923v1",
+  "source_pdf_sha256": "41449cfa2b8403611dd3eed70482c9856652481a20a10cb87ced66865fe309e8",
+  "source_archive_sha256": "22779632b993b0e6a8a0002fa0f4738150c6529a50cfdd9f614ffa87537a4cd3",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Yu Yao, Jiayi Dong, Yang Yang, Shuiwang Ji, and Ju Li. VerifiedLab: Harnessing Knowns for Unknowns, arXiv v1. Figure 2 icons: Heroicons (MIT) and Font Awesome Free (CC BY 4.0).",
+  "figures": [
+    {
+      "file": "harness.png",
+      "figure": "2",
+      "pdf_page": 3,
+      "source_archive_member": "figures/figure-1.pdf",
+      "source_asset_sha256": "83093d0c81ac809282f6f1cbf53c6d95be5054a0a5f87babe7058d3a7c15e58a",
+      "width": 2600,
+      "height": 2710,
+      "sha256": "65344b80e6ad1e46e9b2817c82259bd6f984345a9c377f57b48cd4bca4ca9e14",
+      "operation": "Rasterized from the original vector PDF with no crop or redraw"
+    },
+    {
+      "file": "prediction.png",
+      "figure": "5a–g",
+      "pdf_page": 7,
+      "source_archive_member": "figures/fig5_landscape_prediction.pdf",
+      "source_asset_sha256": "63df0bb6fc0bd162dabc10fe0bf306c4a090e7dcc750a0ab8d75a93aa3944b1c",
+      "width": 2600,
+      "height": 1842,
+      "sha256": "bf9d2c52c3273385525a804e2d4a6fe45db0b3514284671bbbf09ea8ef5629cc",
+      "operation": "Rasterized from the original vector PDF with no crop or redraw"
+    },
+    {
+      "file": "verification.png",
+      "figure": "4",
+      "pdf_page": 6,
+      "source_archive_member": "figures/fig3_verification.pdf",
+      "source_asset_sha256": "c2f22dcdb39c391e8b7569b19ad03d4af63104f2c7c92f725367b61c2db0c837",
+      "width": 2600,
+      "height": 1652,
+      "sha256": "423e9e62383fae6db032f8a7a9651e2c4778cdcb640e0fddb1a5a9fb9673dba4",
+      "operation": "Rasterized from the original vector PDF with no crop or redraw"
+    }
+  ]
+}

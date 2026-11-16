@@ -1,5 +1,22 @@
 [
   {
+    "slug": "verifiedlab",
+    "source": "https://arxiv.org/abs/2610.37923v1",
+    "source_pdf": "https://arxiv.org/pdf/2610.37923v1",
+    "source_pdf_sha256": "41449cfa2b8403611dd3eed70482c9856652481a20a10cb87ced66865fe309e8",
+    "source_archive_sha256": "22779632b993b0e6a8a0002fa0f4738150c6529a50cfdd9f614ffa87537a4cd3",
+    "figure_manifest": "assets/img/blog/verifiedlab/sources.json",
+    "scope": "Bilingual six-section reading on versioned Skills, field extraction, verifier calibration, temporal prediction, and the qualitative claim-gating demonstration. Original Figs. 2, 4, and 5a–g.",
+    "related_sources": [
+      "https://doi.org/10.1038/sdata.2016.18",
+      "https://doi.org/10.1038/s41560-021-00941-3",
+      "https://arxiv.org/abs/2411.00177",
+      "https://github.com/jiayijdong/VerifiedLab",
+      "https://huggingface.co/datasets/jiayijdong/VerifiedLab"
+    ],
+    "imported_on": "2026-11-16"
+  },
+  {
     "slug": "harnessevolve",
     "source": "https://arxiv.org/abs/2609.00829v1",
     "source_pdf": "https://arxiv.org/pdf/2609.00829v1",
