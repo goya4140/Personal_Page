@@ -1,0 +1,226 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架 | Linhao Wang</title>
+  <meta name="description" content="从组件文件、分层轨迹到改动预测，解读 AHE 的自动演化流程、迁移效果与退化风险。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架">
+  <meta property="og:description" content="从组件文件、分层轨迹到改动预测，解读 AHE 的自动演化流程、迁移效果与退化风险。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/ahe/"><link rel="canonical" href="https://goya4140.github.io/blog/ahe/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架" data-title-en="AHE v4: evolving agent harnesses from failure traces" data-language-url="../../en/blog/ahe/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 10 分钟</span><span>中文原稿</span><time datetime="2026-11-18">2026-11-18</time></div><div class="article-heading-layout has-art"><div><h1>AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架</h1><p class="article-summary">从组件文件、分层轨迹到改动预测，解读 AHE 的自动演化流程、迁移效果与退化风险。</p><div class="post-topics"><span>人工智能</span><span>编程智能体框架</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/ahe/method.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/ahe/method.png" alt="AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2604.25850v4" target="_blank" rel="noopener noreferrer">Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses ↗</a><small>arXiv v4 · 2026-05-18</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样把失败经验变成 Agent 框架的改进</a></li><li><a href="#section-2">二、相关文献解读：经验可以积累在哪一层</a></li><li><a href="#section-3">三、研究问题解读：自动修改框架需要什么反馈</a></li><li><a href="#section-4">四、方法解读：运行、诊断、修改，再用下一轮证据核对</a></li><li><a href="#section-9">五、实验设计与结果：整体改善、迁移与代价</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="ahe" lang="zh-CN"><p>Agent 已经生成了正确文件，最后却执行清理把它删掉。再加一句“提交前仔细检查”能否解决这类问题？AHE 把改进空间开放到工具代码、中间件和记忆等框架组件，让另一个 Agent 阅读执行证据、修改这些组件，再运行任务检验改动。</p>
+<p>本文解读 Jiahang Lin、Shichun Liu 等人的 <strong>Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses</strong>，依据 <a href="https://arxiv.org/abs/2604.25850v4" target="_blank" rel="noopener noreferrer">arXiv v4</a>，该版本更新于 2026 年 5 月 18 日。文中的成绩均按 v4 实验理解。</p>
+<h2 id="section-1">一、课题解读：怎样把失败经验变成 Agent 框架的改进</h2>
+<p>编程智能体处理一个任务时，模型决定下一步做什么，周围的框架负责暴露工具、管理执行状态、组织上下文和保存经验。同一模型可以因为命令超时、输出截断、重复检查或错误清理而交付不同结果。这些模型外的组件共同构成 harness。</p>
+<p>人工改进 harness 通常要看轨迹、找失败原因、修改实现、重跑任务。自动化这套过程，需要让改进者知道可以改哪里、在哪段轨迹里找证据，以及怎样判断一次改动有用。还需要注意，某条规则修好了一个任务，也可能占用其他任务的执行预算。</p>
+<h2 id="section-2">二、相关文献解读：经验可以积累在哪一层</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要做法</th>
+<th>与本篇的连接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2510.04618" target="_blank" rel="noopener noreferrer">ACE</a></td>
+<td>把执行经验整理为可演化的上下文知识和 playbook</td>
+<td>研究怎样积累可复用经验，AHE 进一步开放工具实现和执行中间件</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2510.08191" target="_blank" rel="noopener noreferrer">Training-Free GRPO</a></td>
+<td>比较一组轨迹的语义优势，将经验作为调用模型时的 token prior</td>
+<td>提供保持模型参数固定的改进路径，也是本文同种子对照</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2601.11868" target="_blank" rel="noopener noreferrer">Terminal-Bench</a></td>
+<td>用独立终端环境和可执行测试评价长流程任务</td>
+<td>给框架修改提供实际成功或失败的反馈</td>
+</tr>
+</tbody>
+</table></div><p>AHE 的工程基础是 <a href="https://github.com/china-qijizhifeng/agentic-harness-engineering" target="_blank" rel="noopener noreferrer">NexAU 与官方实现</a>。作者将可编辑对象、轨迹摘要和改动预测都写为可检查的文件，使下一轮 Agent 能读取并核对上一轮的决定。</p>
+<h2 id="section-3">三、研究问题解读：自动修改框架需要什么反馈</h2>
+<p>论文按整体效果、迁移和内部分析组织实验。我们把方法动机归纳为三个问题。</p>
+<ol>
+<li><strong>编辑空间怎样表达？</strong> 系统提示、工具代码和中间件形式不同，修改者需要找到明确的文件边界，并能撤回改动。</li>
+<li><strong>从长轨迹中怎样找到可行动的失败模式？</strong> 单看最终分数很难定位问题，直接阅读全部日志又容易耗尽上下文。</li>
+<li><strong>怎样核对改动的预期与代价？</strong> 既要预测会修复哪些任务，也要检查哪些原本通过的任务会退化，并检验经验能否迁移。</li>
+</ol>
+<h2 id="section-4">四、方法解读：运行、诊断、修改，再用下一轮证据核对</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/ahe/method.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/ahe/method.png" alt="AHE 的三层可观测性与迭代过程" loading="lazy" decoding="async"></a><figcaption>图 1 · 左侧是文件化的框架组件，中间将运行轨迹整理成可逐层下钻的证据，右侧的 Evolve Agent 据此修改组件并记录决策。对应 v4 Figure 2，PDF 第 4 页。图片来自作者官方仓库，保留原图。</figcaption></figure>
+<h3 id="section-5">第一步：把七类组件开放为文件</h3>
+<p>NexAU 的工作区开放系统提示、工具描述、工具实现、中间件、skill、子智能体配置和长期记忆。种子 NexAU₀ 只提供 shell 工具，尚未装入技能、中间件或长期记忆。每次逻辑改动写入 Git，保留差异和回滚位置。</p>
+<p>Code Agent 执行任务，Agent Debugger 分析轨迹，Evolve Agent 修改工作区。首次迭代还安排一次探索，从框架源码和公开参考中整理初始知识。基础模型及评测器配置受到编辑边界保护。改进者可以修改框架，不获得修改任务判分和扩大模型预算的权限。<a href="https://arxiv.org/html/2604.25850v4#S3" target="_blank" rel="noopener noreferrer">§3.1–3.3</a></p>
+<h3 id="section-6">第二步：先读概览，再下钻到失败证据</h3>
+<p>每个任务生成多条轨迹。同题轨迹被放进同一可导航目录，每条消息可单独访问。Agent Debugger 比较成功和失败，输出任务级原因分析，再汇总为基准级概览。Evolve Agent 可以从概览进入某个任务报告，最后回看清洗轨迹或原始日志。</p>
+<p>这种分层保留了核对摘要的路径。例如“最终文件缺失”只是一项结果，轨迹对照才可能显示文件曾经正确、后来又被清理。诊断由模型提出，下一步仍需实际运行验证。</p>
+<h3 id="section-7">第三步：每次改动写下待检验的预测</h3>
+<p>修改清单记录失败证据、推测原因、修改位置、预计修复任务和有退化风险的任务。下一轮先运行新框架，再比较任务通过率的变化，将结果反馈到清单；流程允许撤回被拒绝的修改，然后继续生成新改动。</p>
+<p>这里的任务变化提供反馈，但多项改动同时进入一轮、每题运行次数有限，仍会限制单项归因。清单让预测可检查，并不能仅凭任务翻转确定某个文件的因果贡献。<a href="https://arxiv.org/html/2604.25850v4#S3.SS3" target="_blank" rel="noopener noreferrer">Algorithm 1 与 §3.3</a></p>
+<h3 id="section-8">第四步：把经验落实到会执行的机制</h3>
+<p>论文的 <code>path-tracing</code> 案例很直观。Agent 已输出正确图像，检查后却用清理命令删掉了交付文件。第 5 轮加入 publish-state 机制：记录成功检查涉及的输出路径，shell 工具在后续删除受保护文件时拦截命令，任务从 <strong>0/2</strong> 变成 <strong>2/2</strong>。</p>
+<p>之后的案例继续暴露规则边界。允许覆盖拦截的 token 又让 Agent 删除了已部署网页，第 8 轮进一步对关键发布状态实施硬拦截，并在下一次模型调用前注入风险提醒。这些是作者观察到的运行案例，说明经验可以积累成执行机制，也显示一轮修复仍可能留下新的漏洞。<a href="https://arxiv.org/html/2604.25850v4#A3" target="_blank" rel="noopener noreferrer">附录 C</a></p>
+<h2 id="section-9">五、实验设计与结果：整体改善、迁移与代价</h2>
+<h3 id="section-10">主实验：在优化任务上，框架演化提高多少</h3>
+<p>作者在 Terminal-Bench 2 的全部 <strong>89 个任务</strong>上进行一次十轮优化，任务包括 <strong>4 个 easy、55 个 medium、30 个 hard</strong>，全程约 32 小时。任务在隔离环境运行，外部测试给出二元成功结果，单任务时间上限为 <strong>3,600 秒</strong>。参考配置每题两次 rollout，pass@1 取这些独立尝试的成功均值。比如 <strong>2/2</strong> 表示两次都成功；这里的平均成功率与“多次中至少成功一次”的口径不同。</p>
+<p>下表报告十轮中选出的最好 AHE 配置。各编码 Agent 的主实验使用 GPT-5.4 high。正文称三个角色均为 high，但附录 Table 4 将 Evolve Agent 列为 xhigh，复现实验时需要核对这处设置差异。论文没有给出多次完整优化活动的均值与方差，也未在这 89 题内划分独立留出集。<a href="https://arxiv.org/pdf/2604.25850v4#page=6" target="_blank" rel="noopener noreferrer">§4.1、Table 1 与附录 A</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>配置</th>
+<th style="text-align:right">总体 pass@1（↑）</th>
+<th style="text-align:right">Easy</th>
+<th style="text-align:right">Medium</th>
+<th style="text-align:right">Hard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenCode</td>
+<td style="text-align:right">47.2%</td>
+<td style="text-align:right">75.0%</td>
+<td style="text-align:right">52.7%</td>
+<td style="text-align:right">33.3%</td>
+</tr>
+<tr>
+<td>Terminus-2</td>
+<td style="text-align:right">62.9%</td>
+<td style="text-align:right">75.0%</td>
+<td style="text-align:right">74.5%</td>
+<td style="text-align:right">40.0%</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td style="text-align:right">71.9%</td>
+<td style="text-align:right">75.0%</td>
+<td style="text-align:right">80.0%</td>
+<td style="text-align:right">56.7%</td>
+</tr>
+<tr>
+<td>NexAU₀ 种子</td>
+<td style="text-align:right">69.7%</td>
+<td style="text-align:right">87.5%</td>
+<td style="text-align:right">78.2%</td>
+<td style="text-align:right">51.7%</td>
+</tr>
+<tr>
+<td>ACE</td>
+<td style="text-align:right">68.9%</td>
+<td style="text-align:right">91.7%</td>
+<td style="text-align:right">78.2%</td>
+<td style="text-align:right">48.9%</td>
+</tr>
+<tr>
+<td>TF-GRPO</td>
+<td style="text-align:right">72.3%</td>
+<td style="text-align:right">100.0%</td>
+<td style="text-align:right">79.4%</td>
+<td style="text-align:right">55.6%</td>
+</tr>
+<tr>
+<td>AHE</td>
+<td style="text-align:right">77.0%</td>
+<td style="text-align:right">100.0%</td>
+<td style="text-align:right">88.2%</td>
+<td style="text-align:right">53.3%</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：v4 Table 1。总体分母为 89 个任务，各难度列分别按该难度任务计算。</em></p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/ahe/training.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/ahe/training.png" alt="AHE 各轮成绩和历史最好成绩" loading="lazy" decoding="async"></a><figcaption>图 2 · 虚线是每轮分数，实线是截至该轮的最好分数。约 77.0% 在第 8 轮达到，后续轮次回落。原论文 v4 Figure 1，PDF 第 2 页，原始矢量图转为 PNG。</figcaption></figure>
+<p>AHE 比种子提高 <strong>7.3 个百分点</strong>，比 Codex 高 <strong>5.1 个百分点</strong>。优势主要体现在 Medium，Hard 的 <strong>53.3%</strong> 低于 Codex 的 <strong>56.7%</strong>。成绩支持在作者所测优化流程中的改善，独立新任务的表现要看下面的迁移实验。</p>
+<h3 id="section-11">冻结框架后，换任务或模型还能用吗</h3>
+<p>作者将演化后的框架冻结，直接在 SWE-bench-verified 上运行，不再用该基准继续演化。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>配置</th>
+<th style="text-align:right">成功率（↑）</th>
+<th style="text-align:right">平均 token / trial（千，↓）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACE</td>
+<td style="text-align:right">74.6%</td>
+<td style="text-align:right">679</td>
+</tr>
+<tr>
+<td>TF-GRPO</td>
+<td style="text-align:right">74.2%</td>
+<td style="text-align:right">582</td>
+</tr>
+<tr>
+<td>NexAU₀</td>
+<td style="text-align:right">75.2%</td>
+<td style="text-align:right">526</td>
+</tr>
+<tr>
+<td>AHE</td>
+<td style="text-align:right">75.6%</td>
+<td style="text-align:right">461</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/pdf/2604.25850v4#page=7" target="_blank" rel="noopener noreferrer">v4 Table 2</a>，总体行标注 500 题。</em></p>
+<p>相对种子，成功率增加 <strong>0.4 个百分点</strong>，平均 token 减少约 <strong>12.4%</strong>。token 统计涵盖一次解题内各模型调用的输入与输出，基础设施中断的尝试不纳入 token 均值，但成功率把中断计为失败。因此该数字不能直接理解为整个演化活动的成本节约。Table 2 所列七个仓库的样本量相加为 <strong>460</strong>，与总体 <strong>500</strong> 不一致，v4 未解释其余样本，本文保留作者总体行而不重算加权均值。</p>
+<p>换模型时，仍在同一 Terminal-Bench 任务集上比较冻结 AHE 与各模型自己的种子框架。DeepSeek-V4-Flash 从 <strong>51.7% 到 61.8%</strong>，Qwen-3.6-Plus 从 <strong>56.2% 到 62.5%</strong>，Gemini-3.1-Flash-Lite-Preview 从 <strong>36.5% 到 41.6%</strong>。这说明框架在三个替代模型家族上仍有收益，不过任务仍是优化时见过的任务，不能同时当作新任务迁移。作者也指出时间和步数预算与推理档位存在耦合。<a href="https://arxiv.org/html/2604.25850v4#S4.SS3" target="_blank" rel="noopener noreferrer">§4.3</a></p>
+<h3 id="section-12">组件分析：收益在哪里，为什么不能简单叠加</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>向种子单独换入的演化组件</th>
+<th style="text-align:right">总体 pass@1</th>
+<th style="text-align:right">Hard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不换入，NexAU₀</td>
+<td style="text-align:right">69.7%</td>
+<td style="text-align:right">51.7%</td>
+</tr>
+<tr>
+<td>仅长期记忆</td>
+<td style="text-align:right">75.3%</td>
+<td style="text-align:right">63.3%</td>
+</tr>
+<tr>
+<td>仅工具</td>
+<td style="text-align:right">73.0%</td>
+<td style="text-align:right">46.7%</td>
+</tr>
+<tr>
+<td>仅中间件</td>
+<td style="text-align:right">71.9%</td>
+<td style="text-align:right">50.0%</td>
+</tr>
+<tr>
+<td>仅系统提示</td>
+<td style="text-align:right">67.4%</td>
+<td style="text-align:right">46.7%</td>
+</tr>
+<tr>
+<td>完整 AHE</td>
+<td style="text-align:right">77.0%</td>
+<td style="text-align:right">53.3%</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/pdf/2604.25850v4#page=8" target="_blank" rel="noopener noreferrer">v4 Table 3</a>。每行将对应组件换入种子，其余保持种子设置。</em></p>
+<p>长期记忆、工具和中间件分别有正收益，系统提示单独换入则下降。完整 AHE 的总体最好，但 Hard 上低于仅记忆版本。作者从轨迹中解释，多个组件都推动收尾核验，会叠加重复检查，挤占长任务预算。这是对当前组件组合的证据，还需额外对照才能量化三层可观测性各自的独立贡献。</p>
+<h3 id="section-13">预测分析：知道会修好什么，仍难预见会弄坏什么</h3>
+<p>跨九个可比较轮次，修复预测的平均 precision 为 <strong>33.7%</strong>、recall 为 <strong>51.4%</strong>，高于作者随机基线的 <strong>6.5%</strong> 和 <strong>10.6%</strong>。退化预测却只有 <strong>11.8%</strong> precision 与 <strong>11.1%</strong> recall，随机基线为 <strong>5.6%</strong> 和 <strong>5.4%</strong>。清单有助于提出有针对性的修复，退化风险仍大量漏报。<a href="https://arxiv.org/html/2604.25850v4#S4.F4" target="_blank" rel="noopener noreferrer">Figure 4</a></p>
+<h2 id="section-14">六、我们自己的思考</h2>
+<h3 id="section-15">课题思考：这个领域在研究什么</h3>
+<p>我们关注的是，Agent 怎样把一次失败转成下一次仍能执行的改进。AHE 将经验落到工具、中间件、记忆等持久对象，并让后续运行反馈决定其去留。对科研 Agent 的启发是，把“结论需要证据”进一步落实到运行步骤和交付检查中。是否适用于科研流程，仍需专门实验验证。</p>
+<h3 id="section-16">局限问题思考：目前还存在哪些问题</h3>
+<ol>
+<li><strong>优化分数与独立泛化仍有距离。</strong> 主成绩在全部优化任务上选最好版本，只有一次完整活动。新基准的成功率增益较小，表格分母和角色推理档位也有待澄清。</li>
+<li><strong>任务翻转不能充分隔离单项修改效果。</strong> 同轮多项编辑、少量重复和组件交互都会影响观察值，尤其是退化预测仍弱。</li>
+<li><strong>收益依赖运行预算。</strong> 重复核验对短任务有益，对长任务可能挤占执行机会。每次解题的 token 节约还没有覆盖离线演化和调试的总成本。</li>
+</ol>
+<h3 id="section-17">解决方案思考：这些问题有哪些解决方向</h3>
+<ol>
+<li><strong>固定开发与留出划分。</strong> 在开发任务上演化，锁定版本后测试新任务，重复完整活动，并公开各配置样本量、采样次数和角色配置。</li>
+<li><strong>用成对实验检查修改和交互。</strong> 对同一任务、相同初始状态重跑单项编辑及关键组件组合，报告修复与退化分布，测量归因结论的稳定性。</li>
+<li><strong>把预算纳入验收。</strong> 联合比较成功率、延迟、token 与演化成本，检查哪些额外核验值得保留，并按任务长度或剩余预算调整触发时机。</li>
+</ol>
+<p><em>依据 <a href="https://arxiv.org/pdf/2604.25850v4" target="_blank" rel="noopener noreferrer">论文 PDF v4</a> 和 <a href="https://github.com/china-qijizhifeng/agentic-harness-engineering/tree/182ea06e578df7b1d503eca537503c1e4c5a8a58" target="_blank" rel="noopener noreferrer">官方仓库</a>。本文方法图取自仓库原图，训练曲线从与 v4 源文件一致的仓库矢量图渲染。图片遵循仓库 <a href="https://github.com/china-qijizhifeng/agentic-harness-engineering/blob/182ea06e578df7b1d503eca537503c1e4c5a8a58/LICENSE" target="_blank" rel="noopener noreferrer">MIT 许可</a>，Copyright © 2026 Jiahang Lin，原作者为 Jiahang Lin 等。论文 arXiv 分发许可与仓库素材许可分别记录于来源清单。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样把失败经验变成 Agent 框架的改进</a></li><li><a href="#section-2">二、相关文献解读：经验可以积累在哪一层</a></li><li><a href="#section-3">三、研究问题解读：自动修改框架需要什么反馈</a></li><li><a href="#section-4">四、方法解读：运行、诊断、修改，再用下一轮证据核对</a></li><li><a href="#section-9">五、实验设计与结果：整体改善、迁移与代价</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../verifiedlab/"><span>论文阅读</span><strong>VerifiedLab：从逐字段核验到可追溯的科研推理</strong><i aria-hidden="true">↗</i></a><a href="../harnessevolve/"><span>论文阅读</span><strong>HarnessEvolve：怎样用参考轨迹修订 Agent 框架</strong><i aria-hidden="true">↗</i></a><a href="../harnessdev/"><span>论文阅读</span><strong>HarnessDev：Agent 能选出更好的框架版本吗？</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

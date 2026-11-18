@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "ahe": {
+      "source_sha256": "96a37304cc2e078cc49549c7e12a31bff3e7606b845281e09ea360167a80ed89",
+      "english_sha256": "1442dfc1f00bf61b164aa9125b7aff40975041f11a749e161472af10bcd556e5"
+    },
     "verifiedlab": {
       "source_sha256": "ed6adf6a16cebcd0f98c37f5aea6b1c971ca9a6331c5df27e942340b9e5d9c95",
       "english_sha256": "42dea28a01d4533f894487887772a5f96a636e1ef273fc289539691b6ca504a8"

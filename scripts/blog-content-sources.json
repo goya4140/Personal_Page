@@ -1,5 +1,21 @@
 [
   {
+    "slug": "ahe",
+    "source": "https://arxiv.org/abs/2604.25850v4",
+    "source_pdf": "https://arxiv.org/pdf/2604.25850v4",
+    "source_pdf_sha256": "299f2633b4c13db7bed52434b4db7c48ea621993581014d30e7bcd036d3464df",
+    "source_archive_sha256": "dfb7e74a334e2c120f110a6e821b65f2a7d9d8cc1de948f3bc4001c735dd50b8",
+    "figure_manifest": "assets/img/blog/ahe/sources.json",
+    "scope": "Bilingual six-section reading with original method image and v4 learning curve. Main full Table 1 before cross-benchmark, cross-model, component and attribution analyses. Distinguishes optimization-set best checkpoint, held-out benchmark transfer, mean pass@1, one campaign, role reasoning-setting discrepancy, and Table 2 repository-count inconsistency.",
+    "related_sources": [
+      "https://arxiv.org/abs/2510.04618",
+      "https://arxiv.org/abs/2510.08191",
+      "https://arxiv.org/abs/2601.11868",
+      "https://github.com/china-qijizhifeng/agentic-harness-engineering/tree/182ea06e578df7b1d503eca537503c1e4c5a8a58"
+    ],
+    "imported_on": "2026-11-18"
+  },
+  {
     "slug": "verifiedlab",
     "source": "https://arxiv.org/abs/2610.37923v1",
     "source_pdf": "https://arxiv.org/pdf/2610.37923v1",

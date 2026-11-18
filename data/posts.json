@@ -1,5 +1,30 @@
 [
   {
+    "slug": "ahe",
+    "title_zh": "AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架",
+    "title_en": "AHE v4: evolving agent harnesses from failure traces",
+    "summary_zh": "从组件文件、分层轨迹到改动预测，解读 AHE 的自动演化流程、迁移效果与退化风险。",
+    "summary_en": "Editable components, layered traces, and testable predictions in harness evolution, with transfer results and regression risks.",
+    "tags_zh": [
+      "人工智能",
+      "编程智能体框架",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Coding-agent harnesses",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-18",
+    "paper": {
+      "title": "Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses",
+      "url": "https://arxiv.org/abs/2604.25850v4",
+      "venue": "arXiv v4 · 2026-05-18"
+    },
+    "cover": "assets/img/blog/ahe/method.png"
+  },
+  {
     "slug": "verifiedlab",
     "title_zh": "VerifiedLab：从逐字段核验到可追溯的科研推理",
     "title_en": "VerifiedLab: from field-level verification to traceable research",
