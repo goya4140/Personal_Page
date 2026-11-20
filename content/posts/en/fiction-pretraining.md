@@ -48,7 +48,7 @@ The replaced share, 5B / 185B, is approximately **2.7%**. The primary comparison
 
 ### Step 2. Match pretraining and post-training
 
-All models have approximately **1B parameters**, with an architecture close to Llama-3.2-1B, and are trained from scratch with GPT-NeoX. Pretraining uses approximately **185B tokens and 22,100 steps**, with **4,096-token** sequences. The four core conditions, NoBooks, Books3, Institutional Books, and Synthetic, have three training seeds each. Identical SFT and DPO recipes reduce variation from post-training.
+All models have approximately **1B parameters**, with an architecture close to Llama-3.2-1B, and are trained from scratch with GPT-NeoX. Pretraining uses approximately [**185B tokens and 22,100 steps**](#reading-note-training-scale), with **4,096-token** sequences. The four core conditions, NoBooks, Books3, Institutional Books, and Synthetic, have three training seeds each. Identical SFT and DPO recipes reduce variation from post-training.
 
 [A training run takes approximately 1,380 H200 GPU-hours or 850 B200 GPU-hours](#reading-note-training-cost). The additional unconditioned synthetic condition has one seed. The fixed sequence length also bounds the conclusions. These experiments leave the value of full books for long-context extension open. [Section 2 and Appendices E and H](https://openreview.net/pdf?id=NpBFkL2BTm#page=32)
 
