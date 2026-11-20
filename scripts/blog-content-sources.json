@@ -5,14 +5,17 @@
     "source_pdf": "https://openreview.net/pdf?id=NpBFkL2BTm",
     "source_pdf_sha256": "244078fcd19a09eec96c812202103b2e4548d31b394d171fbd0762c40b091398",
     "figure_manifest": "assets/img/blog/fiction-pretraining/sources.json",
-    "scope": "Complete bilingual six-section reading of the 2026-11-19 anonymous revision. Main matched-budget comparisons before feature, conditioned/unconditioned synthetic, human and provenance analyses. Preserves three-seed versus single-seed conditions, prompt-level human sample sizes, best-of-five extraction, and upstream generation conditioning versus literal pretraining membership.",
+    "scope": "Complete bilingual six-section reading of the 2026-11-19 anonymous revision. Main matched-budget comparisons before feature, conditioned/unconditioned synthetic, human and provenance analyses. Preserves three-seed versus single-seed conditions, prompt-level human sample sizes, best-of-five extraction, and upstream generation conditioning versus literal pretraining membership. Added a bilingual rental-equivalent cost note using the stated GPU-hours, 14-run accounting caveat, current multi-node rates, and explicit currency assumption.",
     "related_sources": [
       "https://arxiv.org/abs/2502.10341",
       "https://arxiv.org/abs/2506.08300",
       "https://arxiv.org/abs/2305.07759",
-      "https://aclanthology.org/2026.eacl-long.362/"
+      "https://aclanthology.org/2026.eacl-long.362/",
+      "https://www.runpod.io/pricing",
+      "https://www.runpod.io/articles/guides/multi-node-distributed-training"
     ],
-    "imported_on": "2026-11-20"
+    "imported_on": "2026-11-20",
+    "annotation_manifest": "content/annotations/fiction-pretraining.json"
   },
   {
     "slug": "ahe",

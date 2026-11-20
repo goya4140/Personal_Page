@@ -50,7 +50,7 @@
 
 所有模型约 **1B 参数**，结构接近 Llama-3.2-1B，以 GPT-NeoX 从头训练。预训练约 **185B tokens、22,100 步**，序列长度 **4,096 tokens**。核心四组 NoBooks、Books3、Institutional Books 和 Synthetic 各有三个训练种子。后训练使用相同的 SFT 与 DPO 配方，以减少后训练差异对结论的干扰。
 
-作者报告单次训练约需 1,380 H200 GPU 小时或 850 B200 GPU 小时。新增的无条件合成组只有一个种子。固定序列长度也限定了结论范围，本文不能据此判断用完整长篇小说做长上下文扩展的收益。[第 2 节、附录 E 和 H](https://openreview.net/pdf?id=NpBFkL2BTm#page=32)
+作者报告[单次训练约需 1,380 H200 GPU 小时或 850 B200 GPU 小时](#reading-note-training-cost)。新增的无条件合成组只有一个种子。固定序列长度也限定了结论范围，本文不能据此判断用完整长篇小说做长上下文扩展的收益。[第 2 节、附录 E 和 H](https://openreview.net/pdf?id=NpBFkL2BTm#page=32)
 
 ### 第三步：从真实书籍生成条件合成小说
 

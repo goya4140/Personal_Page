@@ -3,8 +3,8 @@
   "target_language": "en",
   "articles": {
     "fiction-pretraining": {
-      "source_sha256": "1398ebaaad488890524c651bc077115a848dd5febe5317df80881812aa6bae2d",
-      "english_sha256": "56c5b202dbe8ae4f9c60a2a141a6b8790c4d165bc4f749edd3ba4465165780dc"
+      "source_sha256": "457eb408d23e32e538bae1f15051d6e7b2283dcf41353f11f6916a4ca082a98b",
+      "english_sha256": "b5d8d954bfcffc3e7308bfc2a096e3db060ce48246f21c82016aa24bc130f779"
     },
     "ahe": {
       "source_sha256": "96a37304cc2e078cc49549c7e12a31bff3e7606b845281e09ea360167a80ed89",
