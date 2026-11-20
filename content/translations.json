@@ -2,6 +2,10 @@
   "source_language": "zh-CN",
   "target_language": "en",
   "articles": {
+    "fiction-pretraining": {
+      "source_sha256": "1398ebaaad488890524c651bc077115a848dd5febe5317df80881812aa6bae2d",
+      "english_sha256": "56c5b202dbe8ae4f9c60a2a141a6b8790c4d165bc4f749edd3ba4465165780dc"
+    },
     "ahe": {
       "source_sha256": "96a37304cc2e078cc49549c7e12a31bff3e7606b845281e09ea360167a80ed89",
       "english_sha256": "1442dfc1f00bf61b164aa9125b7aff40975041f11a749e161472af10bcd556e5"
