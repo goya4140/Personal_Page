@@ -1,0 +1,335 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frontier3DBench: from 3D objects to interactive worlds | Linhao Wang</title>
+  <meta name="description" content="A unified evaluation of objects, scenes, and interactive worlds, separating visual quality, local mechanisms, complete activities, and score–cost accounting.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Frontier3DBench: from 3D objects to interactive worlds">
+  <meta property="og:description" content="A unified evaluation of objects, scenes, and interactive worlds, separating visual quality, local mechanisms, complete activities, and score–cost accounting.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/frontier3dbench/"><link rel="canonical" href="https://goya4140.github.io/en/blog/frontier3dbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="Frontier3DBench：Agent 能从 3D 物体建到可交互世界吗？" data-title-en="Frontier3DBench: from 3D objects to interactive worlds" data-language-url="../../../blog/frontier3dbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>15 min read</span><span>English translation</span><time datetime="2026-11-21">2026-11-21</time></div><div class="article-heading-layout has-art"><div><h1>Frontier3DBench: from 3D objects to interactive worlds</h1><p class="article-summary">A unified evaluation of objects, scenes, and interactive worlds, separating visual quality, local mechanisms, complete activities, and score–cost accounting.</p><div class="post-topics"><span>Artificial Intelligence</span><span>3D creation agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/frontier3dbench/task-formulation.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/frontier3dbench/task-formulation.png" alt="Frontier3DBench: from 3D objects to interactive worlds" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2611.09017v1" target="_blank" rel="noopener noreferrer">Frontier3DBench: Benchmarking Coding Agents for 3D Creation across Objects, Scenes, and Interactive Open Worlds ↗</a><small>arXiv v1 · 2026-11-06</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: how can we tell whether an agent has built a usable 3D world?</a></li><li><a href="#section-2">2. Related work: from procedural modeling to executable worlds</a></li><li><a href="#section-3">3. Research questions: what should a unified evaluation reveal?</a></li><li><a href="#section-4">4. Method: from task specifications to independent execution and scoring</a></li><li><a href="#section-9">5. Experiments and results: overall performance before capability diagnosis</a></li><li><a href="#section-16">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="frontier3dbench" lang="en"><p>Writing code that generates a chair and building a world where someone can enter, open a door, collect an item, and retain state impose very different demands. Frontier3DBench brings these tasks into one evaluation to examine how coding-agent capabilities extend from objects to scenes and interactive worlds.</p>
+<p>This article reads <strong>Frontier3DBench: Benchmarking Coding Agents for 3D Creation across Objects, Scenes, and Interactive Open Worlds</strong> by Xinjie Lin, Qingle Liu, Wenyi Li, and colleagues, based on <a href="https://arxiv.org/abs/2611.09017v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>, submitted on November 6, 2026. This benchmark paper contributes tasks, artifact checks, and capability analysis; it does not introduce a new 3D generation model. The <a href="https://lab.einsia.ai/frontier3dbench/" target="_blank" rel="noopener noreferrer">project page</a> and <a href="https://github.com/Einsia/Frontier3D" target="_blank" rel="noopener noreferrer">official code</a> provide further learning resources.</p>
+<h2 id="section-1">1. Topic: how can we tell whether an agent has built a usable 3D world?</h2>
+<p>Traditional 3D authoring involves modeling, materials, lighting, and scene composition. Interaction adds logic, collision handling, and state management. Coding agents can translate natural language or reference images into Blender scripts and Unreal Engine projects, then execute, inspect, and revise their work.</p>
+<p>The goal is an <strong>openable, editable, executable 3D project</strong>. A chair needs appropriate geometry and relationships between parts. A room needs coherent scale, layout, and lighting. An explorable workshop also needs accessible routes, operable mechanisms, and consistent item and mechanism states across regions.</p>
+<p>Evaluation therefore needs to connect three sources of evidence: renders for appearance, native projects for geometry and structure, and runtime tests for interaction and state. A single attractive image cannot establish whether a door opens or whether the player can actually pass through it afterward.</p>
+<h2 id="section-2">2. Related work: from procedural modeling to executable worlds</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main exploration</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2606.01057" target="_blank" rel="noopener noreferrer">3DCodeBench</a></td>
+<td>Evaluates agents that perform procedural 3D modeling through code</td>
+<td>Establishes a code-to-3D-artifact evaluation perspective focused on geometric and visual construction</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2610.23986v1" target="_blank" rel="noopener noreferrer">BlenderWorld</a></td>
+<td>Evaluates Blender artifacts from real references and open-ended authoring requests using multiple renders and task-specific rubrics</td>
+<td>Covers objects and environments while exposing difficulties with fine spatial and structural reproduction</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2610.15166v2" target="_blank" rel="noopener noreferrer">ExeWorldBench</a></td>
+<td>Progresses from individual mechanisms to composed systems and intent-driven executable worlds, examining mechanical and causal dependencies</td>
+<td>Shows why working components still need composition and behavioral-chain checks</td>
+</tr>
+</tbody>
+</table></div><p>Frontier3DBench organizes tasks by the <strong>unit being constructed</strong>: objects, scenes, and interactive worlds. It then assigns visual, structural, and behavioral checks to each level. This enables comparisons within one experimental suite, while task families retain different scoring formulas; their scores are not identical physical measurements.</p>
+<h2 id="section-3">3. Research questions: what should a unified evaluation reveal?</h2>
+<p>The following questions are our reading synthesis, rather than research questions quoted verbatim from the authors.</p>
+<ol>
+<li><strong>Do capabilities transfer across construction levels?</strong> Does a configuration that builds individual objects well also organize scenes and implement interactive worlds well?</li>
+<li><strong>How large is the gap between plausible generation and specified reconstruction?</strong> Text-driven creation has more freedom than reconstruction constrained by particular references.</li>
+<li><strong>Can local functions compose into complete activities?</strong> After a switch or drawer works individually, do motion clearance, action prerequisites, and persistent states remain correct?</li>
+</ol>
+<p>Agreement with human judgment and the API cost of achieving these scores are additional questions about the benchmark's practical usefulness.</p>
+<h2 id="section-4">4. Method: from task specifications to independent execution and scoring</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontier3dbench/task-formulation.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontier3dbench/task-formulation.png" alt="Task specifications pass through a coding agent to produce Blender or Unreal Engine projects" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Read left to right: instructions, optional references and initial assets → code generation or editing by a coding agent → object, scene, or interactive-world project files. Source: original Figure 2, PDF page 3; original source image, without cropping or redrawing.</figcaption></figure>
+<h3 id="section-5">Step one: prepare tasks by construction unit</h3>
+<p>The benchmark contains <strong>145 tasks, 9 categories, and 3 levels</strong>. Object and scene tasks use public 3D assets, dataset imagery, and photographs captured by the authors. World tasks additionally use game screenshots and panoramic imagery. The authors use GPT-6-astra to expand creation instructions and world interaction specifications, then prepare references and checking conditions.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Level</th>
+<th>Category</th>
+<th>Tasks</th>
+<th>What the agent receives and must accomplish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1: objects</td>
+<td>Text2Code</td>
+<td>15</td>
+<td>Build specified geometry and parts from text</td>
+</tr>
+<tr>
+<td>L1: objects</td>
+<td>Img2Code</td>
+<td>25</td>
+<td>Reconstruct an object from multiple views</td>
+</tr>
+<tr>
+<td>L1: objects</td>
+<td>Img2Code-SingleView</td>
+<td>25</td>
+<td>Reconstruct an object from one image</td>
+</tr>
+<tr>
+<td>L2: scenes</td>
+<td>Brief2Scene</td>
+<td>20</td>
+<td>Organize objects, layout, and lighting from text</td>
+</tr>
+<tr>
+<td>L2: scenes</td>
+<td>Ref2Scene</td>
+<td>10</td>
+<td>Reconstruct a scene from a rendered reference</td>
+</tr>
+<tr>
+<td>L2: scenes</td>
+<td>Ref2Scene-RealPhoto</td>
+<td>25</td>
+<td>Reconstruct space and contents from a photograph</td>
+</tr>
+<tr>
+<td>L2: scenes</td>
+<td>SceneEdit</td>
+<td>10</td>
+<td>Modify the target in an initial scene while preserving protected content</td>
+</tr>
+<tr>
+<td>L3: interactive worlds</td>
+<td>Text2Env</td>
+<td>5</td>
+<td>Build connected spaces and functionality from text and an interaction contract</td>
+</tr>
+<tr>
+<td>L3: interactive worlds</td>
+<td>Img2Env</td>
+<td>10</td>
+<td>Reconstruct an environment and implement functionality from images, text, and an interaction contract</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 1, PDF page 4. L1 and L2 each contain 65 tasks; L3 contains 15.</em></p>
+<p>Inputs consist of instructions, optional images, and optional initial projects or assets. Source models and evaluation annotations used for scoring are withheld; editing tasks explicitly supply the project to modify. L3 also provides an interaction contract defining entities, initial states, operations, prerequisites, and physical constraints. <strong>An open world here means a connected, explorable environment with persistent state within a session; each task need not be a vast outdoor map.</strong></p>
+<h3 id="section-6">Step two: author and submit native projects in constrained environments</h3>
+<p>L1/L2 deliver Blender projects and construction or editing code. L1 also requires a GLB export; L2 requires main and alternate renders. L3 delivers Unreal Engine projects, assets, and interaction logic, with task-appropriate read-only asset libraries and integration interfaces available.</p>
+<p>General network access is disabled during generation and evaluation, with model requests passing through a restricted gateway. L1/L2 generation uses isolated containers with 2 CPU cores and 4 GiB of memory; submitted code runs in Blender 5.2.1. Each task permits at most 6 attempts within a 32-hour total budget. Timeouts, transport errors, or failed public execution/delivery checks trigger new attempts, which receive execution errors but no quality scores. <strong>This is not best-of-6 selection using hidden scores.</strong></p>
+<p>L3 uses Unreal Engine 5.8.3 in persistent containers with 8 CPU cores, 64 GiB of memory, and an assigned GPU, under a 24-hour limit. These are runtime limits and environment settings, not measured time spent on every task.</p>
+<h3 id="section-7">Step three: collect separate evidence for appearance, structure, and behavior</h3>
+<p>For L1/L2, the evaluator executes a baseline and 3 seed reruns, checking files, loadability, editable geometry, and dependencies. These are execution variants of the submitted program, not independent model-generated samples. Detail fidelity takes the weakest variant: L1 checks 8 variants, consisting of native and GLB artifacts from each of 4 runs; L2 checks 4 native variants.</p>
+<p>The visual judge is <strong>GPT-6-astra at medium reasoning effort</strong>, with generator identity hidden. It scores criteria using instructions, references, and rendered evidence. L1/L2 visual grades run from 0–4 and are normalized; rule-based checks measure dimensions, parts, spatial relations, and permitted edits. Reference similarity combines regional and global structure, color, tone, and edges. Localization checks projected position, size, and count, rather than directly measuring complete 3D geometric accuracy.</p>
+<p>For L3, an independent observer rebuilds the project in a separate workspace and records images, geometry, motion, character routes, inventory, and state changes. Local probes can place test fixtures. Continuous activities prohibit teleportation and resets, requiring actual traversal of the behavioral chain. This separates evidence that an individual mechanism works from evidence that a complete activity is achievable.</p>
+<h3 id="section-8">Step four: score task families and aggregate level means</h3>
+<p>Each component below is normalized to 0–1 before the final score is multiplied by 100. Confirmed execution or delivery failures receive zero; valid artifacts receive component-wise quality scores.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Task type</th>
+<th>Quality formula</th>
+<th>Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text-driven object or scene generation</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>0.60</mn><mi>V</mi><mo>+</mo><mn>0.30</mn><mi>R</mi><mo>+</mo><mn>0.10</mn><mi>D</mi></mrow><annotation encoding="application/x-tex">Q=0.60V+0.30R+0.10D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.60</span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.30</span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">0.10</span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span></span></span></span></td>
+<td>Visual fidelity, requirements, detail</td>
+</tr>
+<tr>
+<td>Reference reconstruction</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>0.20</mn><mi>V</mi><mo>+</mo><mn>0.50</mn><mi>I</mi><mo>+</mo><mn>0.20</mn><mi>L</mi><mo>+</mo><mn>0.10</mn><mi>D</mi></mrow><annotation encoding="application/x-tex">Q=0.20V+0.50I+0.20L+0.10D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.20</span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.50</span><span class="mord mathnormal" style="margin-right:0.0785em;">I</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.20</span><span class="mord mathnormal">L</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">0.10</span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span></span></span></span></td>
+<td>Visual fidelity, image similarity, localization, detail</td>
+</tr>
+<tr>
+<td>Scene editing</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>0.20</mn><mi>V</mi><mo>+</mo><mn>0.20</mn><mi>R</mi><mo>+</mo><mn>0.10</mn><mi>D</mi><mo>+</mo><mn>0.30</mn><mi>T</mi><mo>+</mo><mn>0.20</mn><mi>P</mi></mrow><annotation encoding="application/x-tex">Q=0.20V+0.20R+0.10D+0.30T+0.20P</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.20</span><span class="mord mathnormal" style="margin-right:0.2222em;">V</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.20</span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.10</span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.30</span><span class="mord mathnormal" style="margin-right:0.1389em;">T</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">0.20</span><span class="mord mathnormal" style="margin-right:0.1389em;">P</span></span></span></span></td>
+<td>Adds target modification and protected-content preservation</td>
+</tr>
+<tr>
+<td>Interactive worlds</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>0.60</mn><mi>A</mi><mo>+</mo><mn>0.20</mn><mi>F</mi><mo>+</mo><mn>0.05</mn><mi>G</mi><mo>+</mo><mn>0.15</mn><mi>H</mi></mrow><annotation encoding="application/x-tex">Q=0.60A+0.20F+0.05G+0.15H</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8778em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">Q</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.60</span><span class="mord mathnormal">A</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.20</span><span class="mord mathnormal" style="margin-right:0.1389em;">F</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.05</span><span class="mord mathnormal">G</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">0.15</span><span class="mord mathnormal" style="margin-right:0.0813em;">H</span></span></span></span></td>
+<td>Appearance quality, task fidelity, spatial layout, interaction correctness</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Appendix A, PDF pages 16–17.</em></p>
+<p>World interaction is further decomposed as <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo>=</mo><mn>0.40</mn><mi>M</mi><mo>+</mo><mn>0.25</mn><mi>C</mi><mo>+</mo><mn>0.35</mn><mi>W</mi></mrow><annotation encoding="application/x-tex">H=0.40M+0.25C+0.35W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0813em;">H</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.40</span><span class="mord mathnormal" style="margin-right:0.109em;">M</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7667em;vertical-align:-0.0833em;"></span><span class="mord">0.25</span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord">0.35</span><span class="mord mathnormal" style="margin-right:0.1389em;">W</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.109em;">M</span></span></span></span> denotes local mechanisms, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi></mrow><annotation encoding="application/x-tex">C</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.0715em;">C</span></span></span></span> motion clearance, and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi></mrow><annotation encoding="application/x-tex">W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">W</span></span></span></span> state/workflow. Within <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi></mrow><annotation encoding="application/x-tex">W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">W</span></span></span></span>, final-state predicates and complete-route success receive equal weight. A switch can therefore trigger correctly while subsequent paths, inventory states, or coordinated operations fail.</p>
+<p>Task scores are averaged within each level, including measured zeros, and combined as:</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>S</mi><mrow><mi mathvariant="normal">o</mi><mi mathvariant="normal">v</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">l</mi></mrow></msub><mo>=</mo><mn>0.30</mn><msub><mi>S</mi><mrow><mi mathvariant="normal">L</mi><mn>1</mn></mrow></msub><mo>+</mo><mn>0.30</mn><msub><mi>S</mi><mrow><mi mathvariant="normal">L</mi><mn>2</mn></mrow></msub><mo>+</mo><mn>0.40</mn><msub><mi>S</mi><mrow><mi mathvariant="normal">L</mi><mn>3</mn></mrow></msub><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">S_{\mathrm{overall}}=0.30S_{\mathrm{L1}}+0.30S_{\mathrm{L2}}+0.40S_{\mathrm{L3}}.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">overall</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">0.30</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">L1</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">0.30</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">L2</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">0.40</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">L3</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></div>
+<p>This is not an equally weighted average over 145 tasks. The 15 L3 tasks contribute 40% of the total, reflecting the authors' emphasis on integrated capability. Within the world score, however, appearance still receives 60% and interaction 15%. <strong>A high overall score cannot directly establish that most complete activities succeed.</strong> See <a href="https://arxiv.org/pdf/2611.09017v1#page=16" target="_blank" rel="noopener noreferrer">Appendix A for scoring details</a>.</p>
+<h2 id="section-9">5. Experiments and results: overall performance before capability diagnosis</h2>
+<h3 id="section-10">Main experiment: 11 model–harness configurations</h3>
+<p>The authors evaluate <strong>11 configurations on all 145 tasks, measuring 1,595 task scores</strong>. GPT models use Codex, Opus uses Claude Code, Kimi uses Kimi CLI, DeepSeek uses DSH, and GLM uses ZCode. MiniMax, Qwen, and Doubao also use Claude Code. Qwen uses xhigh reasoning effort; the other models use max.</p>
+<p>The comparison concerns configurations comprising a model, harness, and execution protocol. Tool scheduling, context management, and other harness differences can affect results. This is not a pure model comparison under one identical framework. All scores below are on a 0–100 scale, higher is better, and represent average artifact quality, <strong>not pass@1 or success rates</strong>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model</th>
+<th>Harness</th>
+<th>Overall</th>
+<th>L1: objects</th>
+<th>L2: scenes</th>
+<th>L3: interactive worlds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-6.1-sol</td>
+<td>Codex</td>
+<td><strong>66.02</strong></td>
+<td><strong>71.21</strong></td>
+<td><strong>70.35</strong></td>
+<td>58.89</td>
+</tr>
+<tr>
+<td>GPT-6-astra</td>
+<td>Codex</td>
+<td>63.85</td>
+<td>68.63</td>
+<td>62.51</td>
+<td><strong>61.28</strong></td>
+</tr>
+<tr>
+<td>Claude Opus 5.5</td>
+<td>Claude Code</td>
+<td>62.29</td>
+<td>67.37</td>
+<td>62.61</td>
+<td>58.23</td>
+</tr>
+<tr>
+<td>DeepSeek-v4.1-Flash</td>
+<td>DSH</td>
+<td>57.45</td>
+<td>63.20</td>
+<td>62.00</td>
+<td>49.72</td>
+</tr>
+<tr>
+<td>Kimi-K3.1-Pro</td>
+<td>Kimi CLI</td>
+<td>55.96</td>
+<td>61.34</td>
+<td>59.42</td>
+<td>49.34</td>
+</tr>
+<tr>
+<td>MiniMax-M3.1-Flash</td>
+<td>Claude Code</td>
+<td>52.55</td>
+<td>58.98</td>
+<td>60.55</td>
+<td>41.74</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>Kimi CLI</td>
+<td>49.18</td>
+<td>52.45</td>
+<td>55.53</td>
+<td>41.96</td>
+</tr>
+<tr>
+<td>GPT-6-luna</td>
+<td>Codex</td>
+<td>48.56</td>
+<td>56.40</td>
+<td>54.14</td>
+<td>38.50</td>
+</tr>
+<tr>
+<td>GLM-5.3-Flash</td>
+<td>ZCode</td>
+<td>47.61</td>
+<td>56.01</td>
+<td>55.92</td>
+<td>35.08</td>
+</tr>
+<tr>
+<td>Qwen3.8-Max</td>
+<td>Claude Code</td>
+<td>46.03</td>
+<td>50.19</td>
+<td>50.64</td>
+<td>39.44</td>
+</tr>
+<tr>
+<td>Doubao-Seed-Evolving</td>
+<td>Claude Code</td>
+<td>42.94</td>
+<td>51.24</td>
+<td>49.58</td>
+<td>31.72</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 3, PDF page 7. Level means cover 65, 65, and 15 tasks, respectively; the overall score uses 30% / 30% / 40% weights.</em></p>
+<p>Sol leads the runner-up by <strong>2.17 points</strong>, with scenes contributing the largest advantage; Astra leads both world categories. Across 9 categories, Sol leads 6, Opus leads text-driven object generation, and Astra leads text- and image-conditioned worlds. The main evaluation provides differentiated capability profiles and shows that no configuration leads everywhere. It does not establish that this scoring system covers every requirement of real production work.</p>
+<h3 id="section-11">Analysis one: reference reconstruction trails text-driven generation</h3>
+<p>For Sol, text-driven object generation scores <strong>82.10</strong>, multi-view reconstruction <strong>69.61</strong>, and single-view reconstruction <strong>66.26</strong>. Text-driven scene generation scores <strong>79.87</strong>, versus <strong>60.95 and 60.86</strong> for rendered-reference and photographic-reference reconstruction. Every configuration scores higher on text-driven objects/scenes than on the corresponding reference-reconstruction families.</p>
+<p>Qwen shows a larger gap: text-driven objects score <strong>81.98</strong>, close to Sol, while the two reconstruction categories score <strong>43.97 and 37.34</strong>. This supports the authors' observation that specified shapes, layouts, and details remain difficult. However, task content and scoring formulas differ, so the gap is not a causal estimate of adding image input. A projected-image score also cannot establish the accuracy of all hidden geometry.</p>
+<p>Editing reveals another specialization: MiniMax scores <strong>78.70</strong>, second in that category despite ranking sixth overall. Actual task profiles are therefore more informative for choosing an agent than a single overall ranking. See <a href="https://arxiv.org/pdf/2611.09017v1#page=7" target="_blank" rel="noopener noreferrer">Table 3 for all category results</a>.</p>
+<h3 id="section-12">Analysis two: why working mechanisms do not establish complete interaction capability</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontier3dbench/capability-profiles.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontier3dbench/capability-profiles.png" alt="Visual, structural, and task-fulfillment profiles across construction levels" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Each row is a configuration. Circles, squares, and triangles represent objects, scenes, and interactive worlds. Panels show visual quality, structural/spatial consistency, and task fulfillment. Source: original Figure 4, PDF page 9; original vector figure rendered without cropping or redrawing.</figcaption></figure>
+<p>The paper groups scoring components into visual quality, structure, and task fulfillment, renormalizing weights within each dimension. Task fulfillment covers detail, editing, and preservation in L1/L2, and environment coverage and interaction in L3. It remains a dimensional quality score rather than a complete-route success rate.</p>
+<p>The central runtime finding covers <strong>all 165 L3 submissions: 11 configurations × 15 world tasks</strong>:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Interaction subcomponent</th>
+<th>Mean / 100</th>
+<th>What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local mechanisms</td>
+<td>83.08</td>
+<td>Entity presence, observable action effects, and rejection of invalid-reach operations</td>
+</tr>
+<tr>
+<td>Motion clearance</td>
+<td>20.82</td>
+<td>Intersections involving sampled moving parts</td>
+</tr>
+<tr>
+<td>State/workflow</td>
+<td>30.26</td>
+<td>Satisfaction of end states and completion of continuous routes</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Section 3.4 and Appendix A.2.3. These are component means across submissions, not human-rated success rates for 165 real-user activities.</em></p>
+<p>A teaching example illustrates the distinction: a door responding to a switch supports local correctness. If it rotates through a wall, blocks the player, or an item disappears after moving to another region, motion and continuous-activity checks can still fail. This example explains the metrics; it is not a step-by-step trajectory reported in the paper.</p>
+<p>Weights also matter. Expanding the formula ourselves, increasing state/workflow <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi></mrow><annotation encoding="application/x-tex">W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.6833em;"></span><span class="mord mathnormal" style="margin-right:0.1389em;">W</span></span></span></span> from zero to full credit contributes at most <strong>2.1 points</strong> directly to the overall score, from <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>100</mn><mo>×</mo><mn>0.40</mn><mo>×</mo><mn>0.15</mn><mo>×</mo><mn>0.35</mn></mrow><annotation encoding="application/x-tex">100\times0.40\times0.15\times0.35</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">100</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.40</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">0.15</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:0.6444em;"></span><span class="mord">0.35</span></span></span></span>. Aggregate scores can therefore coexist with weak continuous behavior, making submetrics essential.</p>
+<h3 id="section-13">Analysis three: cases illustrate component relationships and context</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontier3dbench/cases.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontier3dbench/cases.png" alt="Comparisons of spinning-wheel reconstruction, bathtub editing, and Minecraft-village construction" loading="lazy" decoding="async"></a><figcaption>Figure 3 · The top row compares spinning-wheel parts and assembly; the middle row compares bathtub edits against retained supports and cloth; the bottom rows compare the village axis and continuous terrain. World views use model-specific cameras, so viewpoint differences are not all reconstruction errors. Source: original Figure 6, PDF page 11; no cropping or redrawing. Minecraft reference attribution: Akirby80.</figcaption></figure>
+<p>For the spinning wheel, the authors report <strong>71.97</strong> for Sol, <strong>66.21</strong> for Opus, and <strong>38.87</strong> for Kimi-K3: the weaker artifact retains a ring and rods but omits important components. In the bathtub edit, Sol scores <strong>91.43</strong> and Astra <strong>82.97</strong>, fitting the existing supports more successfully. Luna scores <strong>55.42</strong>, separating the tub from its feet and failing to accommodate the cloth. Figure labels round to one decimal place.</p>
+<p>These selected cases clarify structural differences. They do not replace aggregate results, and static screenshots cannot confirm that a world's complete interactions pass.</p>
+<h3 id="section-14">Analysis four: how broadly do humans support the automatic scores?</h3>
+<p>The authors select <strong>45 items</strong> from 4 reference-reconstruction families, choosing 4 valid outputs per item. <strong>8 raters</strong> rank them, producing <strong>360 complete rankings</strong>. The items comprise 14 multi-view objects, 16 single-view objects, 8 rendered-reference scenes, and 7 photographic-reference scenes. Candidates include the highest and lowest scores and those nearest the score interval's trisection points, with adjacent candidates at least 4 points apart. Model identities and scores are hidden, and labels are randomized.</p>
+<p>Automatic scores versus human rankings have mean Kendall <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>τ</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">\tau_b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> <strong>0.727</strong>, top-one agreement <strong>79.2%</strong>, and exact-order agreement <strong>44.7%</strong>. Mean human–human <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>τ</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">\tau_b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is <strong>0.679</strong> across <strong>1,260</strong> same-item ranking pairs. This supports an association with human reference-fidelity judgments under this sampling procedure, while complete rankings still differ.</p>
+<p>Among the 25 items spanning at least 30 score points, mean <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>τ</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">\tau_b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1132em;">τ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.1132em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is <strong>0.793</strong>; it is <strong>0.644</strong> for the other 20. Human evaluation therefore provides stronger support for ordering visibly separated outputs. It does not directly validate close configuration comparisons, text-only tasks, editing preservation, or continuous L3 interaction. See <a href="https://arxiv.org/pdf/2611.09017v1#page=11" target="_blank" rel="noopener noreferrer">Section 3.7, Table 4, and Appendix B.3</a>.</p>
+<h3 id="section-15">Analysis five: interpreting the cost frontier</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/frontier3dbench/cost-quality.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/frontier3dbench/cost-quality.png" alt="Overall scores versus estimated generation API cost per task" loading="lazy" decoding="async"></a><figcaption>Figure 4 · The horizontal axis is estimated API cost per task in USD on a logarithmic scale; the vertical axis is overall score. Positions and the frontier use cost-range midpoints. Vertical bars are 95% task-bootstrap score intervals; some cost estimates are lower bounds. Source: original Figure 5, PDF page 10; original vector figure rendered without cropping or redrawing.</figcaption></figure>
+<p>The plotted estimates are approximately <strong>$0.27</strong> per task for Luna, <strong>$0.45</strong> for DeepSeek, and <strong>$1.01</strong> for Sol, forming the quality–cost frontier under these estimates. Astra is approximately <strong>$5.58</strong> and Opus <strong>$21.17</strong>, while both score below Sol overall. These use the authors' API price assumptions as of October 30, 2026, rather than current quotations.</p>
+<p>Crucially, costs include recorded API usage only in each task's <strong>final successful generation attempt</strong>. They omit earlier failed retries, judging, tools, infrastructure, cache storage, and taxes. DeepSeek, both Kimi configurations, and GLM have incomplete records, making their estimates lower bounds. Plotted positions also hide ranges caused by cache lifetimes, pricing periods, and long-context tiers. Cost averages weight all 145 tasks equally, while scores use level weights, so their aggregation differs.</p>
+<p>Vertical intervals use paired within-level task resampling with <strong>100,000</strong> replicates and retain the level weights. They measure task-sampling variation for the evaluated submissions, not the randomness of repeated independent generation. These experiments provide configuration comparisons, dimensional analyses, and evaluation validation. <strong>The paper does not ablate agent modules to establish that a particular planning or feedback mechanism causes a lead.</strong> See <a href="https://arxiv.org/pdf/2611.09017v1#page=18" target="_blank" rel="noopener noreferrer">Appendix B.2 for cost and uncertainty accounting</a>.</p>
+<h2 id="section-16">6. Our reflections</h2>
+<h3 id="section-17">Topic reflection: what is this field studying?</h3>
+<p>We see this direction as investigating the transition from content synthesis to engineering delivery. A project must retain specified appearance, coherent structure, and usable behavior, checked through independent execution evidence. Frontier3DBench connects these requirements within one workflow and makes the gap between local mechanisms and complete activities observable.</p>
+<p>Higher levels also require more composition: part relationships extend into spatial relationships, which must support action prerequisites and state transfer. The authors' expectation that coding agents will replace traditional specialized vision pipelines is a vision; these experiments do not directly compare and establish comprehensive replacement.</p>
+<h3 id="section-18">Limitations reflection: what remains unresolved?</h3>
+<p><strong>First, aggregate scores can understate activity failures.</strong> L3 receives substantial overall weight but still emphasizes appearance internally; state/workflow itself is a mixed metric. Applications requiring complete usability need more than average quality to express delivery risk.</p>
+<p><strong>Second, model, harness, and budget effects remain entangled.</strong> Results concern specific configurations at high reasoning effort. There are only 15 world tasks, and task bootstrap cannot determine whether rankings survive another generation seed, a shorter budget, or a different harness.</p>
+<p><strong>Third, score validation and cost coverage are limited.</strong> Human validation focuses on reference reconstruction with score-separated candidates. Astra serves both instruction expansion and visual judging; hiding generator identity helps but does not automatically exclude preferences. Cost covers only some resources in the final successful attempt, limiting its use for forecasting total reproduction expense.</p>
+<h3 id="section-19">Solution reflection: which directions could address these issues?</h3>
+<p>The following are our proposals, not experiments already completed by the authors.</p>
+<p>For the first limitation, report complete-route success, state retention, collision failures, and visual quality separately, alongside quality conditional on all critical functions passing. Test sensitivity to scoring weights and examine rankings when behavior receives greater emphasis. Add action-order changes and cross-region return trips to check state stability.</p>
+<p>For the second, compare models under the same harness and budget, and run the same model across harnesses. Repeat independent generation on matched tasks and report paired differences with intervals. Expand independently designed worlds and hidden tests to assess transferable construction capability.</p>
+<p>For the third, add human evaluation of close-scoring artifacts and actual interaction, cross-check with other model and human judges, and audit instruction–rubric alignment. Accumulate costs from the first attempt, including failures, repairs, all evaluation, and engine execution, while reporting elapsed time and the number of usable final artifacts. This would address the practical question of resources required to deliver a reliable world.</p>
+<p><em>Reading basis: Sections 2–3 and Appendices A–B of arXiv v1; <a href="https://arxiv.org/pdf/2611.09017v1" target="_blank" rel="noopener noreferrer">original PDF</a>, <a href="https://lab.einsia.ai/frontier3dbench/" target="_blank" rel="noopener noreferrer">project page</a>, and <a href="https://github.com/Einsia/Frontier3D" target="_blank" rel="noopener noreferrer">official repository</a>. Images reproduce original Figures 2, 4, 6, and 5, © Xinjie Lin and colleagues, under the paper's <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> license. Third-party assets retain their original attribution and licenses; Minecraft reference: Akirby80. We did not rerun the full benchmark. Numerical results are author-reported; formula expansion and future directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: how can we tell whether an agent has built a usable 3D world?</a></li><li><a href="#section-2">2. Related work: from procedural modeling to executable worlds</a></li><li><a href="#section-3">3. Research questions: what should a unified evaluation reveal?</a></li><li><a href="#section-4">4. Method: from task specifications to independent execution and scoring</a></li><li><a href="#section-9">5. Experiments and results: overall performance before capability diagnosis</a></li><li><a href="#section-16">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../second-thought/"><span>Paper reading</span><strong>Second Thought: reasoning while agents act and wait</strong><i aria-hidden="true">↗</i></a><a href="../earlyeval/"><span>Paper reading</span><strong>EarlyEval: predicting outcomes before agent evaluation finishes</strong><i aria-hidden="true">↗</i></a><a href="../fiction-pretraining/"><span>Paper reading</span><strong>Fiction in pretraining: contemporary books, synthetic data, and provenance</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

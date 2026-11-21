@@ -129,6 +129,10 @@
     "autoscirub": {
       "source_sha256": "34bf50b5f8ba6869684bed93e0bf8ca6b3bcbad6c8d3b705a2b064ee51c0cb7b",
       "english_sha256": "b997c42e9a156773307f7fae157fd51457c02d081918f1c8b155d77f32da9fc3"
+    },
+    "frontier3dbench": {
+      "source_sha256": "09cd0492a193a666605cd50c94869baba7554c4c695e9fee8df1f1a420e1aba8",
+      "english_sha256": "40d8996f752fef90f2108a315d1ca84d08c75e9d5d76ac24217e3c6321678957"
     }
   }
 }

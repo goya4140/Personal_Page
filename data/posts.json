@@ -1,5 +1,30 @@
 [
   {
+    "slug": "frontier3dbench",
+    "title_zh": "Frontier3DBench：Agent 能从 3D 物体建到可交互世界吗？",
+    "title_en": "Frontier3DBench: from 3D objects to interactive worlds",
+    "summary_zh": "解读物体、场景与交互世界的统一评测，区分视觉质量、局部机构、完整活动，以及总分和费用的统计边界。",
+    "summary_en": "A unified evaluation of objects, scenes, and interactive worlds, separating visual quality, local mechanisms, complete activities, and score–cost accounting.",
+    "tags_zh": [
+      "人工智能",
+      "三维创作智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "3D creation agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-21",
+    "paper": {
+      "title": "Frontier3DBench: Benchmarking Coding Agents for 3D Creation across Objects, Scenes, and Interactive Open Worlds",
+      "url": "https://arxiv.org/abs/2611.09017v1",
+      "venue": "arXiv v1 · 2026-11-06"
+    },
+    "cover": "assets/img/blog/frontier3dbench/task-formulation.png"
+  },
+  {
     "slug": "second-thought",
     "title_zh": "Second Thought：Agent 等待工具时，可以并行思考什么？",
     "title_en": "Second Thought: reasoning while agents act and wait",

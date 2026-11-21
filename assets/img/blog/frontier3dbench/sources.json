@@ -1,0 +1,56 @@
+{
+  "source": "https://arxiv.org/pdf/2611.09017v1",
+  "source_archive": "https://arxiv.org/src/2611.09017v1",
+  "source_pdf_sha256": "6045553f8afd2202ea61be83785b3a289a57456565cb70f23111d8a54e728604",
+  "source_archive_sha256": "0c5daaad7f15bee73e2ef4be33fed88ddceed9a24094b2a746881b7ea9b41d9a",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Xinjie Lin, Qingle Liu, Wenyi Li, John Lam, Xiaoqiu Wang, Deyao Hong, Mingju Gao, Zheng Jiang, Yizhe Chi, Youjie Zheng, Calvin Xiao, Kaisen Yang, and Huan-ang Gao. Frontier3DBench, arXiv v1, 2026-11-06.",
+  "figures": [
+    {
+      "file": "task-formulation.png",
+      "figure": 2,
+      "pdf_page": 3,
+      "source_archive_member": "Figures/task_formulation.png",
+      "source_asset_sha256": "6aa293077459c3adbdd7c2fdd28a2ad32212bcd75ebbab7a7c2872ecd4011a15",
+      "width": 2022,
+      "height": 778,
+      "sha256": "ff790614bc1c2b3c10c0e27210852c7ca819aeaa75233ce3e99a77c31837a688",
+      "operation": "Original image preserved without cropping or redrawing"
+    },
+    {
+      "file": "capability-profiles.png",
+      "figure": 4,
+      "pdf_page": 9,
+      "source_archive_member": "Figures/FigRubricProfiles.pdf",
+      "source_asset_sha256": "12e06425502e6ff22412506d399e59bcfee11a458f135c57182873255cc263f6",
+      "width": 2400,
+      "height": 1570,
+      "sha256": "8ca06ad508f11a1e26e8bb09d9b6315f9635b5080ae8121092f3d7481c88297e",
+      "operation": "Original vector figure rendered to PNG without cropping or redrawing"
+    },
+    {
+      "file": "cases.png",
+      "figure": 6,
+      "pdf_page": 11,
+      "source_archive_member": "Figures/FigCaseStudies.pdf",
+      "source_asset_sha256": "bed342e4900c1837b3c630218b9867135c0a30b75e1e26445f47aa711f9a2cf0",
+      "width": 2400,
+      "height": 1834,
+      "sha256": "0b93a0b0f7a1abbd14e5130ff8ce2526b3256dbfdacd7960e5d09e6c760a9255",
+      "operation": "Original vector figure rendered to PNG without cropping or redrawing",
+      "additional_attribution": "Minecraft reference: Akirby80; third-party assets retain original licenses and attribution."
+    },
+    {
+      "file": "cost-quality.png",
+      "figure": 5,
+      "pdf_page": 10,
+      "source_archive_member": "Figures/FigCostPareto.pdf",
+      "source_asset_sha256": "5628ad41b76e4c0477abc51667170a8d0d2c6c3e9c5b1c288e5747138d6f445c",
+      "width": 2400,
+      "height": 1129,
+      "sha256": "b87bb1d429b2bcb72eb859629cffc54e99af5e80ec9b135980f7f34bfbc37266",
+      "operation": "Original vector figure rendered to PNG without cropping or redrawing"
+    }
+  ]
+}
