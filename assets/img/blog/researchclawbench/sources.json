@@ -1,0 +1,61 @@
+{
+  "paper": "ResearchClawBench: A Benchmark for End-to-End Autonomous Scientific Research",
+  "authors": "Wanghan Xu et al.; Shanghai Artificial Intelligence Laboratory",
+  "version": "arXiv:2606.07591v5",
+  "source": "https://arxiv.org/abs/2606.07591v5",
+  "source_pdf": "https://arxiv.org/pdf/2606.07591v5",
+  "source_pdf_sha256": "30389c1af9d445b1031e25da797b9645809d39f6bcb5a17a12fcb037054e94ef",
+  "arxiv_license": "arXiv.org perpetual non-exclusive license",
+  "license_url": "https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html",
+  "rights_note": "Figures belong to the original authors and are quoted for critical paper commentary with attribution; no CC BY license asserted. Repository software license is separate.",
+  "retrieved_on": "2026-11-10",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "2",
+      "html_figure": "1",
+      "pdf_page": 6,
+      "source_image": "https://arxiv.org/html/2606.07591v5/overall_framework.png",
+      "width": 1516,
+      "height": 1040,
+      "sha256": "24a55b99fcd7bd40bbdffc8cd2b8d2ceedfb38dffa33802404c1b3fbacf985dd",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing or data modification"
+    },
+    {
+      "file": "scoring.png",
+      "figure": "4",
+      "html_figure": "3",
+      "pdf_page": 9,
+      "source_image": "https://arxiv.org/html/2606.07591v5/from_new_discovery_to_rediscovery.png",
+      "width": 2033,
+      "height": 1244,
+      "sha256": "004db24ca60653a9038724b5d197f1fac7e2f1851d53e6aeb86e52f9f88d55db",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing or data modification"
+    },
+    {
+      "file": "errors.png",
+      "figure": "6",
+      "html_figure": "5",
+      "pdf_page": 11,
+      "source_image": "https://arxiv.org/html/2606.07591v5/exp_fig7_error_distribution.png",
+      "width": 1593,
+      "height": 493,
+      "sha256": "57d8257121b2aa1dbf48d501fa8d6681dfaa117839b1f1ee9b02561ccf23912f",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing or data modification"
+    }
+  ],
+  "verification": {
+    "agent_configurations": 8,
+    "tasks": 40,
+    "frontier_eight_configurations": 25.844500000000004,
+    "frontier_seven_original_configurations": 24.563000000000006,
+    "case_figure_weight_sum": 1.05
+  },
+  "supplemental_code": {
+    "repository": "https://github.com/InternScience/ResearchClawBench",
+    "commit": "c19a320d3d3d40e370e59001cc219794c4261055",
+    "file": "evaluation/score.py",
+    "sha256": "57320c35099b6089305913ad3d72bf246ee7cb2814170a84d363853366b87d51",
+    "scope": "Read-only inspection of aggregation and report/image scoring; not claimed to reproduce the paper historical environment"
+  }
+}

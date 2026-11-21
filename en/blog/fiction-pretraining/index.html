@@ -1,0 +1,294 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fiction in pretraining: contemporary books, synthetic data, and provenance | Linhao Wang</title>
+  <meta name="description" content="Controlled 1B-model experiments reveal how fiction affects writing, where human and automated preferences diverge, and how synthetic text changes provenance signals.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Fiction in pretraining: contemporary books, synthetic data, and provenance">
+  <meta property="og:description" content="Controlled 1B-model experiments reveal how fiction affects writing, where human and automated preferences diverge, and how synthetic text changes provenance signals.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/fiction-pretraining/"><link rel="canonical" href="https://goya4140.github.io/en/blog/fiction-pretraining/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="小说预训练：当代书籍、合成数据与来源审计" data-title-en="Fiction in pretraining: contemporary books, synthetic data, and provenance" data-language-url="../../../blog/fiction-pretraining/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>11 min read</span><span>English translation</span><time datetime="2026-11-20">2026-11-20</time></div><div class="article-heading-layout has-art"><div><h1>Fiction in pretraining: contemporary books, synthetic data, and provenance</h1><p class="article-summary">Controlled 1B-model experiments reveal how fiction affects writing, where human and automated preferences diverge, and how synthetic text changes provenance signals.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Pretraining data</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/fiction-pretraining/data-design.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/fiction-pretraining/data-design.png" alt="Fiction in pretraining: contemporary books, synthetic data, and provenance" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://openreview.net/forum?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">Books, Copyright, and the Future of Foundation Models: An Empirical Study of Fiction in Pretraining ↗</a><small>ICLR 2027 submission · revised 2026-11-19</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: how pretraining mixtures shape capabilities</a></li><li><a href="#section-2">2. Related work: data selection, synthetic text, and writing evaluation</a></li><li><a href="#section-3">3. Research questions: where does fiction provide value?</a></li><li><a href="#section-4">4. Method: fix the training recipe and replace the data</a></li><li><a href="#section-9">5. Experiments and results: the overall effect of the data mixture</a></li><li><a href="#section-15">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="fiction-pretraining" lang="en"><p>Does adding fiction to pretraining make a model a better storyteller, or does it also improve reasoning, dialogue, and general instruction following? Do contemporary novels, older public-domain books, and generated fiction provide the same value? This paper trains small models from scratch, holds the total token budget fixed, and replaces part of the data to investigate those questions. It also tests whether membership inference and extraction methods can still identify the original works.</p>
+<p>This article reads <strong>Books, Copyright, and the Future of Foundation Models: An Empirical Study of Fiction in Pretraining</strong>, using the <a href="https://openreview.net/pdf?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">OpenReview manuscript</a>. We use the 42-page revision dated November 19, 2026, retrieved on November 20. At that time it was an <strong>anonymous ICLR 2027 submission under review</strong>. We discuss the empirical effects of data choices and technical auditing. Descriptions of the corpora's copyright status follow the authors' characterization.</p>
+<h2 id="section-1">1. Topic: how pretraining mixtures shape capabilities</h2>
+<p>Pretraining repeatedly asks a model to predict the next token. The proportions of news, code, tutorials, and fiction change the vocabulary, syntax, knowledge, and discourse structures it encounters. Fiction often adds character relationships, coreference chains, dialogue, and developing plots. Researchers want to know whether these properties become capabilities that transfer to new tasks.</p>
+<p>Comparing data sources requires controlling training volume, architecture, post-training, and evaluation. If a model reads more fiction and also trains much longer, attributing the gain becomes difficult. Writing adds another challenge. An automated judge's favorite story may differ from the one readers prefer.</p>
+<h2 id="section-2">2. Related work: data selection, synthetic text, and writing evaluation</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Contribution</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.10341" target="_blank" rel="noopener noreferrer">WebOrganizer</a></td>
+<td>Organizes web data by topic and format and studies mixtures</td>
+<td>Supplies labeled web data from which documents tagged as creative writing can be excluded</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2506.08300" target="_blank" rel="noopener noreferrer">Institutional Books 1.0</a></td>
+<td>Curates public-domain digitized books from Harvard's collections with OCR post-processing</td>
+<td>Supplies historical books for comparison with contemporary fiction</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2305.07759" target="_blank" rel="noopener noreferrer">TinyStories</a></td>
+<td>Studies language and narrative capabilities in small models using generated stories</td>
+<td>Motivates testing the pretraining value of synthetic fiction</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/2026.eacl-long.362/" target="_blank" rel="noopener noreferrer">LitBench</a></td>
+<td>Develops story preference data and writing evaluation models</td>
+<td>Supplies automatic creative-writing scores whose agreement with people still needs checking on the current outputs</td>
+</tr>
+</tbody>
+</table></div><p>This paper connects data-mixture experiments with provenance auditing. It asks both what a source contributes and whether auditing methods can recognize that upstream source after synthetic transformation.</p>
+<h2 id="section-3">3. Research questions: where does fiction provide value?</h2>
+<p>We organize the paper's experiments into three questions.</p>
+<ol>
+<li><strong>Which capabilities change when fiction replaces a small share of web tokens?</strong> Evaluate base models and models with matched post-training on writing and general tasks separately.</li>
+<li><strong>What explains differences between contemporary and historical public-domain fiction?</strong> Examine style, age, layout noise, and discourse features while accounting for the multiple differences between sources.</li>
+<li><strong>How much utility survives synthetic generation, and which audit signals change?</strong> Include generation without book inputs and compare automated judgments with actual readers.</li>
+</ol>
+<h2 id="section-4">4. Method: fix the training recipe and replace the data</h2>
+<h3 id="section-5">Step 1. Build mixtures with equal token budgets</h3>
+<p>The authors remove WebOrganizer documents labeled Creative Writing and draw nested web subsets. NoBooks is this filtered control. Its name does not establish that every possible fiction fragment has been detected. Fiction is selected from Books3 and Institutional Books. Manual checks of 100 classifier-labeled books from each source find approximate precision of 90% and 88%, respectively.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Training condition</th>
+<th style="text-align:right">Web tokens</th>
+<th style="text-align:right">Fiction tokens</th>
+<th style="text-align:right">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NoBooks</td>
+<td style="text-align:right">185B</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Books3</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">Contemporary fiction 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Institutional Books</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">Historical public-domain fiction 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Mixed books</td>
+<td style="text-align:right">175B</td>
+<td style="text-align:right">5B from each source</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Synthetic</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">Fiction generated with Books3 conditioning 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Unconditioned Synthetic</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">Fiction generated without Books3 inputs 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+</tbody>
+</table></div><p>The replaced share, 5B / 185B, is approximately <strong>2.7%</strong>. The primary comparison uses the first three conditions. The mixed and synthetic conditions provide further analysis. <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=2" target="_blank" rel="noopener noreferrer">Section 2 and Appendices D and H</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/fiction-pretraining/data-design.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/fiction-pretraining/data-design.png" alt="Web data, story perplexity, and publication years of the fiction sources" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Panel a shows the web pool for sampling, b compares WritingPrompts story perplexity, where lower is better, and c shows the age difference between fiction sources. Median publication years are 2012 for Books3 and 1894 for Institutional Books. Original Figure 1, PDF page 3, cropped with axes and legends retained.</figcaption></figure>
+<h3 id="section-6">Step 2. Match pretraining and post-training</h3>
+<p>All models have approximately <strong>1B parameters</strong>, with an architecture close to Llama-3.2-1B, and are trained from scratch with GPT-NeoX. Pretraining uses approximately <button type="button" class="reading-note-trigger" popovertarget="reading-note-training-scale" aria-controls="reading-note-training-scale" aria-expanded="false" aria-haspopup="dialog"><strong>185B tokens and 22,100 steps</strong></button>, with <strong>4,096-token</strong> sequences. The four core conditions, NoBooks, Books3, Institutional Books, and Synthetic, have three training seeds each. Identical SFT and DPO recipes reduce variation from post-training.</p>
+<p><button type="button" class="reading-note-trigger" popovertarget="reading-note-training-cost" aria-controls="reading-note-training-cost" aria-expanded="false" aria-haspopup="dialog">A training run takes approximately 1,380 H200 GPU-hours or 850 B200 GPU-hours</button>. The additional unconditioned synthetic condition has one seed. The fixed sequence length also bounds the conclusions. These experiments leave the value of full books for long-context extension open. <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=32" target="_blank" rel="noopener noreferrer">Section 2 and Appendices E and H</a></p>
+<h3 id="section-7">Step 3. Generate synthetic fiction conditioned on real books</h3>
+<p>The pipeline removes the first 1,000 words and approximately the last 5% of each book, then splits the remainder into pseudo-chapters of about 1,500 words. Llama-3.1-8B-Instruct receives the title and excerpts from different positions to generate a genre and plot summary. Gemma-3-12B-Instruct then uses the summary and a local excerpt to write a new chapter.</p>
+<p>The authors generate approximately 6B tokens, remove chapters containing at least 50 consecutive words overlapping Books3, and sample 5B tokens for training. The synthetic data therefore retain information from the original books as generation conditions. The overlap filter covers verbatim matches at its selected threshold. The unconditioned comparison uses the same generator and similar sampling but omits Books3 content from its prompts. <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=7" target="_blank" rel="noopener noreferrer">Section 4.1 and Appendices G–H</a></p>
+<h3 id="section-8">Step 4. Evaluate utility and detectability</h3>
+<p>Base models are tested on narrative, commonsense, mathematics, dialogue, and other tasks. Post-trained models are evaluated on general instruction following, creative writing, and non-creative writing. Claude Sonnet 4.6 judges the EQ-Bench writing comparisons, while LitBench uses a reward model. Non-creative writing covers six categories with 200 prompts each. The revision also adds blinded human comparisons.</p>
+<p>Provenance tests target original Books3 text. Membership inference asks whether a passage resembles training data. Extraction supplies a prefix and measures how much original text the model can recover. For Synthetic, the original book is an upstream input to data generation, while the pretrained model actually sees generated chapters. This distinction shapes the interpretation of attack failures.</p>
+<h2 id="section-9">5. Experiments and results: the overall effect of the data mixture</h2>
+<h3 id="section-10">Main comparison: contemporary fiction improves creative writing, with uneven effects elsewhere</h3>
+<p>The table selects the main comparisons from Table 1. Values are <strong>mean ± standard deviation over three seeds</strong>. Pairwise win rates above 50% favor the first model named in the column.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Automatic evaluation</th>
+<th style="text-align:right">Books3 vs NoBooks</th>
+<th style="text-align:right">Institutional Books vs NoBooks</th>
+<th style="text-align:right">Books3 vs Institutional Books</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AlpacaEval, general instructions</td>
+<td style="text-align:right">43.5 ± 2.2%</td>
+<td style="text-align:right">25.7 ± 2.1%</td>
+<td style="text-align:right">68.1 ± 0.8%</td>
+</tr>
+<tr>
+<td>WildBench, general instructions</td>
+<td style="text-align:right">42.0 ± 1.7%</td>
+<td style="text-align:right">21.0 ± 1.0%</td>
+<td style="text-align:right">72.8 ± 2.0%</td>
+</tr>
+<tr>
+<td>MT-Bench, general instructions</td>
+<td style="text-align:right">46.0 ± 2.0%</td>
+<td style="text-align:right">23.8 ± 3.0%</td>
+<td style="text-align:right">73.8 ± 3.3%</td>
+</tr>
+<tr>
+<td>EQ-Bench, creative writing</td>
+<td style="text-align:right">78.6 ± 3.9%</td>
+<td style="text-align:right">22.4 ± 5.0%</td>
+<td style="text-align:right">91.1 ± 4.5%</td>
+</tr>
+<tr>
+<td>Prometheus 2, overall non-creative writing</td>
+<td style="text-align:right">46.8 ± 0.1%</td>
+<td style="text-align:right">35.7 ± 1.1%</td>
+<td style="text-align:right">61.1 ± 1.0%</td>
+</tr>
+<tr>
+<td>GPTScore, non-creative writing</td>
+<td style="text-align:right">43.3 ± 4.2%</td>
+<td style="text-align:right">37.2 ± 2.4%</td>
+<td style="text-align:right">57.0 ± 1.7%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=5" target="_blank" rel="noopener noreferrer">Table 1, PDF page 5</a>. These compare outputs from specific model pairs. A win rate on one benchmark does not measure accuracy across all tasks.</em></p>
+<p>LitBench absolute scores are higher-is-better. NoBooks scores <strong>−3.16 ± 0.06</strong>, Books3 <strong>−2.92 ± 0.05</strong>, and Institutional Books <strong>−3.38 ± 0.08</strong>. Under this recipe, contemporary fiction improves creative writing, while its mean general-instruction win rates stay below 50%. It does not outperform NoBooks overall on non-creative writing. The historical public-domain condition performs worse in these main comparisons.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/fiction-pretraining/base-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/fiction-pretraining/base-results.png" alt="Base model results across capabilities" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Three base models are compared before post-training. Books3 helps on narrative tasks such as LAMBADA. Differences on most other abilities are smaller or mixed. Error bars are standard errors, which differ from the across-seed standard deviations in the tables. Original Figure 2, PDF page 4, cropped from the page.</figcaption></figure>
+<p>Observed gains concentrate in particular capabilities. These results do not establish a general reasoning benefit from fiction, and the Institutional Books result cannot be generalized to all public-domain books. Age, format, and genre change together between these sources. In a check of 100 historical-book snippets, 16% contain layout artifacts. The authors also identify distribution differences between historical prose and contemporary requests.</p>
+<h3 id="section-11">Mechanism analysis: which features distinguish fiction?</h3>
+<p>The authors represent narrative structure, coreference, dialogue, emotion, vocabulary, syntax, readability, and related properties through 62 features. L1 logistic regression selects features, then XGBoost distinguishes book text from non-book sources. Using all features, the two book-source classifiers achieve 97.3% and 99.1% accuracy.</p>
+<p>Books3 is more strongly characterized by coreference, named entities, and lexical diversity. Historical text has more distinctive archaic vocabulary and punctuation. These findings describe source differences. Establishing that one feature causes writing gains would require training models while controlling other properties. <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=6" target="_blank" rel="noopener noreferrer">Section 3.3 and Appendix C</a></p>
+<h3 id="section-12">Synthetic comparison: are original-book conditions necessary?</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Automatic evaluation against Books3</th>
+<th style="text-align:right">Conditioned, three seeds</th>
+<th style="text-align:right">Unconditioned, one seed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AlpacaEval win rate</td>
+<td style="text-align:right">53.0 ± 2.6%</td>
+<td style="text-align:right">50.0%</td>
+</tr>
+<tr>
+<td>EQ-Bench win rate</td>
+<td style="text-align:right">79.7 ± 6.8%</td>
+<td style="text-align:right">65.6%</td>
+</tr>
+<tr>
+<td>Prometheus 2 overall win rate</td>
+<td style="text-align:right">53.6 ± 3.1%</td>
+<td style="text-align:right">49.1%</td>
+</tr>
+<tr>
+<td>LitBench absolute score (↑)</td>
+<td style="text-align:right">−1.72 ± 0.23</td>
+<td style="text-align:right">−1.74</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=39" target="_blank" rel="noopener noreferrer">Table 3 and Table 8</a>. LitBench reports absolute scores. The other rows report pairwise win rates.</em></p>
+<p>Conditioned synthetic data perform strongly on automatic writing evaluations. Unconditioned synthetic data also provide substantial writing gains after post-training. Their LitBench scores are similar, while EQ-Bench prefers the conditioned model. On base-model LAMBADA, the unconditioned model is close to NoBooks and below Books3 and conditioned Synthetic. The value of conditioning therefore varies by capability and evaluator. The generator's own training data are unknown, leaving open whether it already inherited knowledge from fiction.</p>
+<h3 id="section-13">Human evaluation: do readers support the automatic synthetic advantage?</h3>
+<p>The revision evaluates <strong>50 LitBench output pairs per comparison with two blinded annotators</strong>, allowing ties. Win rates below favor the first model in each row, count ties as half a win, and average the annotators.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Comparison</th>
+<th style="text-align:right">Human win rate</th>
+<th style="text-align:right">Automatic win rate on the same subset</th>
+<th style="text-align:right">Human–automatic agreement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Books3 vs NoBooks</td>
+<td style="text-align:right">59.0%</td>
+<td style="text-align:right">64.0%</td>
+<td style="text-align:right">46.5%</td>
+</tr>
+<tr>
+<td>Conditioned Synthetic vs Books3</td>
+<td style="text-align:right">46.5%</td>
+<td style="text-align:right">90.0%</td>
+<td style="text-align:right">31.0%</td>
+</tr>
+<tr>
+<td>Unconditioned Synthetic vs Books3</td>
+<td style="text-align:right">43.5%</td>
+<td style="text-align:right">79.0%</td>
+<td style="text-align:right">34.0%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=41" target="_blank" rel="noopener noreferrer">Appendix J, Table 10</a>. The automatic rates here use the human-study subset and should be interpreted separately from full-benchmark results.</em></p>
+<p>Across 100 judgments for conditioned Synthetic versus Books3, Synthetic wins <strong>35</strong>, loses <strong>42</strong>, and ties <strong>23</strong>. This study does not establish a clear human preference for the synthetic model. Its size also leaves strict equivalence unproven. Two annotations of the same prompt are correlated, so 100 judgments do not constitute 100 independent prompts. The gap between automatic preference and reader judgments is a central part of the evidence.</p>
+<h3 id="section-14">Provenance auditing: upstream use becomes harder to identify</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/fiction-pretraining/provenance.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/fiction-pretraining/provenance.png" alt="Membership inference and original-text extraction" loading="lazy" decoding="async"></a><figcaption>Figure 3 · The left panel tests membership inference on original Books3 passages. The right measures how much original text is recovered from prefixes. Synthetic behaves more like NoBooks. The right vertical axis is logarithmic, and extraction selects the highest-BLEU continuation among five samples per passage. Original Figure 3, PDF page 8, cropped from the page.</figcaption></figure>
+<p>Membership inference uses <strong>1,000 Books3 source passages and 1,000 BookMIA nonmember passages</strong>, scored individually without aggregation to books. The revision uses an external nonmember set and reports lengths of 128, 256, and 512 tokens. At 512 tokens, Loss attack AUROC falls from <strong>0.703</strong> for Books3 to <strong>0.515</strong> for Synthetic, compared with <strong>0.505</strong> for NoBooks. Other tested attacks show a similar direction.</p>
+<p>Extraction samples <strong>100,000 passages of 100 tokens</strong>. Each model receives the first 50 tokens and generates the next 50, with five samples and the best BLEU retained per passage. The fraction reaching <strong>BLEU 0.75</strong> is <strong>2.27 × 10⁻⁴</strong> for Books3, <strong>6.33 × 10⁻⁵</strong> for Synthetic, and <strong>7.67 × 10⁻⁵</strong> for NoBooks, evaluated across three seeds.</p>
+<p>The tested attacks find it harder to identify or recover original Books3 text from the synthetic model. Weak detection signals cannot establish that upstream works were unused or settle legal questions about copyright. <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=42" target="_blank" rel="noopener noreferrer">Section 4.2 and Appendix K</a></p>
+<h2 id="section-15">6. Our reflections</h2>
+<h3 id="section-16">Topic: what is this area studying?</h3>
+<p>The paper makes data value measurable. Which abilities change when a portion of pretraining text is replaced? After a generation step, do utility and source traces change together? The value is task-dependent. Creative writing, instruction following, and reader preference each require their own evidence.</p>
+<h3 id="section-17">Limitations: what remains unresolved?</h3>
+<ol>
+<li><strong>Sources bundle several variables.</strong> Contemporary and historical fiction differ in age, OCR quality, genre, and selection errors, making it difficult to isolate why one source helps.</li>
+<li><strong>Automatic scores diverge from human preference.</strong> Synthetic data's automatic advantage is much larger than its advantage in the small reader study. The unconditioned model also has only one seed.</li>
+<li><strong>Scale and auditing coverage are limited.</strong> A 1B model, a fixed fiction proportion, and 4,096-token pretraining do not establish effects in industrial models or full-length novel generation. The attacks cover selected detectability signals.</li>
+</ol>
+<h3 id="section-18">Possible approaches: how could these questions be tested?</h3>
+<ol>
+<li><strong>Compare matched data.</strong> Control publication period, genre, and cleaning quality, then compare different organizations of the same content to test candidate factors such as coreference and discourse structure.</li>
+<li><strong>Expand blinded evaluation and repeat synthetic experiments.</strong> Add seeds for unconditioned training, cluster uncertainty estimates by prompt, include different reader groups and longer stories, and release win, loss, and tie distributions.</li>
+<li><strong>Record both generation provenance and behavioral evidence.</strong> Extend model scales and mixture proportions, retain source records for synthetic generation, and combine extraction, non-verbatim similarity, and membership inference to assess audit coverage.</li>
+</ol>
+<p><em>Based on the <a href="https://openreview.net/pdf?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">OpenReview manuscript</a> and its <a href="https://openreview.net/forum?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">public discussion</a>. Figures 1–3 come from the same revision, with surrounding prose, headers, and line numbers cropped out. Plot data and labels are preserved without redrawing. The authors were anonymous at retrieval and are credited as the submission authors under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. The asset manifest records the revision date and PDF hash.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: how pretraining mixtures shape capabilities</a></li><li><a href="#section-2">2. Related work: data selection, synthetic text, and writing evaluation</a></li><li><a href="#section-3">3. Research questions: where does fiction provide value?</a></li><li><a href="#section-4">4. Method: fix the training recipe and replace the data</a></li><li><a href="#section-9">5. Experiments and results: the overall effect of the data mixture</a></li><li><a href="#section-15">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../earlyeval/"><span>Paper reading</span><strong>EarlyEval: predicting outcomes before agent evaluation finishes</strong><i aria-hidden="true">↗</i></a><a href="../ahe/"><span>Paper reading</span><strong>AHE v4: evolving agent harnesses from failure traces</strong><i aria-hidden="true">↗</i></a><a href="../verifiedlab/"><span>Paper reading</span><strong>VerifiedLab: from field-level verification to traceable research</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><aside id="reading-note-training-cost" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-training-cost-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-training-cost" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-training-cost-title">Approximately how much did the experiments cost?</p><div class="reading-note-answer"><p>At current public multi-node rental prices, the stated 14 main pretraining runs are equivalent to about CNY 800,000–860,000. If the added revised run is separate, the estimate rises to CNY 860,000–920,000. The actual bill and additional data generation, post-training, evaluation, and labor costs are not reported.</p>
+</div><details class="reading-note-detail"><summary>Expand GPU-hours, rates, and cost scope</summary><div class="reading-note-answer"><p>This estimates the rental-equivalent cost of pretraining. Appendix E.1 reports approximately 1,380 H200 GPU-hours or 850 B200 GPU-hours per run and states that 14 1B models were trained. GPU-hours already sum time across the GPUs. No additional multiplication by node or GPU count is needed.</p>
+<p>On November 20, 2026, Runpod listed multi-node Clusters at USD 6.35 per H200 GPU-hour and USD 9.59 per B200 GPU-hour. Assuming the training efficiency reported in the paper, the arithmetic is as follows.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Option</th>
+<th style="text-align:right">USD per pretraining run</th>
+<th style="text-align:right">USD for 14 runs</th>
+<th style="text-align:right">CNY assuming USD 1 = CNY 7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H200, 1,380 GPU-hours</td>
+<td style="text-align:right">8,763</td>
+<td style="text-align:right">122,682</td>
+<td style="text-align:right">858,774</td>
+</tr>
+<tr>
+<td>B200, 850 GPU-hours</td>
+<td style="text-align:right">8,151.50</td>
+<td style="text-align:right">114,121</td>
+<td style="text-align:right">798,847</td>
+</tr>
+</tbody>
+</table></div><p>The rows are alternative hardware scenarios. The CNY conversion uses 7 as an illustrative assumption. These are current public list prices. Historical contracts, institutional infrastructure, and credits could change the authors' cash outlay.</p>
+<p><strong>Additional revised run.</strong> Appendix H reports one training seed for the unconditioned synthetic model, while Appendix E.1 still states 14 models. The accounting is not explicitly reconciled. If that run is additional, matching the reported training time would add approximately CNY 57,000 to 61,000, bringing pretraining to approximately CNY 856,000 to 920,000.</p>
+<p><strong>Other project costs.</strong> These include selecting and cleaning books, generating approximately 6B tokens of conditioned text and the unconditioned corpus, SFT and DPO, evaluation inference, GPT-4.1 and Claude Sonnet 4.6 judge calls, provenance attacks, storage, and human evaluation. The paper does not give complete GPU-hours, bills, or labor costs for these stages, so a reliable all-in project total cannot be calculated. The table also excludes taxes, idle time, and failed reruns.</p>
+<p>Sources: <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=32" target="_blank" rel="noopener noreferrer">Appendix E.1, PDF page 32</a>, <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=39" target="_blank" rel="noopener noreferrer">Appendix H, PDF page 39</a>, <a href="https://www.runpod.io/pricing" target="_blank" rel="noopener noreferrer">Runpod Clusters prices</a>, and <a href="https://www.runpod.io/articles/guides/multi-node-distributed-training" target="_blank" rel="noopener noreferrer">Runpod multi-node training guide</a>.</p>
+</div></details></aside><aside id="reading-note-training-scale" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-training-scale-title" tabindex="-1"><div class="reading-note-top"><span>READING Q&A</span><button type="button" class="reading-note-close" popovertarget="reading-note-training-scale" popovertargetaction="hide" aria-label="Close explanation">×</button></div><p class="reading-note-title" id="reading-note-training-scale-title">Why does a 1B model take this much training compared with MiniMind?</p><div class="reading-note-answer"><p>Each run processes 185B tokens from scratch. Compute grows with both model size and the total tokens processed; MiniMind quick reproductions usually use smaller models and reduced data. Also, 1,380 GPU-hours is aggregate usage, equivalent to about 43 elapsed hours in an illustrative 32-GPU run.</p>
+</div><details class="reading-note-detail"><summary>Expand parameters, training tokens, and GPU-hours</summary><div class="reading-note-answer"><p><strong>Model size and training volume describe different quantities.</strong> A 1B model has approximately one billion learnable parameters. This alone does not specify its training time. Each model in this paper starts from random initialization and processes approximately 185B training tokens. The same architecture can be trained on a small or large amount of text, producing different compute costs and capabilities.</p>
+<p>An update includes a forward pass, loss computation, backpropagation, and a parameter update. For a dense Transformer, C ≈ 6 × N × D provides an order-of-magnitude compute estimate, where N is the parameter count and D is the total number of tokens processed during training. The 185B figure already counts training tokens; sequence length should not be multiplied in again. Repeated epochs add to D. Attention, output layers, communication, padding, and hardware utilization affect actual runtime.</p>
+<p><strong>Aligning MiniMind configurations.</strong> The official README checked on November 20, 2026 lists 64M MiniMind-3 and historical 26M and 104M models. A 1B model has approximately 15.6, 38.5, or 9.6 times their parameter counts, respectively. The quick reproduction uses reduced mini datasets. The current 64M example estimates approximately 1.21 hours of pretraining and 2.31 hours including SFT on one 3090 for 1 epoch. This describes that example configuration. The user's earlier version and training volume are unknown.</p>
+<p><strong>Teaching example.</strong> Suppose a 64M model processes 1B tokens in total. The paper's N×D relative to that hypothetical experiment is (1B/64M) × (185B/1B) = 2,891. Compute can therefore differ by orders of magnitude. This is neither a measured runtime ratio nor an estimate based on the user's training logs. Faster GPUs, parallelism, and implementations change the rate at which computation is performed.</p>
+<p><strong>GPU-hours and elapsed time.</strong> GPU-hours equal GPU count multiplied by elapsed hours. Assuming 32 GPUs used continuously, 1,380 H200 GPU-hours corresponds to approximately 43.1 hours and 850 B200 GPU-hours to 26.6 hours. The 32-GPU count is illustrative; the manuscript specifies four nodes at that point. Parallel execution reduces waiting time, while GPU-hours account for the aggregate resource use. The earlier CNY 800,000–860,000 estimate covers 14 main pretraining runs at public rental prices, approximately CNY 57,000–61,000 per run.</p>
+<p><strong>Aligning training objectives.</strong> MiniMind provides a complete path including from-scratch pretraining and SFT. A quick run can produce a basic conversational model. This paper processes a larger training volume before matched post-training to compare data mixtures. If the user's experiment instead performed SFT, LoRA, or continued training of existing weights, the comparison should also account for that training stage.</p>
+<p>Sources: <a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=32" target="_blank" rel="noopener noreferrer">Appendix E</a>, <a href="https://github.com/jingyaogong/minimind/blob/cc9629e5f464ef46ef9411bfac916364e0a6dff1/README.md" target="_blank" rel="noopener noreferrer">pinned MiniMind documentation</a>, and <a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">language-model scaling laws</a>.</p>
+</div></details></aside><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

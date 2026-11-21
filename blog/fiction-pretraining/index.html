@@ -1,0 +1,294 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小说预训练：当代书籍、合成数据与来源审计 | Linhao Wang</title>
+  <meta name="description" content="固定 1B 模型和 185B token 配方，理解小说对写作能力的贡献，以及自动评价、人类偏好和来源识别之间的差异。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="小说预训练：当代书籍、合成数据与来源审计">
+  <meta property="og:description" content="固定 1B 模型和 185B token 配方，理解小说对写作能力的贡献，以及自动评价、人类偏好和来源识别之间的差异。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/fiction-pretraining/"><link rel="canonical" href="https://goya4140.github.io/blog/fiction-pretraining/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="小说预训练：当代书籍、合成数据与来源审计" data-title-en="Fiction in pretraining: contemporary books, synthetic data, and provenance" data-language-url="../../en/blog/fiction-pretraining/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 11 分钟</span><span>中文原稿</span><time datetime="2026-11-20">2026-11-20</time></div><div class="article-heading-layout has-art"><div><h1>小说预训练：当代书籍、合成数据与来源审计</h1><p class="article-summary">固定 1B 模型和 185B token 配方，理解小说对写作能力的贡献，以及自动评价、人类偏好和来源识别之间的差异。</p><div class="post-topics"><span>人工智能</span><span>预训练数据</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/fiction-pretraining/data-design.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/fiction-pretraining/data-design.png" alt="小说预训练：当代书籍、合成数据与来源审计" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://openreview.net/forum?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">Books, Copyright, and the Future of Foundation Models: An Empirical Study of Fiction in Pretraining ↗</a><small>ICLR 2027 submission · revised 2026-11-19</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：预训练的数据配方怎样塑造能力</a></li><li><a href="#section-2">二、相关文献解读：数据选择、合成语料与写作评价</a></li><li><a href="#section-3">三、研究问题解读：小说的价值体现在哪里</a></li><li><a href="#section-4">四、方法解读：固定训练配方，逐项替换数据</a></li><li><a href="#section-9">五、实验设计与结果：先看数据配方的整体收益</a></li><li><a href="#section-15">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="fiction-pretraining" lang="zh-CN"><p>预训练语料里加入小说，会让模型更会写故事，还是也会改善推理、对话和一般指令遵循？现代小说、公版旧书与模型生成的小说，提供的训练价值是否相同？这篇论文通过从头训练小模型、固定总 token 数并替换其中一部分数据，尝试回答这些问题，同时检查原始作品还能否被成员推断和文本提取方法识别。</p>
+<p>本文解读 <strong>Books, Copyright, and the Future of Foundation Models: An Empirical Study of Fiction in Pretraining</strong>，依据 <a href="https://openreview.net/pdf?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">OpenReview 全文</a>，按 2026 年 11 月 19 日修订、11 月 20 日获取的 42 页版本整理。该文当时是 <strong>ICLR 2027 匿名投稿，仍在评审中</strong>。下文讨论数据作用和技术审计的实验结果，版权状态按作者对语料的描述理解。</p>
+<h2 id="section-1">一、课题解读：预训练的数据配方怎样塑造能力</h2>
+<p>预训练让模型不断预测文本中的下一个 token。语料里新闻、代码、教程和小说的占比，会改变模型接触到的词汇、句法、知识和篇章组织方式。小说还常有跨段落的人物关系、指代链、对话和情节发展。研究者关心，这些特点是否会变成模型可以在新任务上使用的能力。</p>
+<p>要比较两种数据，必须同时考虑总训练量、模型结构、后训练和评价方式。例如一组模型多读了小说，也多训练了很久，收益就难以归到数据来源。写作评价还多一层困难，自动裁判偏爱的故事和读者喜欢的故事可能不同。</p>
+<h2 id="section-2">二、相关文献解读：数据选择、合成语料与写作评价</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>研究内容</th>
+<th>与本篇的连接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2502.10341" target="_blank" rel="noopener noreferrer">WebOrganizer</a></td>
+<td>按主题和文本形式组织网页语料，研究数据混合</td>
+<td>提供带类型标记的网页基础语料，便于排除已标为创意写作的文档</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2506.08300" target="_blank" rel="noopener noreferrer">Institutional Books 1.0</a></td>
+<td>从哈佛图书馆藏书整理公版数字化文本，并进行 OCR 后处理</td>
+<td>提供历史书籍来源，用于与当代小说比较</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2305.07759" target="_blank" rel="noopener noreferrer">TinyStories</a></td>
+<td>用合成短篇故事研究小模型的语言与叙事能力</td>
+<td>引出合成小说是否能提供预训练价值的问题</td>
+</tr>
+<tr>
+<td><a href="https://aclanthology.org/2026.eacl-long.362/" target="_blank" rel="noopener noreferrer">LitBench</a></td>
+<td>建立故事偏好数据与写作评价模型</td>
+<td>为创意写作提供自动评分，但仍需核对当前输出上的人类一致性</td>
+</tr>
+</tbody>
+</table></div><p>本篇进一步把数据配方实验与来源审计连起来。它既问某种数据能带来什么收益，也问经过合成转换后，审计方法还能否识别其上游来源。</p>
+<h2 id="section-3">三、研究问题解读：小说的价值体现在哪里</h2>
+<p>我们将论文的实验主线归纳为三个问题。</p>
+<ol>
+<li><strong>替换少量网页 token 为小说后，哪些能力改变？</strong> 需要分别看基础模型、统一后训练后的写作和一般任务。</li>
+<li><strong>当代小说与公版历史小说的差异来自什么？</strong> 可以检查语体、年代、版面噪声和篇章特征，但要避免把来源差异全部归到版权属性。</li>
+<li><strong>合成小说能保留多少效用，又会改变哪些审计信号？</strong> 需要加入不以真实书籍为条件的生成对照，同时比较自动裁判和真实读者。</li>
+</ol>
+<h2 id="section-4">四、方法解读：固定训练配方，逐项替换数据</h2>
+<h3 id="section-5">第一步：构建等 token 预算的数据组</h3>
+<p>作者先从 WebOrganizer 中移除标注为 Creative Writing 的文档，再抽取嵌套网页子集。NoBooks 是这个过滤后的对照，并不保证网页中所有潜在小说片段都已被识别。小说从 Books3 和 Institutional Books 中筛选，模型分类后的人工抽查各 100 本，精确率分别约为 90% 和 88%。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>训练组</th>
+<th style="text-align:right">网页 token</th>
+<th style="text-align:right">小说 token</th>
+<th style="text-align:right">总量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NoBooks</td>
+<td style="text-align:right">185B</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Books3</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">当代小说 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Institutional Books</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">公版历史小说 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>混合书籍</td>
+<td style="text-align:right">175B</td>
+<td style="text-align:right">两种小说各 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Synthetic</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">以 Books3 为条件生成的小说 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+<tr>
+<td>Unconditioned Synthetic</td>
+<td style="text-align:right">180B</td>
+<td style="text-align:right">不输入 Books3 内容生成的小说 5B</td>
+<td style="text-align:right">185B</td>
+</tr>
+</tbody>
+</table></div><p>5B / 185B 约为 <strong>2.7%</strong>，实验改变的是一小部分预训练配方。基础比较首先围绕前三组展开，混合组和两类合成组用于进一步解释结果。<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=2" target="_blank" rel="noopener noreferrer">第 2 节、附录 D 与 H</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/fiction-pretraining/data-design.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/fiction-pretraining/data-design.png" alt="网页基础语料、故事困惑度与两种小说的出版年代分布" loading="lazy" decoding="async"></a><figcaption>图 1 · a 展示可抽样的网页基础语料，b 比较 WritingPrompts 故事困惑度，越低越好，c 展示两种小说的年代差异。Books3 中位出版年为 2012，Institutional Books 为 1894。原论文 Figure 1，PDF 第 3 页，仅裁出原图并保留坐标和图例。</figcaption></figure>
+<h3 id="section-6">第二步：统一模型训练和后训练</h3>
+<p>所有模型约 <strong>1B 参数</strong>，结构接近 Llama-3.2-1B，以 GPT-NeoX 从头训练。预训练约 <button type="button" class="reading-note-trigger" popovertarget="reading-note-training-scale" aria-controls="reading-note-training-scale" aria-expanded="false" aria-haspopup="dialog"><strong>185B tokens、22,100 步</strong></button>，序列长度 <strong>4,096 tokens</strong>。核心四组 NoBooks、Books3、Institutional Books 和 Synthetic 各有三个训练种子。后训练使用相同的 SFT 与 DPO 配方，以减少后训练差异对结论的干扰。</p>
+<p>作者报告<button type="button" class="reading-note-trigger" popovertarget="reading-note-training-cost" aria-controls="reading-note-training-cost" aria-expanded="false" aria-haspopup="dialog">单次训练约需 1,380 H200 GPU 小时或 850 B200 GPU 小时</button>。新增的无条件合成组只有一个种子。固定序列长度也限定了结论范围，本文不能据此判断用完整长篇小说做长上下文扩展的收益。<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=32" target="_blank" rel="noopener noreferrer">第 2 节、附录 E 和 H</a></p>
+<h3 id="section-7">第三步：从真实书籍生成条件合成小说</h3>
+<p>合成流程先去掉每本书开头 1,000 词和最后约 5%，再分成约 1,500 词的伪章节。Llama-3.1-8B-Instruct 根据标题和不同位置的摘录生成体裁及情节摘要，Gemma-3-12B-Instruct 再根据摘要和章节局部摘录生成新章节。</p>
+<p>作者生成约 6B tokens，删除与 Books3 存在连续至少 50 词重合的章节，再抽取 5B tokens 进入训练。因此合成语料仍以原书的信息为条件，连续文本重合过滤只覆盖所设阈值下的逐字重合。无条件对照使用同一生成模型与相近采样流程，但提示中不输入 Books3 内容。<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=7" target="_blank" rel="noopener noreferrer">第 4.1 节与附录 G–H</a></p>
+<h3 id="section-8">第四步：同时评价效用和可识别性</h3>
+<p>基础模型接受叙事、常识、数学、对话等任务测试。后训练模型接受一般指令遵循、创意写作和非创意写作评价。EQ-Bench 的写作比较由 Claude Sonnet 4.6 判定，LitBench 使用奖励模型；非创意写作覆盖六类、每类 200 个提示。修订版还增加了盲评人类比较。</p>
+<p>来源审计直接针对原 Books3 文本。成员推断问一个片段是否像是训练数据，文本提取则给出前缀、观察能恢复多少原文。对 Synthetic 而言，原书是生成语料的上游条件，模型实际预训练时接触的是合成章节。这一点决定了怎样解释审计失效。</p>
+<h2 id="section-9">五、实验设计与结果：先看数据配方的整体收益</h2>
+<h3 id="section-10">主实验：当代小说提高创意写作，但能力变化并不一致</h3>
+<p>下表摘录 Table 1 的主要比较，数值为 <strong>三个种子的均值 ± 标准差</strong>。成对胜率高于 50% 表示列名前一个模型更受裁判偏好。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>自动评价</th>
+<th style="text-align:right">Books3 对 NoBooks</th>
+<th style="text-align:right">Institutional Books 对 NoBooks</th>
+<th style="text-align:right">Books3 对 Institutional Books</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AlpacaEval，一般指令</td>
+<td style="text-align:right">43.5 ± 2.2%</td>
+<td style="text-align:right">25.7 ± 2.1%</td>
+<td style="text-align:right">68.1 ± 0.8%</td>
+</tr>
+<tr>
+<td>WildBench，一般指令</td>
+<td style="text-align:right">42.0 ± 1.7%</td>
+<td style="text-align:right">21.0 ± 1.0%</td>
+<td style="text-align:right">72.8 ± 2.0%</td>
+</tr>
+<tr>
+<td>MT-Bench，一般指令</td>
+<td style="text-align:right">46.0 ± 2.0%</td>
+<td style="text-align:right">23.8 ± 3.0%</td>
+<td style="text-align:right">73.8 ± 3.3%</td>
+</tr>
+<tr>
+<td>EQ-Bench，创意写作</td>
+<td style="text-align:right">78.6 ± 3.9%</td>
+<td style="text-align:right">22.4 ± 5.0%</td>
+<td style="text-align:right">91.1 ± 4.5%</td>
+</tr>
+<tr>
+<td>Prometheus 2，非创意写作总体</td>
+<td style="text-align:right">46.8 ± 0.1%</td>
+<td style="text-align:right">35.7 ± 1.1%</td>
+<td style="text-align:right">61.1 ± 1.0%</td>
+</tr>
+<tr>
+<td>GPTScore，非创意写作</td>
+<td style="text-align:right">43.3 ± 4.2%</td>
+<td style="text-align:right">37.2 ± 2.4%</td>
+<td style="text-align:right">57.0 ± 1.7%</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=5" target="_blank" rel="noopener noreferrer">Table 1，PDF 第 5 页</a>。均为对应模型输出间的比较，不能把一个基准上的胜率当成所有任务的准确率。</em></p>
+<p>LitBench 的绝对分数越高越好，NoBooks 为 <strong>−3.16 ± 0.06</strong>，Books3 为 <strong>−2.92 ± 0.05</strong>，Institutional Books 为 <strong>−3.38 ± 0.08</strong>。在该配方中，当代小说明显改善创意写作，一般指令遵循的平均胜率却低于 50%，非创意写作也没有整体超过 NoBooks。公版历史小说组在这些主对照中更弱。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/fiction-pretraining/base-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/fiction-pretraining/base-results.png" alt="基础模型在不同能力上的结果" loading="lazy" decoding="async"></a><figcaption>图 2 · 比较后训练前的三种基础模型。Books3 在 LAMBADA 等叙事任务上更好，多数其他能力的差异较小或方向不一致。图中误差棒表示标准误，区别于表格中的跨种子标准差。原论文 Figure 2，PDF 第 4 页，仅裁出原图。</figcaption></figure>
+<p>作者观察到的收益集中在特定能力。不能仅凭这些结果推出小说普遍改善推理，也不能把 Institutional Books 的表现推广到所有公版书。两种数据的年代、格式与类型同时发生变化。对 100 个历史书籍片段的检查中，16% 含版面伪影，作者还发现语体与当代请求之间的分布差异。</p>
+<h3 id="section-11">机制分析：哪些文本特征可区分小说</h3>
+<p>作者用 62 类特征表示叙事、指代、对话、情绪、词汇、句法和可读性等属性，先用 L1 逻辑回归筛选，再训练 XGBoost 区分书籍和非书籍。使用全部特征时，两类书籍分别达到 97.3% 和 99.1% 的分类准确率。</p>
+<p>Books3 更突出人物指代、命名实体和词汇多样性，历史语料的古词密度与标点风格更显著。这些结果描述来源差异。要证明某项特征导致写作收益，还需控制其他属性后训练模型，分类重要性本身不能完成因果识别。<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=6" target="_blank" rel="noopener noreferrer">第 3.3 节与附录 C</a></p>
+<h3 id="section-12">合成对照：原书条件是否必要</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>自动评价，相对 Books3</th>
+<th style="text-align:right">条件合成，三个种子</th>
+<th style="text-align:right">无条件合成，一个种子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AlpacaEval 胜率</td>
+<td style="text-align:right">53.0 ± 2.6%</td>
+<td style="text-align:right">50.0%</td>
+</tr>
+<tr>
+<td>EQ-Bench 胜率</td>
+<td style="text-align:right">79.7 ± 6.8%</td>
+<td style="text-align:right">65.6%</td>
+</tr>
+<tr>
+<td>Prometheus 2 总体胜率</td>
+<td style="text-align:right">53.6 ± 3.1%</td>
+<td style="text-align:right">49.1%</td>
+</tr>
+<tr>
+<td>LitBench 绝对分数（↑）</td>
+<td style="text-align:right">−1.72 ± 0.23</td>
+<td style="text-align:right">−1.74</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=39" target="_blank" rel="noopener noreferrer">Table 3 与 Table 8</a>。LitBench 是绝对分数，其余是成对胜率。</em></p>
+<p>条件合成在自动写作评价中表现很强，无条件合成也在后训练后获得明显写作收益。两者 LitBench 得分接近，EQ-Bench 则偏好条件合成。基础模型的 LAMBADA 上，无条件合成接近 NoBooks，低于 Books3 与条件合成。由此，原书条件的作用会随能力和评价器变化。生成器自身的训练数据也未知，无法据此排除其已经继承的小说知识。</p>
+<h3 id="section-13">人工评价：合成语料的自动优势有多大读者支持</h3>
+<p>修订版对下面每组取 <strong>50 对 LitBench 输出、两名标注者</strong>盲评，允许平局。表中胜率为第一种模型的结果，平局计半胜，两人的结果取平均。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>对照</th>
+<th style="text-align:right">人类胜率</th>
+<th style="text-align:right">同批输出的自动胜率</th>
+<th style="text-align:right">人与自动评价一致率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Books3 对 NoBooks</td>
+<td style="text-align:right">59.0%</td>
+<td style="text-align:right">64.0%</td>
+<td style="text-align:right">46.5%</td>
+</tr>
+<tr>
+<td>条件合成对 Books3</td>
+<td style="text-align:right">46.5%</td>
+<td style="text-align:right">90.0%</td>
+<td style="text-align:right">31.0%</td>
+</tr>
+<tr>
+<td>无条件合成对 Books3</td>
+<td style="text-align:right">43.5%</td>
+<td style="text-align:right">79.0%</td>
+<td style="text-align:right">34.0%</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=41" target="_blank" rel="noopener noreferrer">附录 J、Table 10</a>。这里的自动胜率来自同一人工子集，不能和全量自动结果直接混用。</em></p>
+<p>条件合成对 Books3 的 100 次人工判定中，分别为 <strong>35 次胜、42 次负、23 次平</strong>。这组人工结果没有确立合成模型明显优于 Books3 的结论；样本量也不足以证明二者严格等效。相同提示的两次标注具有相关性，100 次判断不能视为 100 个独立提示。自动评价的显著偏好与读者结果的差距，是本文需要保留的重要证据。</p>
+<h3 id="section-14">来源审计：上游使用痕迹变得更难识别</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/fiction-pretraining/provenance.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/fiction-pretraining/provenance.png" alt="成员推断与原文提取结果" loading="lazy" decoding="async"></a><figcaption>图 3 · 左侧在原 Books3 片段上做成员推断，右侧测量前缀续写能恢复原文的程度。合成组的结果更接近 NoBooks。右图纵轴为对数刻度，提取结果是每段五次生成中 BLEU 最高的一次。原论文 Figure 3，PDF 第 8 页，仅裁出原图。</figcaption></figure>
+<p>成员推断使用 <strong>1,000 个 Books3 来源片段与 1,000 个 BookMIA 非成员片段</strong>，逐片段计算，不汇总到整本书。修订版使用外部非成员集，并报告 128、256、512 token 长度。512 token 时，Loss 攻击 AUROC 从 Books3 的 <strong>0.703</strong> 降到 Synthetic 的 <strong>0.515</strong>，NoBooks 为 <strong>0.505</strong>；其他攻击也显示相近方向。</p>
+<p>文本提取取 <strong>100,000 个 100-token 片段</strong>，前 50 token 作为提示，生成后 50 token，每段生成五次并保留最佳 BLEU。超过 <strong>BLEU 0.75</strong> 的比例，Books3 为 <strong>2.27 × 10⁻⁴</strong>，Synthetic 为 <strong>6.33 × 10⁻⁵</strong>，NoBooks 为 <strong>7.67 × 10⁻⁵</strong>，均按三个种子统计。</p>
+<p>这些实验支持所测攻击更难从合成模型中识别、恢复原 Books3 文本。检测方法没有发现强信号，不能据此推断上游作品未被使用，也不能直接给出版权法律结论。<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=42" target="_blank" rel="noopener noreferrer">第 4.2 节与附录 K</a></p>
+<h2 id="section-15">六、我们自己的思考</h2>
+<h3 id="section-16">课题思考：这个领域在研究什么</h3>
+<p>这篇论文把数据价值拆成了可测量的问题。我们可以问，替换哪部分语料会改变哪种能力，以及经过一次生成转换后，收益和来源痕迹是否同步改变。这里的价值具有任务依赖性，创意写作、指令遵循和读者偏好需要各自的证据。</p>
+<h3 id="section-17">局限问题思考：目前还存在哪些问题</h3>
+<ol>
+<li><strong>数据来源捆绑了多个变量。</strong> 当代与历史小说同时存在年代、OCR、体裁和筛选误差差异，实验难以单独定位收益来自何处。</li>
+<li><strong>自动评分与人类偏好存在明显偏差。</strong> 合成组在自动评价上的优势远大于小规模读者评价，无条件组又只有一个种子。</li>
+<li><strong>规模和来源审计范围有限。</strong> 1B 模型、固定小说比例和 4,096-token 预训练不代表工业模型或完整长篇写作。所测攻击也只覆盖部分可识别信号。</li>
+</ol>
+<h3 id="section-18">解决方案思考：这些问题有哪些解决方向</h3>
+<ol>
+<li><strong>做匹配后的数据对照。</strong> 控制年代、体裁和清洗质量，并比较相同内容的不同组织方式，逐项测试指代与篇章结构等候选因素。</li>
+<li><strong>扩大盲评并重复合成实验。</strong> 对无条件组补齐种子，按提示聚类估计不确定性，纳入不同读者群体和长故事评价，公开胜负平分布。</li>
+<li><strong>同时记录生成来源与行为证据。</strong> 扩展模型规模和配方比例，保存合成链路的来源记录，再用多种提取、非逐字相似性和成员推断方法检查审计覆盖范围。</li>
+</ol>
+<p><em>本文依据 <a href="https://openreview.net/pdf?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">OpenReview 论文</a>及其 <a href="https://openreview.net/forum?id=NpBFkL2BTm" target="_blank" rel="noopener noreferrer">公开讨论页</a>。图片来自同一修订版 Figures 1–3，裁去外围正文、页眉和行号，保留原图数据与标注，未改绘。原作者当时匿名，署名为该投稿作者，依 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 使用。版本日期和 PDF 哈希记录于素材来源清单。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：预训练的数据配方怎样塑造能力</a></li><li><a href="#section-2">二、相关文献解读：数据选择、合成语料与写作评价</a></li><li><a href="#section-3">三、研究问题解读：小说的价值体现在哪里</a></li><li><a href="#section-4">四、方法解读：固定训练配方，逐项替换数据</a></li><li><a href="#section-9">五、实验设计与结果：先看数据配方的整体收益</a></li><li><a href="#section-15">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../earlyeval/"><span>论文阅读</span><strong>EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？</strong><i aria-hidden="true">↗</i></a><a href="../ahe/"><span>论文阅读</span><strong>AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架</strong><i aria-hidden="true">↗</i></a><a href="../verifiedlab/"><span>论文阅读</span><strong>VerifiedLab：从逐字段核验到可追溯的科研推理</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><aside id="reading-note-training-cost" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-training-cost-title" tabindex="-1"><div class="reading-note-top"><span>阅读问答</span><button type="button" class="reading-note-close" popovertarget="reading-note-training-cost" popovertargetaction="hide" aria-label="关闭解释">×</button></div><p class="reading-note-title" id="reading-note-training-cost-title">这项实验大概花了多少钱？</p><div class="reading-note-answer"><p>按当前公开多机云租价，论文披露的 14 次主体预训练约合 80–86 万元人民币。若修订新增运行另计，约为 86–92 万元。作者未公布实际账单，数据生成、后训练、评价及人工费用还需另计。</p>
+</div><details class="reading-note-detail"><summary>展开 GPU 小时、单价和费用边界</summary><div class="reading-note-answer"><p>这是按公开租价推算的预训练费用。论文附录 E.1 报告每次约 1,380 H200 GPU 小时，或 850 B200 GPU 小时，并写明训练了 14 个 1B 模型。GPU 小时已经是所有卡时的合计，换算费用时无需再乘节点数或每节点卡数。</p>
+<p>2026 年 11 月 20 日查到的 Runpod 多机 Clusters 标价为 H200 每 GPU 小时 6.35 美元、B200 每 GPU 小时 9.59 美元。假设能达到论文报告的训练效率，计算如下。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>方案</th>
+<th style="text-align:right">单次预训练美元</th>
+<th style="text-align:right">14 次预训练美元</th>
+<th style="text-align:right">按 1 美元 = 7 元估算人民币</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H200，1,380 GPU 小时</td>
+<td style="text-align:right">8,763</td>
+<td style="text-align:right">122,682</td>
+<td style="text-align:right">858,774</td>
+</tr>
+<tr>
+<td>B200，850 GPU 小时</td>
+<td style="text-align:right">8,151.50</td>
+<td style="text-align:right">114,121</td>
+<td style="text-align:right">798,847</td>
+</tr>
+</tbody>
+</table></div><p>两行是替代方案。人民币换算中的 7 是便于理解的估算假设。价格为当前公开标价，实际历史合同、机构集群和资助额度都可能改变作者的现金支出。</p>
+<p><strong>修订新增运行。</strong> 附录 H 报告无条件合成组为一个训练种子，而附录 E.1 仍写 14 个模型。两处没有明确对账。如果新增组在 14 次之外，按相同耗时估算再加约 5.7 万至 6.1 万元，总预训练折算约 85.6 万至 92.0 万元。</p>
+<p><strong>完整项目还有哪些费用？</strong> 真实书籍的筛选和清洗、约 6B token 的条件合成生成、无条件生成、各组 SFT 与 DPO、批量推理、GPT-4.1 和 Claude Sonnet 4.6 等裁判调用、来源审计、存储和人工评审。论文未给出这些环节的完整 GPU 小时、调用账单与人工成本，无法可靠加成一个全项目总价。上表也未加税费、空转与失败重跑。</p>
+<p>来源：<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=32" target="_blank" rel="noopener noreferrer">论文附录 E.1，PDF 第 32 页</a>、<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=39" target="_blank" rel="noopener noreferrer">附录 H，PDF 第 39 页</a>、<a href="https://www.runpod.io/pricing" target="_blank" rel="noopener noreferrer">Runpod Clusters 标价</a>、<a href="https://www.runpod.io/articles/guides/multi-node-distributed-training" target="_blank" rel="noopener noreferrer">Runpod 多机训练说明</a>。</p>
+</div></details></aside><aside id="reading-note-training-scale" class="reading-note-panel" popover="auto" role="dialog" aria-modal="false" aria-labelledby="reading-note-training-scale-title" tabindex="-1"><div class="reading-note-top"><span>阅读问答</span><button type="button" class="reading-note-close" popovertarget="reading-note-training-scale" popovertargetaction="hide" aria-label="关闭解释">×</button></div><p class="reading-note-title" id="reading-note-training-scale-title">为什么 1B 模型训练这么久，和 MiniMind 有何差别？</p><div class="reading-note-answer"><p>这篇每次从头处理 185B tokens。训练量随参数规模和处理的 token 总数增加，MiniMind 快速复现的模型和数据通常都更小。同时，1,380 GPU 小时是多卡累计用量，按 32 卡举例相当于约 43 小时。</p>
+</div><details class="reading-note-detail"><summary>展开参数量、数据量与卡时的区别</summary><div class="reading-note-answer"><p><strong>参数量和训练量决定不同的东西。</strong> 1B 表示约 10 亿个可学习参数，不能单独确定训练多久。这篇论文让每个模型从随机初始化开始处理约 185B，也就是 1,850 亿个训练 token。同样的结构可以只跑少量数据，也可以处理大量文本；两者的算力投入和最终能力会不同。</p>
+<p>一次更新包括前向计算、损失计算、反向传播和参数更新。对 dense Transformer，可用计算量 C ≈ 6 × N × D 作数量级估算，其中 N 为参数量，D 为训练中实际处理的 token 总数。185B 是训练总量，不能再额外乘序列长度；重复读同一数据也会增加 D。注意力、输出层、通信、补齐与硬件利用率会影响实际耗时。</p>
+<p><strong>与 MiniMind 对齐规模。</strong> 2026 年 11 月 20 日核对的官方 README 列出 64M 的 MiniMind-3，以及历史的 26M 和 104M 版本。1B 分别约为它们的 15.6、38.5、9.6 倍参数。快速复现使用精简的 mini 数据。文档给出当前 64M 单卡 3090、1 epoch 的示例估算，预训练约 1.21 小时，加 SFT 总计约 2.31 小时。这只是该示例配置，用户曾运行的版本和数据尚未确定。</p>
+<p><strong>教学示例。</strong> 假设训练过一个 64M 模型，总共处理 1B tokens，那么论文单次训练与这个假设实验的 N×D 比约为 (1B/64M) × (185B/1B) = 2,891。这个比例说明计算量可以差几个数量级。它不能直接当成运行时间之比，也不是对用户训练日志的测量。论文使用更强的 GPU、多卡并行和不同实现，实际每秒完成的计算不同。</p>
+<p><strong>卡时与墙钟时间。</strong> GPU 小时 = 使用卡数 × 运行小时数。按 32 卡持续使用举例，1,380 H200 GPU 小时对应约 43.1 小时，850 B200 GPU 小时对应约 26.6 小时。32 卡是便于理解的假设，论文正文仅在该处说明使用四个节点。并行能缩短等待时间，总卡时仍用于衡量消耗。此前约 80–86 万元是 14 次主体预训练的租价折算，单次约 5.7–6.1 万元。</p>
+<p><strong>训练目标也需要对应。</strong> MiniMind 提供从头预训练和 SFT 等完整流程，快速训练可以得到基础可交互模型。这篇实验使用更大的训练总量，再以一致后训练比较各数据配方。若用户当时只进行 SFT、LoRA 或在现有权重上续训，也应按相应阶段重新比较。</p>
+<p>来源：<a href="https://openreview.net/pdf?id=NpBFkL2BTm#page=32" target="_blank" rel="noopener noreferrer">论文附录 E</a>、<a href="https://github.com/jingyaogong/minimind/blob/cc9629e5f464ef46ef9411bfac916364e0a6dff1/README.md" target="_blank" rel="noopener noreferrer">MiniMind 固定版本说明</a>、<a href="https://arxiv.org/abs/2001.08361" target="_blank" rel="noopener noreferrer">语言模型缩放规律</a>。</p>
+</div></details></aside><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

@@ -1,0 +1,57 @@
+{
+  "source": "https://arxiv.org/pdf/2512.15567v2",
+  "version": "v2, 2026-05-08",
+  "attribution": "Zhangde Song et al., Evaluating Large Language Models in Scientific Discovery",
+  "source_license": "arXiv.org perpetual non-exclusive license; not a CC BY declaration",
+  "usage": "Attributed excerpts accompanying discussion of the original methods and findings",
+  "figures": [
+    {
+      "file": "framework.png",
+      "pdf_page": 3,
+      "original_figure_panel": "1c",
+      "clip_points": [
+        82,
+        224,
+        538,
+        413
+      ],
+      "operation": "Excerpted original panel; no redrawing or data changes; rendered at 4x"
+    },
+    {
+      "file": "scenario-profiles.png",
+      "pdf_page": 5,
+      "original_figure_panel": "2a (Biology and Chemistry)",
+      "clip_points": [
+        80,
+        68,
+        367,
+        190
+      ],
+      "operation": "Excerpted original panel; no redrawing or data changes; rendered at 4x"
+    },
+    {
+      "file": "project-results.png",
+      "pdf_page": 10,
+      "original_figure_panel": "4a (eight project results)",
+      "clip_points": [
+        185,
+        69,
+        538,
+        320
+      ],
+      "operation": "Excerpted original panel; no redrawing or data changes; rendered at 4x"
+    },
+    {
+      "file": "tmc-search.png",
+      "pdf_page": 10,
+      "original_figure_panel": "4b",
+      "clip_points": [
+        92,
+        321,
+        538,
+        433
+      ],
+      "operation": "Excerpted original panel; no redrawing or data changes; rendered at 4x"
+    }
+  ]
+}

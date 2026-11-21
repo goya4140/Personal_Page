@@ -1,0 +1,59 @@
+{
+  "source": "https://openreview.net/pdf?id=NpBFkL2BTm",
+  "source_forum": "https://openreview.net/forum?id=NpBFkL2BTm",
+  "revision_observed": "2026-11-19",
+  "retrieved_on": "2026-11-20",
+  "source_pdf_sha256": "244078fcd19a09eec96c812202103b2e4548d31b394d171fbd0762c40b091398",
+  "source_pdf_creation_time": "D:20261119111825Z",
+  "status": "Anonymous ICLR 2027 conference submission under review at retrieval",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Anonymous authors. Books, Copyright, and the Future of Foundation Models: An Empirical Study of Fiction in Pretraining. OpenReview submission 51628, revised 2026-11-19.",
+  "figures": [
+    {
+      "file": "data-design.png",
+      "figure": 1,
+      "pdf_page": 3,
+      "crop_pdf_points": [
+        106,
+        78,
+        506,
+        182
+      ],
+      "width": 2400,
+      "height": 624,
+      "sha256": "de6ed704d60edcb32e947c506b76ea61b163ff249959e70eee4072f7bef133fc",
+      "operation": "Original PDF figure cropped from its page, preserving axes, legends, panel labels and data. No redraw. Caption translated in the article."
+    },
+    {
+      "file": "base-results.png",
+      "figure": 2,
+      "pdf_page": 4,
+      "crop_pdf_points": [
+        106,
+        65,
+        506,
+        187
+      ],
+      "width": 2400,
+      "height": 732,
+      "sha256": "5672318f2b2d1e5dd17933abccf07175d26f769afc53cc1d13b42f792ad8a5d0",
+      "operation": "Original PDF figure cropped from its page, preserving axes, legends, panel labels and data. No redraw. Caption translated in the article."
+    },
+    {
+      "file": "provenance.png",
+      "figure": 3,
+      "pdf_page": 8,
+      "crop_pdf_points": [
+        106,
+        329,
+        506,
+        421
+      ],
+      "width": 2400,
+      "height": 552,
+      "sha256": "550cb0c14caf24fe97b6729645f2cef2106781bbcf265aec23ad35a0776c5928",
+      "operation": "Original PDF figure cropped from its page, preserving axes, legends, panel labels and data. No redraw. Caption translated in the article."
+    }
+  ]
+}

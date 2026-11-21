@@ -1,0 +1,47 @@
+[
+  {
+    "id": "task-boundary",
+    "zh": {
+      "question": "系统拿到什么，又需要交出什么？",
+      "answer": "系统获得研究任务、相关文献、数据和可执行工具环境，交付代码与执行过程、中间结果和图表，以及最终报告。目标论文和由它建立的评分材料由评价端保留。",
+      "detail_label": "展开输入、输出与隐藏材料",
+      "detail": "可以按三层理解第 3.1 节的任务定义：\n\n| 层次 | 内容 | 作用 |\n| --- | --- | --- |\n| 执行时可见 | 任务描述、相关文献、任务数据和工具环境 | 支持系统自行选择分析并执行 |\n| 系统交付 | 代码与执行过程、中间结果、图表、输出文件、研究报告 | 展示做了什么以及证据来自哪里 |\n| 评价端保留 | 目标论文及围绕其关键科学产物构建的评分材料 | 提供评价参照，不作为任务包中的答案交给系统 |\n\n这里的“自行研究”以给定的任务目标为起点，部分任务还约束方法或评价对象，并未完整测试独立选题。数据也可能是后验样本、特征或已整理的观测结果，需要按任务理解“原始数据”。\n\n**边界说明：** 任务包隐藏目标论文，并不能单独排除模型预训练记忆或外部检索接触；这是我们对评测控制范围的解释。\n\n来源：[第 3.1—3.2 节](https://arxiv.org/html/2606.07591v5#S3)；[Astronomy_000 示例，PDF 第 7 页](https://arxiv.org/pdf/2606.07591v5#page=7)。"
+    },
+    "en": {
+      "question": "What does the system receive, and what must it submit?",
+      "answer": "The system receives a research task, related literature, data, and an executable tool environment. It submits code and execution processes, intermediate results and figures, and a final report. The evaluator retains the target paper and its associated assessment materials.",
+      "detail_label": "Expand inputs, outputs, and hidden materials",
+      "detail": "Read the task definition in Section 3.1 as three layers:\n\n| Layer | Contents | Purpose |\n| --- | --- | --- |\n| Visible during execution | Task description, related literature, task data, and tools | Support independent analysis and execution within the task |\n| System submission | Code and execution processes, intermediate results, figures, output files, and report | Show what was done and where the evidence comes from |\n| Evaluator-held materials | Target paper and criteria built around its scientific artifacts | Provide a reference without exposing the task's answer to the system |\n\nIndependent research here starts from a supplied objective. Some tasks also constrain methods or evaluation targets, so this does not fully test autonomous problem selection. Data may include posterior samples, features, or processed observations; interpret raw data task by task.\n\n**Scope clarification:** withholding the target paper from the task package does not itself rule out training memory or external retrieval exposure. This is our interpretation of the control boundary.\n\nSources: [Sections 3.1–3.2](https://arxiv.org/html/2606.07591v5#S3); [Astronomy_000 example, PDF page 7](https://arxiv.org/pdf/2606.07591v5#page=7)."
+    }
+  },
+  {
+    "id": "rads-example",
+    "zh": {
+      "question": "50 分、加权总分和研究成功率怎样区分？",
+      "answer": "50 分是参考论文级证据的锚点，量表上限是 100。总分按准则权重聚合；高权重项更影响结果。任务平均分 21.5 不是 21.5% 的完整成功率，高于 50 也不自动证明新发现成立。",
+      "detail_label": "展开一个明确标注的教学算例",
+      "detail": "**教学示例，不是真实运行成绩。** 权重取自原文 Astronomy_000 的简化清单；下面的单项分数 30、50、70 是我们为说明算法而设定的假设值。\n\n| 评价要求 | 原文权重 | 假设单项分数 | 加权贡献 |\n| --- | ---: | ---: | ---: |\n| 读取并总结观测后验 | 0.20 | 30 | 6 |\n| 建立排除曲线 | 0.30 | 50 | 15 |\n| 推导耦合约束 | 0.50 | 70 | 35 |\n\n权重和为 1.00，所以示例总分为 `6 + 15 + 35 = 56`。固定版本官方评分器的一般公式为 `Σ(权重 × 分数) / Σ权重`；权重不需要在输入时恰好加到 1。\n\n这个例子也显示：总分高于 50，仍可能有某项低于参考水平；加权平均不保证所有必要要求逐项通过。RADS 是证据水平评价，真正的新发现仍需独立核验。\n\n来源：[Table 2，权重示例](https://arxiv.org/pdf/2606.07591v5#page=7)；[第 3.4 节，RADS 定义](https://arxiv.org/html/2606.07591v5#S3.SS4)；[固定版本官方评分器](https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py)。算例中的单项得分与计算结果为教学设定。"
+    },
+    "en": {
+      "question": "How do the anchor of 50, weighted scores, and research success rates differ?",
+      "answer": "The anchor of 50 represents reference-paper-level evidence on a scale capped at 100. Criteria are aggregated by weight, so important items contribute more. A task-average score of 21.5 is not a 21.5% complete-success rate, and exceeding 50 does not establish a validated discovery.",
+      "detail_label": "Expand an explicitly labeled teaching example",
+      "detail": "**Teaching example, not observed run results.** We use the weights from the simplified Astronomy_000 checklist. Item scores of 30, 50, and 70 below are hypothetical values chosen to explain aggregation.\n\n| Requirement | Published weight | Hypothetical item score | Weighted contribution |\n| --- | ---: | ---: | ---: |\n| Ingest and summarize observational posteriors | 0.20 | 30 | 6 |\n| Construct an exclusion curve | 0.30 | 50 | 15 |\n| Derive coupling constraints | 0.50 | 70 | 35 |\n\nWeights sum to 1.00, giving an illustrative total of `6 + 15 + 35 = 56`. The pinned official scorer uses the general formula `sum(weight * score) / sum(weight)`; input weights need not sum exactly to 1.\n\nThe example also shows that an aggregate above 50 can coexist with an item below reference level. Weighted averaging does not ensure that every necessary requirement passed. RADS assesses evidence level; genuine discoveries still require independent verification.\n\nSources: [Table 2, example weights](https://arxiv.org/pdf/2606.07591v5#page=7); [Section 3.4, RADS](https://arxiv.org/html/2606.07591v5#S3.SS4); [pinned official scorer](https://github.com/InternScience/ResearchClawBench/blob/c19a320d3d3d40e370e59001cc219794c4261055/evaluation/score.py). Item scores and the resulting total are instructional assumptions."
+    }
+  },
+  {
+    "id": "autoscirub-connection",
+    "zh": {
+      "question": "ResearchClawBench 与 AutoSciRub 的 rubric 是同一份吗？",
+      "answer": "两者分别承担评价与执行指导。ResearchClawBench 的专家准则由评价端掌握；后续 AutoSciRub 从任务指令、文献和可见数据生成自己的准则，用来组织实验、核验和修订。生成准则不是直接读取隐藏官方清单。",
+      "detail_label": "展开两种准则及可见范围的对照",
+      "detail": "| 对象 | 来源与可见范围 | 用途 |\n| --- | --- | --- |\n| ResearchClawBench 官方 rubric | 专家依据隐藏目标论文的关键科学产物构建，执行系统不能读取 | 在评价端衡量最终证据 |\n| AutoSciRub 生成的 rubric | 根据研究指令、相关文献与任务可见数据在推理时构造，执行系统可以使用 | 指导分析、核验缺口和定向修订 |\n\nAutoSciRub 是这篇基准论文之后的方法。它在 ResearchClawBench 上比较原版与增加该控制层的系统，最终仍用基准官方规则评价。自动生成的规范可能遗漏核心科学要求，所以内部“通过”与官方评分应分别报告。\n\n对读者而言，可以把两篇论文连成一个问题链：先定义怎样检查研究证据，再研究怎样在执行过程中产生更充分的证据。这是我们的阅读联系，并非 ResearchClawBench 已经实现了自动 rubric 诱导。\n\n来源：[ResearchClawBench 第 3.4 节](https://arxiv.org/html/2606.07591v5#S3.SS4)；[AutoSciRub 第 3.2 节](https://arxiv.org/html/2608.31076v1#S3.SS2)；[AutoSciRub 附录 A.1，评分与信息隔离](https://arxiv.org/pdf/2608.31076v1#page=10)。"
+    },
+    "en": {
+      "question": "Are the ResearchClawBench and AutoSciRub rubrics the same?",
+      "answer": "They serve assessment and execution guidance respectively. The evaluator retains ResearchClawBench expert criteria. The later AutoSciRub method constructs its own rubric from instructions, literature, and visible data to guide experiments, verification, and revision, without reading the hidden official checklist.",
+      "detail_label": "Expand the comparison of criteria and visibility",
+      "detail": "| Object | Origin and visibility | Purpose |\n| --- | --- | --- |\n| Official ResearchClawBench rubric | Experts derive it from scientific artifacts in the hidden target paper; execution systems cannot read it | Assess final evidence on the evaluation side |\n| AutoSciRub induced rubric | Constructed at inference time from instructions, literature, and visible task data; available to the execution agent | Guide analyses, gap checking, and targeted revision |\n\nAutoSciRub is a later method. Its ResearchClawBench experiments compare original systems with systems augmented by this control layer, while final evaluation still uses official benchmark criteria. Induced requirements can miss the scientific core, so internal passes and official scores should be reported separately.\n\nOne connection for readers is to first ask how research evidence should be assessed, then how execution can generate better evidence. This is our synthesis, rather than a claim that ResearchClawBench itself already implements automatic rubric induction.\n\nSources: [ResearchClawBench Section 3.4](https://arxiv.org/html/2606.07591v5#S3.SS4); [AutoSciRub Section 3.2](https://arxiv.org/html/2608.31076v1#S3.SS2); [AutoSciRub Appendix A.1, evaluation and information isolation](https://arxiv.org/pdf/2608.31076v1#page=10)."
+    }
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "source": "https://arxiv.org/pdf/2604.05550v2",
+  "source_html": "https://arxiv.org/html/2604.05550v2",
+  "source_pdf_sha256": "9b36a77e45f5df117a9de4a74c03ceadd48ffc1c2df9c41efc1884d00581657a",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Yu Li et al. AutoSOTA: An End-to-End Automated Research System for State-of-the-Art AI Model Discovery (2026), arXiv v2, 2026-05-25",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "2",
+      "pdf_page": 6,
+      "source_image": "https://arxiv.org/html/2604.05550v2/fig2.png",
+      "width": 1393,
+      "height": 765,
+      "sha256": "eaa2f2cdb1a90936ccc8cadc4af7c615ac54839eddc6b0aeb17a06c5f0dd544c",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "optimization-loop.png",
+      "figure": "6",
+      "pdf_page": 16,
+      "source_image": "https://arxiv.org/html/2604.05550v2/optimize-figure.png",
+      "width": 1314,
+      "height": 720,
+      "sha256": "acba2b129751988000a841c7a69875a1c1f3ccc21f629461ec80fc12efd9954f",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "outcome-distribution.png",
+      "figure": "8a",
+      "pdf_page": 28,
+      "source_image": "https://arxiv.org/html/2604.05550v2/Figures/ratio.png",
+      "width": 993,
+      "height": 993,
+      "sha256": "0ffd25b8e1ce749f762181e2efa3a1f96bd34e46ffc5b7c094d1c291ae64abc7",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "outcome-gains.png",
+      "figure": "8b",
+      "pdf_page": 28,
+      "source_image": "https://arxiv.org/html/2604.05550v2/Figures/performance_stats_percent.png",
+      "width": 2372,
+      "height": 1773,
+      "sha256": "b9698945cea240205b182d5c0027db88d941047c241fc590b8e6f1dc775a0f93",
+      "operation": "Original image downloaded from versioned arXiv HTML; no cropping, redrawing, or data modification"
+    }
+  ]
+}

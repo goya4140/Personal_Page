@@ -1,0 +1,14 @@
+{
+  "attempt_id": "02",
+  "files": {
+    "assets/src-58acc66cab0d3c3bd0e46956.png": "272f56fbca29713798621d92179edfd11b2e9a01873d1c036844f0a2333d2e2e",
+    "assets/src-9fa3bcbceee56925982e7783.png": "72c8c6045e56a6ad54001bcdc2472b1832df0ded585fc8ec92a54a1267133d21",
+    "assets/src-a96875aa7e89e9018984c92d.png": "b5a8f7fddcee93678078048e2a4f124c683b2974a96e81ac536754803bcf7991",
+    "poster.html": "d25131036bf79cb45a6d2d60a1a0131af2bc6b83b1d7ece9d0335c0013afa7ef",
+    "poster.pdf": "40cd28c954ad1c71a7d077999a4e445d8297c32426b4039341b4b3c417a5df4c",
+    "preview.png": "190c9993c24a37882e3d9f2a3228e5db9ce71adca861ab428af68a4fa5cd314e",
+    "provenance/source-map.json": "1f649890b3c89c840f0dc4e3cedf1a60f88ad99c2369ba2aae35d24ca03b035f"
+  },
+  "format_version": 1,
+  "verification_status": "verified"
+}

@@ -1,0 +1,33 @@
+{
+  "paper": "AutoScientists: Self-Organizing Agent Teams for Long-Running Scientific Experimentation",
+  "authors": "Shanghua Gao, Ada Fang, and Marinka Zitnik",
+  "version": "arXiv:2605.28655v2",
+  "source": "https://arxiv.org/abs/2605.28655v2",
+  "source_pdf": "https://arxiv.org/pdf/2605.28655v2",
+  "source_pdf_sha256": "a7acbb210898b7e85fdd6365066f06e2e08ce6aef8385bd8e3b0d7b54bbcc1a7",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "retrieved_on": "2026-11-14",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "1",
+      "pdf_page": 2,
+      "width": 1583,
+      "height": 748,
+      "sha256": "0117b68a247148af732568d68b25ef5a1cddfb0cd2d54b05909d5343da619b8d",
+      "operation": "Original image from versioned arXiv HTML, unchanged",
+      "source_image": "https://arxiv.org/html/2605.28655v2/overview_figure.png"
+    },
+    {
+      "file": "biomlbench.png",
+      "figure": "3",
+      "pdf_page": 6,
+      "width": 3177,
+      "height": 917,
+      "sha256": "85cc872da18d4104ec78b0dbc519ee8d1f1f2f17f8913886c9f573139c4cedd9",
+      "operation": "Original image from versioned arXiv HTML, unchanged",
+      "source_image": "https://arxiv.org/html/2605.28655v2/FIG/biomlbench.png"
+    }
+  ]
+}

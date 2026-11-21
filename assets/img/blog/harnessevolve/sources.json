@@ -1,0 +1,19 @@
+{
+  "paper": "HarnessEvolve: Learning from Reference Trajectories for Reliable Agent Self-Evolution",
+  "authors": "Wen Jiang et al.",
+  "version": "arXiv:2609.00829v1",
+  "source": "https://arxiv.org/abs/2609.00829v1",
+  "source_pdf": "https://arxiv.org/pdf/2609.00829v1",
+  "source_pdf_sha256": "6167f313ea5937bac630dd54de123bb58de7c66fa3e99b713393d7a2a8edfb0e",
+  "license": "arXiv perpetual non-exclusive license",
+  "retrieved_on": "2026-11-15",
+  "figures": [
+    {
+      "file": "workflow.svg",
+      "figure": "1",
+      "pdf_page": 4,
+      "sha256": "6808234f4735d22cf68635b69ae6206f7419a6c41d25deef4d5ca086bd880bd4",
+      "operation": "Independent reading diagram. Original paper Figure 1 linked from article."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "paper": "SciToolAgent-Evo: An Ontology-Aware Self-Evolving Agent for Open-World Scientific Tool Acquisition",
+  "authors": "Yuqi Tang et al.",
+  "version": "arXiv:2607.28692v1",
+  "source": "https://arxiv.org/abs/2607.28692v1",
+  "source_pdf": "https://arxiv.org/pdf/2607.28692v1",
+  "source_pdf_sha256": "7852909c5ba3f404bd73c44363a26f1387c76bf1babc8f44ee1421b16080939b",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "2",
+      "pdf_page": 4,
+      "sha256": "658df1a178c52d88e5fc0269f08d76d12461e3744ca86d9986aa8f96741f183b",
+      "operation": "Original arXiv HTML image, unchanged",
+      "source_image": "https://arxiv.org/html/2607.28692v1/SciToolAgent-Evo.png"
+    },
+    {
+      "file": "accumulation.png",
+      "figure": "4",
+      "pdf_page": 7,
+      "sha256": "92eb73c4a8ccd1cde0e87fd9a99ab1cae7bf96b39da3ab026867f46c1a558095",
+      "operation": "Rendered PDF crop [318,199,559,337] points at 3x, only page surroundings removed"
+    }
+  ]
+}

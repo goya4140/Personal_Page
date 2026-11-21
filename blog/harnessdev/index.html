@@ -1,0 +1,78 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HarnessDev：Agent 能选出更好的框架版本吗？ | Linhao Wang</title>
+  <meta name="description" content="区分框架创建、可见反馈优化、留出评估和更换执行模型后的表现。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="HarnessDev：Agent 能选出更好的框架版本吗？">
+  <meta property="og:description" content="区分框架创建、可见反馈优化、留出评估和更换执行模型后的表现。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/harnessdev/"><link rel="canonical" href="https://goya4140.github.io/blog/harnessdev/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="HarnessDev：Agent 能选出更好的框架版本吗？" data-title-en="HarnessDev: can agents select better harness versions?" data-language-url="../../en/blog/harnessdev/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 5 分钟</span><span>中文原稿</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>HarnessDev：Agent 能选出更好的框架版本吗？</h1><p class="article-summary">区分框架创建、可见反馈优化、留出评估和更换执行模型后的表现。</p><div class="post-topics"><span>AI for Science</span><span>Agent 运行框架</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/harnessdev/architecture.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/harnessdev/architecture.png" alt="HarnessDev：Agent 能选出更好的框架版本吗？" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2609.01437v1" target="_blank" rel="noopener noreferrer">HarnessDev: Can LLMs Create and Evolve Their Own Agent Harness? ↗</a><small>arXiv v1 · 2026-09-01</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：修好框架后，应该用什么衡量进步</a></li><li><a href="#section-2">二、相关文献解读：从优化一个框架，到评估开发框架的能力</a></li><li><a href="#section-3">三、研究问题解读：创建、演化与迁移</a></li><li><a href="#section-4">四、方法解读：用冻结提交比较两个开发阶段</a></li><li><a href="#section-5">五、实验设计与结果：反馈上的上升能否保留</a></li><li><a href="#section-9">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="harnessdev" lang="zh-CN"><p>Agent 能写出能跑的框架，但它能从反馈里选出真正更好的版本吗？HarnessDev 把生成的可运行框架作为评测对象，将写框架的模型和运行框架的模型分开。九条演化轨迹中，只有 <strong>2 条</strong>由创建者选中了留出集上得分最高的版本。<a href="https://arxiv.org/abs/2609.01437v1" target="_blank" rel="noopener noreferrer">Yuhao Wu 等，arXiv v1</a></p>
+<h2 id="section-1">一、课题解读：修好框架后，应该用什么衡量进步</h2>
+<p>假设表格 Agent 写完公式就宣布完成，后台结果却显示还有空列。框架可以在退出前增加产物检查，但也可能因此阻碍正常结束。评估这样的改动需要同时看三个量：可见任务上是否改善，未见任务上是否也改善，以及需要多少执行 token。换一种运行模型，报告状态和调用工具的习惯又可能不同。</p>
+<h2 id="section-2">二、相关文献解读：从优化一个框架，到评估开发框架的能力</h2>
+<p><a href="https://arxiv.org/abs/2505.22954v3" target="_blank" rel="noopener noreferrer">Darwin Gödel Machine</a> 研究多个编码 Agent 版本如何通过分支搜索产生改进。<a href="https://arxiv.org/abs/2609.00829v1" target="_blank" rel="noopener noreferrer">HarnessEvolve</a> 研究如何按参考轨迹诊断失败并筛选修订。HarnessDev 把焦点移到<strong>开发者模型能否构建和选出一个可复测的框架</strong>，并对同一产物比较原配模型与统一执行模型。<a href="https://arxiv.org/html/2609.01437v1#S5" target="_blank" rel="noopener noreferrer">论文相关工作</a></p>
+<h2 id="section-3">三、研究问题解读：创建、演化与迁移</h2>
+<ol>
+<li>给定一个很弱的可运行种子和少量示例，模型能建立有效的执行框架吗？</li>
+<li>给开发模型看任务反馈后，它能否选到在未见任务上更好的版本？</li>
+<li>把同一框架交给固定的执行模型，原来的优势能保留多少？</li>
+</ol>
+<h2 id="section-4">四、方法解读：用冻结提交比较两个开发阶段</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/harnessdev/architecture.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/harnessdev/architecture.png" alt="HarnessDev 比较不同领域与阶段的框架组成" loading="lazy" decoding="async"></a><figcaption>图 1 · 原论文 Figure 5，PDF 第 10 页，展示执行循环、工具策略等设计在不同领域和阶段的分布，图片按原样引用。</figcaption></figure>
+<p><strong>Creation。</strong> 创建者从弱种子开始编辑可执行产物。运行入口和审计约束保持一致。创建者可以在可见示例上调试，最终提交冻结的框架，由独立环境评估下游任务。Self-Eval 让创建模型也充当执行模型，Unified-Eval 统一用 Gemini 3.1 Pro 执行。<a href="https://arxiv.org/html/2609.01437v1#S1.F1" target="_blank" rel="noopener noreferrer">原论文流程图与第 3 节</a></p>
+<p><strong>Evolution。</strong> 从 Creation 的代码框架出发，创建者依据 SWE-Pro 的 <strong>100</strong> 道题与 Terminal-Bench 的 <strong>89</strong> 道题的反馈进行修改。两个正式评估都走完的提交才进入轨迹，反馈分是两项百分制成绩的等权均值。版本选定后，作者再把每个正式版本放到另外 <strong>630</strong> 道 SWE-Pro 任务上复测，结果不反馈给创建者。<a href="https://arxiv.org/html/2609.01437v1#S4.SS3" target="_blank" rel="noopener noreferrer">论文第 3 节与第 4.3 节</a></p>
+<h2 id="section-5">五、实验设计与结果：反馈上的上升能否保留</h2>
+<h3 id="section-6">主实验一：创建效果因任务和执行模型而异</h3>
+<p>Creation 覆盖 <strong>6</strong> 个创建模型、<strong>4</strong> 个领域、<strong>5</strong> 个基准，共 <strong>2,207</strong> 个不同的下游实例。通常每个创建模型与基准组合独立创建三次再取平均。下表摘录 Self-Eval 中 Opus 4.8 的结果和各基准的人类工程参考，使用各基准原有计分。<a href="https://arxiv.org/html/2609.01437v1#S4.SS2" target="_blank" rel="noopener noreferrer">论文第 4.1–4.2 节，表 3</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>基准</th>
+<th style="text-align:right">Opus 4.8</th>
+<th style="text-align:right">人类工程参考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-Pro</td>
+<td style="text-align:right">69.3</td>
+<td style="text-align:right">80.0</td>
+</tr>
+<tr>
+<td>Terminal-Bench 2.1</td>
+<td style="text-align:right">64.8</td>
+<td style="text-align:right">88.8</td>
+</tr>
+<tr>
+<td>MLE-bench</td>
+<td style="text-align:right">32.9</td>
+<td style="text-align:right">24.0</td>
+</tr>
+<tr>
+<td>EQ-Bench3</td>
+<td style="text-align:right">84.6</td>
+<td style="text-align:right">83.7</td>
+</tr>
+<tr>
+<td>BrowseComp</td>
+<td style="text-align:right">52.4</td>
+<td style="text-align:right">92.2</td>
+</tr>
+</tbody>
+</table></div><p>写作和机器学习实验得分接近或超过所选参考，搜索差距更大。其中部分人类参考是公开系统成绩，底模也可能不同。固定执行模型后排序会变，所以 Self-Eval 需要结合框架和模型之间的适配理解。<a href="https://arxiv.org/html/2609.01437v1#S4.SS2" target="_blank" rel="noopener noreferrer">论文表 3–4</a></p>
+<h3 id="section-7">主实验二：留出收益小于可见反馈收益</h3>
+<p>五条原配执行模型的轨迹里，最终申报版本在留出集都改善，增幅 <strong>1.43–4.44</strong> 个百分点，均值 <strong>3.11</strong>。更换为固定 Gemini 执行后，四条轨迹里只有 Opus 的留出分提高，其余三条下降。例如 GPT-5.5 的固定执行设置中，反馈均分从 <strong>56.6</strong> 到 <strong>59.1</strong>，留出分却从 <strong>42.22</strong> 降到 <strong>31.90</strong>。<a href="https://arxiv.org/html/2609.01437v1#S4.SS3" target="_blank" rel="noopener noreferrer">论文表 6 与图 8</a></p>
+<h3 id="section-8">补充分析：分数变化和执行路径要一起读</h3>
+<p>在 <strong>64</strong> 次可比的相邻切换中，可见反馈与留出分同向 <strong>34</strong> 次（<strong>53.1%</strong>）。论文也定位到一个具体成功案例：Opus 发现很多运行自报成功，实际测试通过更少，于是加了完成检查。这样的改动可以回到执行路径核对。每个创建者与执行模型的演化组合只有一条轨迹，留出评估仅覆盖 SWE-Pro，因此这些比较适合诊断机制，统计推广仍有限。<a href="https://arxiv.org/html/2609.01437v1#S4.SS3" target="_blank" rel="noopener noreferrer">论文第 4.3 节、局限</a></p>
+<h2 id="section-9">六、我们自己的思考</h2>
+<h3 id="section-10">课题思考：这个领域在研究什么</h3>
+<p>HarnessDev 最有价值的测量对象是<strong>版本选择</strong>。给出候选框架只是第一步。开发者还需要判断哪个改动真的执行了，哪个反馈变化超过了运行噪声，以及该改动依赖什么样的执行模型。</p>
+<h3 id="section-11">局限问题思考：目前还存在哪些问题</h3>
+<p>可见集反复使用，容易放大偶然得分。留出集只覆盖一个代码基准，不能估计写作、数据分析或研究框架的演化效果。面向不同模型的框架适配也可能有合理收益，需要与可移植性分别比较。<a href="https://arxiv.org/html/2609.01437v1#S6" target="_blank" rel="noopener noreferrer">论文第 6 节</a></p>
+<h3 id="section-12">解决方案思考：这些问题有哪些解决方向</h3>
+<p>冻结当前版与候选版，用多个独立种子和两种执行模型分别复跑，再用预留的版本选择集做决定。最后用不同任务分布的隐藏集比较，与等预算的简单搜索对照，并保存每次修改实际经过的执行路径与资源开销。</p>
+<p><em>图 1 为作者原图，来源为 HarnessDev v1 Figure 5。按 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC-ND 4.0</a> 原样引用。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：修好框架后，应该用什么衡量进步</a></li><li><a href="#section-2">二、相关文献解读：从优化一个框架，到评估开发框架的能力</a></li><li><a href="#section-3">三、研究问题解读：创建、演化与迁移</a></li><li><a href="#section-4">四、方法解读：用冻结提交比较两个开发阶段</a></li><li><a href="#section-5">五、实验设计与结果：反馈上的上升能否保留</a></li><li><a href="#section-9">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../harnessevolve/"><span>论文阅读</span><strong>HarnessEvolve：怎样用参考轨迹修订 Agent 框架</strong><i aria-hidden="true">↗</i></a><a href="../darwin-godel-machine/"><span>论文阅读</span><strong>Darwin Gödel Machine：为什么要保留暂时变弱的 Agent 版本</strong><i aria-hidden="true">↗</i></a><a href="../verifiedlab/"><span>论文阅读</span><strong>VerifiedLab：从逐字段核验到可追溯的科研推理</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" role="img" aria-labelledby="title desc">
+  <title id="title">Gan Jiang workflow</title>
+  <desc id="desc">Measured patterns are searched, checked, and refined. Run records inform revisions that are checked before freezing a skill.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#466579"/></marker>
+  </defs>
+  <rect width="760" height="360" rx="18" fill="#f8fafc"/>
+  <g font-family="system-ui, sans-serif" fill="#18384a">
+    <text x="28" y="38" font-size="24" font-weight="700">Gan Jiang</text>
+    <text x="28" y="79" font-size="17" font-weight="650">Analyze a measured pattern</text>
+    <text x="28" y="218" font-size="17" font-weight="650">Revise and validate a skill</text>
+    <g fill="#e0f1f5" stroke="#7aa2b3">
+      <rect x="28" y="94" width="158" height="66" rx="10"/><rect x="210" y="94" width="158" height="66" rx="10"/>
+      <rect x="392" y="94" width="158" height="66" rx="10"/><rect x="574" y="94" width="158" height="66" rx="10"/>
+    </g>
+    <g fill="#eef1fb" stroke="#98a4c6">
+      <rect x="28" y="234" width="158" height="66" rx="10"/><rect x="210" y="234" width="158" height="66" rx="10"/>
+      <rect x="392" y="234" width="158" height="66" rx="10"/><rect x="574" y="234" width="158" height="66" rx="10"/>
+    </g>
+    <g font-size="16" font-weight="600" text-anchor="middle">
+      <text x="107" y="132">Observed XRD</text><text x="289" y="132">Candidate CIFs</text>
+      <text x="471" y="132">Evidence checks</text><text x="653" y="132">Refine and report</text>
+      <text x="107" y="272">Execution trace</text><text x="289" y="272">Revise a skill</text>
+      <text x="471" y="272">Development checks</text><text x="653" y="263">Freeze and test<tspan x="653" dy="20">on held-out data</tspan></text>
+    </g>
+    <g stroke="#466579" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+      <path d="M189 127h17"/><path d="M371 127h17"/><path d="M553 127h17"/>
+      <path d="M189 267h17"/><path d="M371 267h17"/><path d="M553 267h17"/>
+      <path d="M653 163v24H16v80h9"/>
+    </g>
+    <text x="28" y="334" font-size="13" fill="#465c6c">Reading schematic based on Gan Jiang v1, Figures 3–4</text>
+  </g>
+</svg>
