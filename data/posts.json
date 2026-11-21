@@ -1,5 +1,30 @@
 [
   {
+    "slug": "earlyeval",
+    "title_zh": "EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？",
+    "title_en": "EarlyEval: predicting outcomes before agent evaluation finishes",
+    "summary_zh": "解读双分类器早停、覆盖率与准确率的分母，以及步骤节省、判分偏差和榜单保真度之间的取舍。",
+    "summary_en": "Dual-head stopping, coverage and accuracy denominators, and the trade-off between execution savings, score error, and ranking fidelity.",
+    "tags_zh": [
+      "人工智能",
+      "智能体评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-21",
+    "paper": {
+      "title": "EarlyEval: Cheaper Agent Evaluation via Early Outcome Prediction",
+      "url": "https://arxiv.org/abs/2609.02783v1",
+      "venue": "arXiv v1 · 2026-09-02"
+    },
+    "cover": "assets/img/blog/earlyeval/overview.png"
+  },
+  {
     "slug": "fiction-pretraining",
     "title_zh": "小说预训练：当代书籍、合成数据与来源审计",
     "title_en": "Fiction in pretraining: contemporary books, synthetic data, and provenance",

@@ -1,5 +1,21 @@
 [
   {
+    "slug": "earlyeval",
+    "source": "https://arxiv.org/abs/2609.02783v1",
+    "source_pdf": "https://arxiv.org/pdf/2609.02783v1",
+    "source_pdf_sha256": "895d7ce514b6d9ba642dcc464fe355bc8dc7bb0ed8890420b7012832844cad78",
+    "source_archive_sha256": "4d149dff3b478fb7eb6b53b3c1d2bec0cfb46557a5955253fa6944c5b23cb932",
+    "figure_manifest": "assets/img/blog/earlyeval/sources.json",
+    "scope": "Complete bilingual six-section reading. Original Figures 1–2 and full Table III. Main selected dual-policy operating points precede ranking-policy changes, feature and architecture ablations. Distinguishes accuracy among stopped runs, total coverage, per-head precision, signed and mean absolute score errors, held-out configurations versus new tasks, and token proxies versus actual billing.",
+    "related_sources": [
+      "https://arxiv.org/abs/2402.14992",
+      "https://arxiv.org/abs/2310.06770",
+      "https://arxiv.org/abs/2601.11868",
+      "https://github.com/inphotoo/earlyeval"
+    ],
+    "imported_on": "2026-11-21"
+  },
+  {
     "slug": "fiction-pretraining",
     "source": "https://openreview.net/forum?id=NpBFkL2BTm",
     "source_pdf": "https://openreview.net/pdf?id=NpBFkL2BTm",

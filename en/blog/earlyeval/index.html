@@ -1,0 +1,260 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EarlyEval: predicting outcomes before agent evaluation finishes | Linhao Wang</title>
+  <meta name="description" content="Dual-head stopping, coverage and accuracy denominators, and the trade-off between execution savings, score error, and ranking fidelity.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="EarlyEval: predicting outcomes before agent evaluation finishes">
+  <meta property="og:description" content="Dual-head stopping, coverage and accuracy denominators, and the trade-off between execution savings, score error, and ranking fidelity.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/earlyeval/"><link rel="canonical" href="https://goya4140.github.io/en/blog/earlyeval/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？" data-title-en="EarlyEval: predicting outcomes before agent evaluation finishes" data-language-url="../../../blog/earlyeval/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>10 min read</span><span>English translation</span><time datetime="2026-11-21">2026-11-21</time></div><div class="article-heading-layout has-art"><div><h1>EarlyEval: predicting outcomes before agent evaluation finishes</h1><p class="article-summary">Dual-head stopping, coverage and accuracy denominators, and the trade-off between execution savings, score error, and ranking fidelity.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Agent evaluation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/earlyeval/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/earlyeval/overview.png" alt="EarlyEval: predicting outcomes before agent evaluation finishes" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2609.02783v1" target="_blank" rel="noopener noreferrer">EarlyEval: Cheaper Agent Evaluation via Early Outcome Prediction ↗</a><small>arXiv v1 · 2026-09-02</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: reducing evaluation costs for long-running agents</a></li><li><a href="#section-2">2. Related work: reducing tasks and reducing per-task execution</a></li><li><a href="#section-3">3. Research questions: which conclusions survive reduced execution?</a></li><li><a href="#section-4">4. Method: learn from historical prefixes and predict at each step</a></li><li><a href="#section-9">5. Experiments and results: savings and score distortion</a></li><li><a href="#section-14">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="earlyeval" lang="en"><p>An agent evaluation can involve reading files, editing code, running tests, and revising repeatedly. Even when the final score is just success or failure, the intervening calls can be costly. EarlyEval predicts that final outcome from behavior already observed, stops the run when a threshold is reached, and uses the predicted score to estimate agent performance.</p>
+<p>This article reads Yuling Shi, Zhensu Sun, and colleagues' <strong>EarlyEval: Cheaper Agent Evaluation via Early Outcome Prediction</strong>, based on <a href="https://arxiv.org/abs/2609.02783v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>, submitted on September 2, 2026. A run credited with early predicted success has not yet produced the evidence that full execution would provide.</p>
+<h2 id="section-1">1. Topic: reducing evaluation costs for long-running agents</h2>
+<p>Agent developers repeatedly compare prompts, tools, harnesses, and models. Rerunning every task to completion after each edit makes evaluation costs accumulate across iterations. Long traces also incur growing context costs because later calls can carry more history.</p>
+<p>Full execution reveals the final files, environment state, and actual test results. Lower-cost estimation asks which runs already provide enough signal to predict their outcomes reliably. It must also measure how removing later steps changes success rates and rankings. This area studies the cost and credibility of evaluation estimates.</p>
+<h2 id="section-2">2. Related work: reducing tasks and reducing per-task execution</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Existing approach</th>
+<th>Connection to EarlyEval</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2402.14992" target="_blank" rel="noopener noreferrer">tinyBenchmarks</a></td>
+<td>Estimates performance on large benchmarks from representative samples</td>
+<td>Reduces cost through task selection, while EarlyEval studies shorter execution of retained tasks</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener noreferrer">SWE-bench</a></td>
+<td>Evaluates patches with repository issues and executable tests</td>
+<td>Provides full-run outcomes, with reference patches available in the Verified subset</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2601.11868" target="_blank" rel="noopener noreferrer">Terminal-Bench</a></td>
+<td>Evaluates multi-step tasks in terminal environments</td>
+<td>Tests whether behavioral signals support early stopping without reference-solution features</td>
+</tr>
+</tbody>
+</table></div><p>EarlyEval trains on completed trajectories from other agents on the same benchmark. It targets settings with historical evaluation records and repeated comparisons of new configurations. The first evaluation of a new benchmark still needs completed runs and true labels.</p>
+<h2 id="section-3">3. Research questions: which conclusions survive reduced execution?</h2>
+<p>The paper organizes its evaluation around four questions.</p>
+<ol>
+<li><strong>Can it predict outcomes for an unseen agent configuration while saving steps and tokens?</strong></li>
+<li><strong>How much does stopping change each agent's success rate, and are rankings preserved?</strong></li>
+<li><strong>Does the method remain effective without reference solutions or particular features?</strong></li>
+<li><strong>How does a lightweight tree model compare with other classifiers and LLM judges in cost and fidelity?</strong></li>
+</ol>
+<p>An unseen agent here is a configuration combining a harness and base model. Evaluation mainly tests new configurations on the same benchmark, whose tasks can still appear in other agents' historical trajectories.</p>
+<h2 id="section-4">4. Method: learn from historical prefixes and predict at each step</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/earlyeval/motivation.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/earlyeval/motivation.png" alt="Full execution compared with EarlyEval" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Conventional evaluation scores a completed run. EarlyEval predicts from a partial trace and removes subsequent execution, including behaviors that have not been observed. Original Figure 1, PDF page 1, rendered from the vector figure.</figcaption></figure>
+<h3 id="section-5">Step 1. Expand completed runs into prefixes with final labels</h3>
+<p>Historical trajectories contain actions, observations, and final success or failure labels. The authors discard runs shorter than ten steps and expand a run of length T into prefixes from step 0 through T. Every prefix learns the final outcome of that run.</p>
+<p>An early prefix containing repeated errors can therefore have a success label if the run eventually succeeds. Each prefix receives weight 1/(T+1), giving long and short trajectories equal total training weight. <a href="https://arxiv.org/html/2609.02783v1#S3.SS3" target="_blank" rel="noopener noreferrer">Sections III-C–D</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/earlyeval/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/earlyeval/overview.png" alt="Offline training and stepwise inference in EarlyEval" loading="lazy" decoding="async"></a><figcaption>Figure 2 · The upper stage extracts behavioral, textual, and optional reference features from historical prefixes. The lower stage scores success and failure at each step and continues while the thresholds are unmet. Original Figure 2, PDF page 5, rendered from the vector figure.</figcaption></figure>
+<h3 id="section-6">Step 2. Extract features available at the current step</h3>
+<p>Behavioral features include tool calls, edits, tests, event timing, repeated actions, read-only streaks, error types, and changes in test results. Separate textual blocks encode the task, accumulated and latest actions, and accumulated and latest feedback. TF-IDF and SVD compress them into low-dimensional vectors.</p>
+<p>On SWE-bench Verified, reference-patch attributes and overlaps with reference files, symbols, and test names are also available to the evaluator. TerminalBench and Toolathlon disable this feature family. The information available therefore depends on the benchmark. A reference-assisted configuration requires a separate assessment before use as a general completion monitor for open tasks. <a href="https://arxiv.org/pdf/2609.02783v1#page=4" target="_blank" rel="noopener noreferrer">Table II</a></p>
+<h3 id="section-7">Step 3. Train success and failure LightGBM classifiers</h3>
+<p>Two classifiers target eventual success and failure, respectively. Training and validation are organized by task, keeping all prefixes from one trajectory on the same side. Each fold reserves approximately 15% of training trajectories for early stopping and Platt calibration. Hyperparameters are fixed across benchmarks, and experiments use random seed 42.</p>
+<p>Platt scaling maps tree scores onto a probability scale. Empirical reliability must still be measured on the runs actually stopped. A threshold of 0.95 does not automatically establish an observed accuracy of exactly 95%. The paper reports sub-millisecond tree inference on one CPU core. This describes classifier scoring. Full feature processing and deployment costs need their own measurements. <a href="https://arxiv.org/html/2609.02783v1#S3.SS4" target="_blank" rel="noopener noreferrer">Sections III-D–E and IV-D</a></p>
+<h3 id="section-8">Step 4. Record a prediction when a threshold is crossed</h3>
+<p>After every step, the framework scores success and failure. If either reaches its threshold, execution stops and the predicted label becomes the task score. Otherwise the run continues, retaining its true outcome if it reaches completion. Higher thresholds generally intervene less, while lower thresholds allow earlier stopping with more mistakes.</p>
+<p>An early success score predicts that a full run would succeed. The omitted steps have yet to produce their evidence. The authors position the method as low-cost feedback for development and recommend full execution for final canonical scores. <a href="https://arxiv.org/html/2609.02783v1#S8" target="_blank" rel="noopener noreferrer">Section VIII</a></p>
+<h2 id="section-9">5. Experiments and results: savings and score distortion</h2>
+<h3 id="section-10">Main setup: hold out agent configurations and compare with completed outcomes</h3>
+<p>The authors collect <strong>21,678 historical trajectories</strong> across three benchmarks.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Benchmark</th>
+<th style="text-align:right">Tasks</th>
+<th style="text-align:right">Agent configurations</th>
+<th style="text-align:right">Collected trajectories</th>
+<th>Reference features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench Verified</td>
+<td style="text-align:right">500</td>
+<td style="text-align:right">16</td>
+<td style="text-align:right">7,805</td>
+<td>Available</td>
+</tr>
+<tr>
+<td>TerminalBench</td>
+<td style="text-align:right">89</td>
+<td style="text-align:right">37</td>
+<td style="text-align:right">6,757</td>
+<td>Disabled</td>
+</tr>
+<tr>
+<td>Toolathlon</td>
+<td style="text-align:right">108</td>
+<td style="text-align:right">22</td>
+<td style="text-align:right">7,116</td>
+<td>Disabled</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2609.02783v1#S4.SS1" target="_blank" rel="noopener noreferrer">Section IV-A</a>. These are collection counts. The method separately states that runs shorter than ten steps are discarded. Configurations combine harnesses and models, with different trajectory and repetition counts across benchmarks.</em></p>
+<p>Leave-one-agent-out evaluation holds one configuration out for testing and trains on the others. TerminalBench additionally removes training trajectories sharing either the held-out model or the held-out harness, in separate settings. SWE-bench Verified and Toolathlon each use one fixed harness, so they mainly test changes in model configuration.</p>
+<p>Metric denominators matter. Coverage is the fraction of all trajectories stopped early. Accuracy is the fraction of stopped trajectories predicted correctly. A success or failure head's precision considers only trajectories that this head stops and labels. Mean absolute success-rate deviation first computes each agent's percentage-point difference from full evaluation, then averages the absolute differences.</p>
+<h3 id="section-11">Main results: trading execution savings against score error</h3>
+<p>The table selects the authors' recommended thresholds from Table III, using both heads. For readability, negative resource changes are shown as positive reductions.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Benchmark and holdout</th>
+<th style="text-align:right">Threshold</th>
+<th style="text-align:right">Step reduction</th>
+<th style="text-align:right">Input-token reduction</th>
+<th style="text-align:right">Output-token reduction</th>
+<th style="text-align:right">Mean absolute success-rate deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench Verified</td>
+<td style="text-align:right">0.95</td>
+<td style="text-align:right">26.0%</td>
+<td style="text-align:right">32.7%</td>
+<td style="text-align:right">28.7%</td>
+<td style="text-align:right">1.1 percentage points</td>
+</tr>
+<tr>
+<td>TerminalBench, no same model</td>
+<td style="text-align:right">0.90</td>
+<td style="text-align:right">25.4%</td>
+<td style="text-align:right">42.7%</td>
+<td style="text-align:right">27.9%</td>
+<td style="text-align:right">2.1 percentage points</td>
+</tr>
+<tr>
+<td>TerminalBench, no same harness</td>
+<td style="text-align:right">0.85</td>
+<td style="text-align:right">17.7%</td>
+<td style="text-align:right">29.2%</td>
+<td style="text-align:right">17.4%</td>
+<td style="text-align:right">2.0 percentage points</td>
+</tr>
+<tr>
+<td>Toolathlon</td>
+<td style="text-align:right">0.90</td>
+<td style="text-align:right">23.0%</td>
+<td style="text-align:right">44.1%</td>
+<td style="text-align:right">29.4%</td>
+<td style="text-align:right">0.9 percentage points</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2609.02783v1#page=8" target="_blank" rel="noopener noreferrer">Table III, PDF page 8</a>. Different benchmarks use different thresholds, so these savings and errors do not describe one universal setting.</em></p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/earlyeval/threshold-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/earlyeval/threshold-results.png" alt="Complete resource and scoring results across thresholds" loading="lazy" decoding="async"></a><figcaption>Figure 3 · The original table includes success-only, failure-only, and dual-head policies. Negative step and token changes indicate reductions. Success-rate deviations are interpreted in percentage points. Original Table III, PDF page 8, cropped with all rows and headers retained.</figcaption></figure>
+<p>At the recommended SWE-bench Verified point, <strong>34.8%</strong> of trajectories stop early, with <strong>95.0%</strong> accuracy on those stopped runs. The heads' individual precision is <strong>93.9%</strong> for success and <strong>96.7%</strong> for failure. Approximately a quarter of steps are removed, with some individual outcomes still misclassified. A small average score deviation cannot guarantee small error for every agent.</p>
+<p>Threshold choice matters. Lowering it from <strong>0.95 to 0.75</strong> on this benchmark increases step reduction from <strong>26.0% to 63.4%</strong>, while mean absolute deviation rises from <strong>1.1 to 4.1 percentage points</strong>. The paper selects operating points around a two-point average-error tolerance. Deployment needs independent validation to set an acceptable error budget.</p>
+<p>The evaluation starts from collected full trajectories and measures the steps and tokens omitted by stopping at a prefix. These percentages do not directly establish equal dollar savings. Cached input pricing, output rates, tool runtime, predictor training, and monitoring affect the bill. The paper primarily reports compute proxies and leaves matched end-to-end online billing measurements open.</p>
+<h3 id="section-12">Ranking fidelity: strong global correlation with some position changes</h3>
+<p>The ranking analysis in Table IV changes the policy. SWE-bench uses both heads, while the other benchmarks rely on the more trustworthy failure head.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Setting</th>
+<th>Ranking policy</th>
+<th style="text-align:right">Spearman ρ (↑)</th>
+<th style="text-align:right">Agents with unchanged rank</th>
+<th style="text-align:right">Step reduction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench Verified, 0.95</td>
+<td>Dual</td>
+<td style="text-align:right">0.991</td>
+<td style="text-align:right">81%</td>
+<td style="text-align:right">26.0%</td>
+</tr>
+<tr>
+<td>TerminalBench, no same model, 0.90</td>
+<td>Failure only</td>
+<td style="text-align:right">0.959</td>
+<td style="text-align:right">59%</td>
+<td style="text-align:right">24.6%</td>
+</tr>
+<tr>
+<td>TerminalBench, no same harness, 0.85</td>
+<td>Failure only</td>
+<td style="text-align:right">0.994</td>
+<td style="text-align:right">70%</td>
+<td style="text-align:right">12.7%</td>
+</tr>
+<tr>
+<td>Toolathlon, 0.90</td>
+<td>Failure only</td>
+<td style="text-align:right">0.994</td>
+<td style="text-align:right">70%</td>
+<td style="text-align:right">23.0%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2609.02783v1#page=8" target="_blank" rel="noopener noreferrer">Table IV and Section V-B</a>. Some savings use failure-only policies and should be interpreted separately from the preceding dual-head table.</em></p>
+<p>A correlation near 1 indicates a similar overall ordering. Exact positions are preserved for 59%–81% of agents, leaving others with changed ranks. In the no-same-model TerminalBench setting, OpenHands + Claude-Opus-4.5 shifts by <strong>−4.6 percentage points</strong> in success rate. This illustrates why average errors still require per-agent checks. <a href="https://arxiv.org/pdf/2609.02783v1#page=8" target="_blank" rel="noopener noreferrer">Table IV</a></p>
+<h3 id="section-13">Feature and model ablations: behavioral signals contribute most</h3>
+<p>Variants are retrained on SWE-bench Verified under the same holdout protocol.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Feature set</th>
+<th style="text-align:right">Coverage</th>
+<th style="text-align:right">Accuracy on stopped runs</th>
+<th style="text-align:right">Step reduction</th>
+<th style="text-align:right">Mean absolute success-rate deviation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full</td>
+<td style="text-align:right">34.8%</td>
+<td style="text-align:right">95.0%</td>
+<td style="text-align:right">26.0%</td>
+<td style="text-align:right">1.1 percentage points</td>
+</tr>
+<tr>
+<td>Without behavioral features</td>
+<td style="text-align:right">23.4%</td>
+<td style="text-align:right">94.7%</td>
+<td style="text-align:right">16.4%</td>
+<td style="text-align:right">0.8 percentage points</td>
+</tr>
+<tr>
+<td>Without textual features</td>
+<td style="text-align:right">35.9%</td>
+<td style="text-align:right">94.5%</td>
+<td style="text-align:right">26.5%</td>
+<td style="text-align:right">1.2 percentage points</td>
+</tr>
+<tr>
+<td>Without reference features</td>
+<td style="text-align:right">32.1%</td>
+<td style="text-align:right">93.9%</td>
+<td style="text-align:right">24.7%</td>
+<td style="text-align:right">1.2 percentage points</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2609.02783v1#page=9" target="_blank" rel="noopener noreferrer">Table V</a>.</em></p>
+<p>Removing behavior mainly reduces coverage and savings. Removing reference features retains most of the benefit, supporting the use of behavioral evidence. This ablation concerns the SWE-bench distribution. Success prediction remains weaker on unseen harnesses and must be read alongside the holdout results.</p>
+<p>Architecture comparisons retain both heads and calibrate at the same <strong>0.95</strong> threshold. LightGBM achieves <strong>34.8% coverage, 95.0% accuracy, and 26.0% step reduction</strong>. MLP achieves <strong>26.9%, 87.9%, and 20.0%</strong>. A fine-tuned Qwen-0.5B judge reaches <strong>18.7%, 90.7%, and 17.9%</strong>. Qwen has a lower absolute score deviation, <strong>0.8 points</strong> against LightGBM's <strong>1.1</strong>, while intervening less and saving fewer steps. This supports the tree model's combined performance under the tested features and thresholds. It does not independently isolate the benefit of two heads over one classifier. <a href="https://arxiv.org/pdf/2609.02783v1#page=9" target="_blank" rel="noopener noreferrer">Table VI</a></p>
+<h2 id="section-14">6. Our reflections</h2>
+<h3 id="section-15">Topic: what is this area studying?</h3>
+<p>We are interested in how much actual execution is needed for a credible comparison during development. EarlyEval turns historical traces into an evaluator and explicitly connects estimation error with execution cost. For research agents, a similar approach might estimate failure risk in repeated experimental workflows. Open research often lacks a stable binary endpoint, requiring new labels and a definition of misclassification costs.</p>
+<h3 id="section-16">Limitations: what remains unresolved?</h3>
+<ol>
+<li><strong>Generalization depends on historical distributions.</strong> A held-out agent's tasks can still appear in other configurations' training traces. Joint transfer to new tasks, harnesses, and benchmarks remains insufficiently measured.</li>
+<li><strong>Individual mistakes can redirect development.</strong> Opposite errors can cancel in aggregate scores. Low mean deviation and high rank correlation cannot ensure that an edit's benefit is measured correctly.</li>
+<li><strong>Prefix-based savings and net operational costs differ.</strong> Collecting initial trajectories, extracting features, training, and online integration require resources. Repeated optimization might also adapt to the predictor.</li>
+</ol>
+<h3 id="section-17">Possible approaches: how could these questions be tested?</h3>
+<ol>
+<li><strong>Hold out tasks, harnesses, and time together.</strong> Calibrate on an independent development set, then test new tasks and later agent versions while tracking changes in accuracy and coverage.</li>
+<li><strong>Report paired-comparison errors.</strong> Compare configurations before and after edits on identical tasks, separate false successes from false failures, and preserve more full executions when scores are close.</li>
+<li><strong>Measure actual net savings.</strong> Deploy online monitoring and include end-to-end latency, cached-token billing, tool costs, and amortized training. Periodically sample full runs to detect systematic prediction bias.</li>
+</ol>
+<p><em>Based on the <a href="https://arxiv.org/pdf/2609.02783v1" target="_blank" rel="noopener noreferrer">v1 PDF</a> and <a href="https://github.com/inphotoo/earlyeval" target="_blank" rel="noopener noreferrer">official project</a>. Original Figures 1–2 are rendered from vector assets. The threshold table is cropped from PDF Table III with its data and headers retained. No figure is redrawn. Attribution to Yuling Shi et al. under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: reducing evaluation costs for long-running agents</a></li><li><a href="#section-2">2. Related work: reducing tasks and reducing per-task execution</a></li><li><a href="#section-3">3. Research questions: which conclusions survive reduced execution?</a></li><li><a href="#section-4">4. Method: learn from historical prefixes and predict at each step</a></li><li><a href="#section-9">5. Experiments and results: savings and score distortion</a></li><li><a href="#section-14">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../fiction-pretraining/"><span>Paper reading</span><strong>Fiction in pretraining: contemporary books, synthetic data, and provenance</strong><i aria-hidden="true">↗</i></a><a href="../ahe/"><span>Paper reading</span><strong>AHE v4: evolving agent harnesses from failure traces</strong><i aria-hidden="true">↗</i></a><a href="../verifiedlab/"><span>Paper reading</span><strong>VerifiedLab: from field-level verification to traceable research</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>
