@@ -1,0 +1,34 @@
+{
+  "source": "https://arxiv.org/pdf/2608.13667v1",
+  "source_archive": "https://arxiv.org/src/2608.13667v1",
+  "source_pdf_sha256": "eb8b55bd1aaac785393213c685e4a595da44877ef602382497a65b7102b666ad",
+  "source_archive_sha256": "c5d60261baaaaf34a9cfaad62c6900bf6be22e4ae5d03857d380adfe4c1d8198",
+  "license": "arXiv non-exclusive distribution license; original figures remain attributed to their authors.",
+  "license_url": "https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html",
+  "attribution": "Zhensu Sun, Chengran Yang, Yunbo Lyu, Jieke Shi, David Lo. Second Thought: Reasoning in Parallel as LLM Agents Act and Observe, arXiv v1, 2026-08-13.",
+  "usage": "Original Figures 2 and 3 reproduced for scholarly explanation and analysis with attribution. No claim of a Creative Commons license.",
+  "figures": [
+    {
+      "file": "workflow.png",
+      "figure": 2,
+      "pdf_page": 3,
+      "source_archive_member": "figures/workflow.pdf",
+      "source_asset_sha256": "e7cdcb2c6db89e8a827ee4e8e319110a66f78cd2875258955678924a3cb002bf",
+      "width": 2400,
+      "height": 711,
+      "sha256": "7fcf22a64df92c8b0caa6c78177b9e3f2ff540dc3c4ef57b472ef3ae4193073f",
+      "operation": "Original vector figure rendered as PNG without cropping, redrawing or altering data."
+    },
+    {
+      "file": "ablation.png",
+      "figure": 3,
+      "pdf_page": 6,
+      "source_archive_member": "figures/ablation_pareto_dsv4_tokens.pdf",
+      "source_asset_sha256": "f6eab63fdc5aebce246a68300acd07e53324d8a8043f0d85e54065e867bbc19e",
+      "width": 2400,
+      "height": 1877,
+      "sha256": "4a09708de0d9841d8571fcebc81703aa80a3d8c5da41b939ff70a73bb04a8edc",
+      "operation": "Original vector figure rendered as PNG without cropping, redrawing or altering data."
+    }
+  ]
+}

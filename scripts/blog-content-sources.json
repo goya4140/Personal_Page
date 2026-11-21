@@ -1,5 +1,21 @@
 [
   {
+    "slug": "second-thought",
+    "source": "https://arxiv.org/abs/2608.13667v1",
+    "source_pdf": "https://arxiv.org/pdf/2608.13667v1",
+    "source_pdf_sha256": "eb8b55bd1aaac785393213c685e4a595da44877ef602382497a65b7102b666ad",
+    "source_archive_sha256": "c5d60261baaaaf34a9cfaad62c6900bf6be22e4ae5d03857d380adfe4c1d8198",
+    "figure_manifest": "assets/img/blog/second-thought/sources.json",
+    "scope": "Complete bilingual six-section reading. All nine base-versus-method Table 1 comparisons before budget forcing, paired timing, ablation, window and cost analysis. Distinguishes main-thread decoding from elapsed time and total billing, statistical nonsignificance from equivalence, and closed atomic output from factual correctness. Original Figures 2 and 3.",
+    "related_sources": [
+      "https://arxiv.org/abs/2210.03629",
+      "https://arxiv.org/abs/2501.19393",
+      "https://arxiv.org/abs/2504.13171",
+      "https://anonymous.4open.science/r/2nd-thought"
+    ],
+    "imported_on": "2026-11-21"
+  },
+  {
     "slug": "earlyeval",
     "source": "https://arxiv.org/abs/2609.02783v1",
     "source_pdf": "https://arxiv.org/pdf/2609.02783v1",

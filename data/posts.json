@@ -1,5 +1,30 @@
 [
   {
+    "slug": "second-thought",
+    "title_zh": "Second Thought：Agent 等待工具时，可以并行思考什么？",
+    "title_en": "Second Thought: reasoning while agents act and wait",
+    "summary_zh": "解读四分支推理、可中断的原子建议，以及成功率、主线程 token、实际延迟和 API 账单之间的取舍。",
+    "summary_en": "Four auxiliary reasoning branches, interruptible thoughts, and trade-offs among success, main-thread tokens, elapsed time, and API cost.",
+    "tags_zh": [
+      "人工智能",
+      "智能体推理",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Agent reasoning",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-21",
+    "paper": {
+      "title": "Second Thought: Reasoning in Parallel as LLM Agents Act and Observe",
+      "url": "https://arxiv.org/abs/2608.13667v1",
+      "venue": "arXiv v1 · 2026-08-13"
+    },
+    "cover": "assets/img/blog/second-thought/workflow.png"
+  },
+  {
     "slug": "earlyeval",
     "title_zh": "EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？",
     "title_en": "EarlyEval: predicting outcomes before agent evaluation finishes",
