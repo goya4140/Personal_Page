@@ -1,0 +1,40 @@
+{
+  "source": "https://arxiv.org/pdf/2611.17797v1",
+  "source_pdf_sha256": "e9819a278caa55fd74700cbcc987b85446265c4d75605f17bb94cb34aa0a0ded",
+  "license": "arXiv.org perpetual non-exclusive license; copyright retained by authors",
+  "license_url": "https://info.arxiv.org/help/license/nonexclusive-distrib/1.0/license.html",
+  "attribution": "Haolin Yang, Wenshan Wu, Jin Jiang, Yu Cheng, Yan Xia, Ting Song, Yangyu Huang, Zhiliang Peng, Wenhui Wang, Hangbo Bao, Yuzhe Zhang, Wen-Da Wei, Tengchao Lv, Li Dong, Lei Cui, and Furu Wei. Vision-as-a-Tool, arXiv v1, 2026-11-13.",
+  "usage": "Two method figures quoted with attribution for independent scholarly criticism and explanation; no CC permission asserted.",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": 1,
+      "pdf_page": 1,
+      "crop_pdf_points": [
+        75,
+        396,
+        522,
+        628
+      ],
+      "operation": "Complete original diagram cropped from PDF; no redrawing; embedded raster content retains its original effective resolution",
+      "width": 2501,
+      "height": 1299,
+      "sha256": "e418ec11a58c4237a41a18b8704985446d6bf06c836c163789a5b123ed4628c2"
+    },
+    {
+      "file": "actions.png",
+      "figure": 3,
+      "pdf_page": 7,
+      "crop_pdf_points": [
+        90,
+        65,
+        507,
+        299
+      ],
+      "operation": "Complete original diagram cropped from PDF; no redrawing; embedded raster content retains its original effective resolution",
+      "width": 2501,
+      "height": 1404,
+      "sha256": "4fa1548d540e47b1b83931237c97255adf5b141efceaf67f6df56929d608ac12"
+    }
+  ]
+}

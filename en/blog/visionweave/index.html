@@ -1,0 +1,251 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VisionWeave: learning where visual detail is worth keeping | Linhao Wang</title>
+  <meta name="description" content="Coarse and fine representations, three-stage self-distillation, and content routing, with the conditions behind 43% token savings, task quality, and serving gains.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="VisionWeave: learning where visual detail is worth keeping">
+  <meta property="og:description" content="Coarse and fine representations, three-stage self-distillation, and content routing, with the conditions behind 43% token savings, task quality, and serving gains.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/visionweave/"><link rel="canonical" href="https://goya4140.github.io/en/blog/visionweave/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="VisionWeave：让多模态模型学习哪里值得细看" data-title-en="VisionWeave: learning where visual detail is worth keeping" data-language-url="../../../blog/visionweave/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>11 min read</span><span>English translation</span><time datetime="2026-11-22">2026-11-22</time></div><div class="article-heading-layout has-art"><div><h1>VisionWeave: learning where visual detail is worth keeping</h1><p class="article-summary">Coarse and fine representations, three-stage self-distillation, and content routing, with the conditions behind 43% token savings, task quality, and serving gains.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Efficient multimodal models</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/visionweave/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/visionweave/overview.png" alt="VisionWeave: learning where visual detail is worth keeping" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2610.07987v1" target="_blank" rel="noopener noreferrer">VisionWeave: Weaving Elastic Visual Representations as a Native Capability of MLLMs ↗</a><small>arXiv v1 · 2026-10-06</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: where should visual models spend computation?</a></li><li><a href="#section-2">2. Related work: from removing tokens to learning granularity</a></li><li><a href="#section-3">3. Research questions: how much capability survives fewer representations?</a></li><li><a href="#section-4">4. Method: construct two representations, then learn their allocation</a></li><li><a href="#section-9">5. Experiments and results: quality first, then speed and mechanisms</a></li><li><a href="#section-14">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="visionweave" lang="en"><p>Small print in a document may need detailed representation, while a large blank region may not. Videos also contain recurring backgrounds. Turning every region into an equally dense visual-token sequence makes the language model pay for that redundancy in computation and memory.</p>
+<p>This article reads <strong>VisionWeave: Weaving Elastic Visual Representations as a Native Capability of MLLMs</strong>, based on <a href="https://arxiv.org/abs/2610.07987v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>, submitted on October 6, 2026. It learns to select coarse or fine representations locally. On Qwen3.8-27B across eight benchmarks, it saves an average of 43.0% of visual tokens while retaining approximately 98.9% of native relative performance. Those figures need to be read alongside compression budgets, individual task losses, and serving conditions.</p>
+<h2 id="section-1">1. Topic: where should visual models spend computation?</h2>
+<p>A multimodal language model typically uses a vision transformer, or ViT, to extract patch features, then merges and projects them into visual tokens for the language model. High-resolution documents, small interface elements, and long videos can all produce long input sequences.</p>
+<p>These tokens affect prompt processing, attention computation, and the KV cache. Lowering image resolution reduces input size, but may also erase small text, button edges, or spatial relationships. Another approach preserves the original visual input and decides which regions deserve finer representations afterward.</p>
+<p>The central question is <strong>how to allocate representational detail according to content</strong>. Evaluation must check whether enough information survives, whether the model can use the new representations, and whether fewer tokens actually improve latency and throughput. Visual-token savings are not identical to whole-system compute savings: the vision encoder and additional modules still run.</p>
+<h2 id="section-2">2. Related work: from removing tokens to learning granularity</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Existing approach</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2403.06764" target="_blank" rel="noopener noreferrer">FastV</a></td>
+<td>Uses early attention signals to prune visual tokens in subsequent language-model layers</td>
+<td>Demonstrates redundancy, while raising the question of what information removal loses</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2412.04467" target="_blank" rel="noopener noreferrer">VisionZip</a></td>
+<td>Selects informative tokens and compresses redundant representations</td>
+<td>A principal comparator for reducing visual-sequence cost</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2510.12793" target="_blank" rel="noopener noreferrer">ViCO</a></td>
+<td>Uses consistency training and routing to assign compression rates to image tiles</td>
+<td>Already explores content adaptation; VisionWeave makes allocation more local within the native patch grid</td>
+</tr>
+</tbody>
+</table></div><p>VisionWeave gives each local block a choice: four fine tokens or one coarse token covering the block. Its contribution involves representation construction, spatial allocation, and training adaptation together. For serving integration, the paper uses <strong>FastV†</strong>, a modified version that moves selection after the vision encoder. The comparisons below concern this adapted implementation. <a href="https://arxiv.org/html/2610.07987v1#S3.SS1" target="_blank" rel="noopener noreferrer">Section 3.1</a></p>
+<h2 id="section-3">3. Research questions: how much capability survives fewer representations?</h2>
+<p>We organize the paper around three questions.</p>
+<ol>
+<li><strong>How can coarse representations be constructed while retaining necessary detail?</strong> Different regions need different granularities with coherent spatial positions.</li>
+<li><strong>How can routing serve downstream tasks?</strong> The model must learn where to compress and adapt to mixed-granularity input.</li>
+<li><strong>Do gains extend across tasks, input sizes, and serving environments?</strong> Lower token counts need to translate into measured quality, throughput, and response latency.</li>
+</ol>
+<p>These questions are our reading synthesis. The paper primarily evaluates natural images, documents, GUI grounding, and video. It does not directly validate high-stakes applications such as medical-image interpretation.</p>
+<h2 id="section-4">4. Method: construct two representations, then learn their allocation</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/visionweave/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/visionweave/overview.png" alt="VisionWeave visual encoding, two granularities, and routing" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Follow the arrows: the ViT supports native fine representations and pooled coarse representations; a router selects local granularity before the mixed sequence enters the language model. Original Figure 3, PDF page 3; rendered from the authors’ vector figure without redrawing.</figcaption></figure>
+<h3 id="section-5">Step 1: prepare fine and coarse representations for the same region</h3>
+<p>Suppose the ViT produces an H×W patch-feature grid. The native merger combines each 2×2 neighborhood into one fine token, giving an H/2×W/2 token grid.</p>
+<p>The added gated spatial pooler first compresses each 2×2 patch neighborhood into one feature. Passing these through the native merger yields an H/4×W/4 coarse-token grid. Consequently, the same <strong>4×4 original-patch block</strong> can use either four fine tokens or one coarse token. If every block is coarse, only 25% of the native visual tokens remain, giving a structural savings ceiling of 75%. This is not the measured savings for every input.</p>
+<p>The pooler normalizes features, computes channel-wise weights using local context, and aggregates refined features. Different spatial positions can contribute differently to different channels. Its initialization approximates mean pooling over normalized features, after which training learns a better aggregation. <a href="https://arxiv.org/html/2610.07987v1#S2.SS2.SSS1" target="_blank" rel="noopener noreferrer">Section 2.2.1</a></p>
+<p>A coarse token receives the geometric-center position of its four corresponding fine tokens. MRoPE encodes temporal and spatial coordinates, so both granularities share a coordinate system. Full spatial coverage means every region has a representation; it does not guarantee lossless preservation of all original detail.</p>
+<h3 id="section-6">Step 2: decide where coarse representations are sufficient</h3>
+<p>Each block has a learnable query that sequentially probes the ViT input, middle, and final features. At each depth it attends first to its own 4×4 patches, then to the entire frame, combining local detail and global semantics. The 27B implementation uses depths [0,13,27], with six local or global cross-attention blocks.</p>
+<p>The router outputs a probability p of selecting the coarse representation. By default, p&gt;0.5 selects one coarse token; otherwise four fine tokens remain. Selected tokens are gathered in native spatial order. Routing reads visual features and <strong>does not directly take the current textual question as input</strong>. It learns content allocation over the training-task distribution; adapting allocation to different questions about the same image remains a further research question. <a href="https://arxiv.org/html/2610.07987v1#S2.SS2.SSS2" target="_blank" rel="noopener noreferrer">Section 2.2.2 and Algorithm 1</a></p>
+<h3 id="section-7">Step 3: use the native model to teach the new modules and language model</h3>
+<p>The teacher is the frozen native model using fine tokens. It generates responses, and the student learns to match its output distribution at each position under the same response prefix. KL distillation renormalizes over the teacher’s top 512 vocabulary entries. This is off-policy self-distillation.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Stage</th>
+<th>Trainable components</th>
+<th>Input construction</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1: coarse distillation</td>
+<td>Pooler only</td>
+<td>All blocks coarse; 25% of native sequence length</td>
+<td>Make coarse representations support native responses</td>
+</tr>
+<tr>
+<td>2: soft-mixing distillation</td>
+<td>Router only</td>
+<td>Broadcast each coarse token to four positions and mix differentiably with fine features; full sequence length</td>
+<td>Provide gradients for granularity selection</td>
+</tr>
+<tr>
+<td>3: actual mixed-granularity distillation</td>
+<td>Pooler and LLM</td>
+<td>Discrete routing and mixed sequences matching inference</td>
+<td>Adapt the model to its real execution inputs</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2610.07987v1#S2.SS3" target="_blank" rel="noopener noreferrer">Table 1 and Sections 2.3–2.4</a>. Stage 3 freezes the ViT, native merger, and router.</em></p>
+<p>Stage 2 adds a balance loss weighted by 0.02, targeting a coarse-block fraction of 0.8. That does not mean fixed 80% token savings. Stage 3 uses a routing bias calibrated offline on a training subset toward approximately 50% visual-token savings and then held fixed. Test inputs can still receive different savings.</p>
+<p>The 27B stages use the same mixture of approximately <strong>777K</strong> samples: 246K image-understanding, 281K video-understanding, and 250K GUI-grounding samples, counted before packing. Training steps are <strong>5,257, 2,500, and 1,000</strong>, with global batches of <strong>32, 64, and 512</strong>. The first two count packed sequences, whereas the third counts samples, so these are not directly comparable epoch measures. The authors report more than <strong>30K A100 GPU-hours</strong> of investment. <a href="https://arxiv.org/pdf/2610.07987v1#page=7" target="_blank" rel="noopener noreferrer">Tables 2–3</a></p>
+<h3 id="section-8">Step 4: serve mixed sequences in a practical engine</h3>
+<p>SGLang integration must accommodate half-integer block-center coordinates and variable visual-sequence lengths. It doubles coordinates and halves rotary frequencies to preserve RoPE phases. Selected embeddings and positions are finalized before scheduling, retaining dynamic batching, KV management, and CUDA-graph decoding. <a href="https://arxiv.org/html/2610.07987v1#S2.SS5" target="_blank" rel="noopener noreferrer">Section 2.5</a></p>
+<p>At the time of this reading, the official README describes inference support for dense Qwen3.5, with trained weights unavailable. The initializer adds untrained modules that retain all visual tokens by default. Downloading the code or initializing modules therefore does not directly reproduce the paper’s 27B compression results. <a href="https://github.com/FFY0/VisionWeave/tree/321a4460e6febb84d10f68cd0ee7bee1fd78c59f" target="_blank" rel="noopener noreferrer">Official README snapshot</a></p>
+<h2 id="section-9">5. Experiments and results: quality first, then speed and mechanisms</h2>
+<h3 id="section-10">Main experiment: quality and compression across eight benchmarks</h3>
+<p>The authors compare native models, input downsampling, FastV†, VisionZip, and VisionWeave on Qwen3.5-4B and Qwen3.8-27B. The main table uses a native spatial budget of 512 visual tokens per image or video frame. The three fixed-budget baselines target 50% savings; VisionWeave uses threshold 0.5 with content-adaptive savings.</p>
+<p>Eight benchmarks cover natural-image questions, documents, infographics, GUI grounding, hallucination, and video. All scores are on a 0–100 scale, higher being better. DocVQA and InfoVQA use ANLS, HallusionBench uses aAcc, and the others retain task-specific metrics. These are automated benchmark measures, not a common human-quality rating. The paper does not uniformly list actual evaluation sample counts, repeated runs, or confidence intervals for this aggregate table; we do not invent them.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/visionweave/benchmark.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/visionweave/benchmark.png" alt="Relative quality and visual-token savings across eight benchmarks" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Quality retention and savings distributions appear together. Left-panel points are medians, thick lines P25–P75, and thin lines P5–P95, distinct from mean savings in the text. Fixed 50% compression can substantially degrade grounding and document tasks. Original Figure 2, PDF page 2; rendered from the original vector figure without redrawing.</figcaption></figure>
+<p>The following table reproduces the eight 27B task results to distinguish averages from individual outcomes.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Benchmark</th>
+<th style="text-align:right">Native</th>
+<th style="text-align:right">FastV†</th>
+<th style="text-align:right">VisionZip</th>
+<th style="text-align:right">VisionWeave</th>
+<th style="text-align:right">VisionWeave visual-token savings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RealWorldQA</td>
+<td style="text-align:right">78.82</td>
+<td style="text-align:right">78.43</td>
+<td style="text-align:right">77.65</td>
+<td style="text-align:right">77.91</td>
+<td style="text-align:right">43.1%</td>
+</tr>
+<tr>
+<td>DocVQA</td>
+<td style="text-align:right">92.47</td>
+<td style="text-align:right">77.05</td>
+<td style="text-align:right">76.01</td>
+<td style="text-align:right">91.33</td>
+<td style="text-align:right">27.3%</td>
+</tr>
+<tr>
+<td>InfoVQA</td>
+<td style="text-align:right">74.13</td>
+<td style="text-align:right">55.49</td>
+<td style="text-align:right">53.96</td>
+<td style="text-align:right">71.61</td>
+<td style="text-align:right">16.5%</td>
+</tr>
+<tr>
+<td>ScreenSpotV2</td>
+<td style="text-align:right">94.42</td>
+<td style="text-align:right">49.53</td>
+<td style="text-align:right">49.21</td>
+<td style="text-align:right">91.43</td>
+<td style="text-align:right">55.1%</td>
+</tr>
+<tr>
+<td>HallusionBench</td>
+<td style="text-align:right">73.25</td>
+<td style="text-align:right">71.92</td>
+<td style="text-align:right">71.66</td>
+<td style="text-align:right">73.60</td>
+<td style="text-align:right">44.9%</td>
+</tr>
+<tr>
+<td>VideoOCR</td>
+<td style="text-align:right">70.72</td>
+<td style="text-align:right">69.69</td>
+<td style="text-align:right">69.54</td>
+<td style="text-align:right">70.51</td>
+<td style="text-align:right">49.6%</td>
+</tr>
+<tr>
+<td>Video-MME</td>
+<td style="text-align:right">70.89</td>
+<td style="text-align:right">70.70</td>
+<td style="text-align:right">70.96</td>
+<td style="text-align:right">71.04</td>
+<td style="text-align:right">54.2%</td>
+</tr>
+<tr>
+<td>LongVideoBench</td>
+<td style="text-align:right">66.49</td>
+<td style="text-align:right">65.74</td>
+<td style="text-align:right">65.45</td>
+<td style="text-align:right">66.42</td>
+<td style="text-align:right">53.0%</td>
+</tr>
+<tr>
+<td>Eight-task mean</td>
+<td style="text-align:right">77.65</td>
+<td style="text-align:right">67.32</td>
+<td style="text-align:right">66.81</td>
+<td style="text-align:right">76.73</td>
+<td style="text-align:right">43.0%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2610.07987v1#page=9" target="_blank" rel="noopener noreferrer">Table 4, PDF page 9</a>. The two pruning/merging baselines target fixed 50% savings, unlike the adaptive budget.</em></p>
+<p>The 27B model’s mean relative performance loss is <strong>1.08%</strong>, yielding the abstract’s approximately <strong>98.9%</strong> retention. This aggregates relative task scores: it is neither 98.9% overall question accuracy nor simply the ratio of the two mean scores. For 4B, the mean score changes from <strong>73.25</strong> to <strong>72.59</strong>, with <strong>35.8%</strong> mean token savings and <strong>0.90%</strong> mean relative performance loss. <a href="https://arxiv.org/pdf/2610.07987v1#page=9" target="_blank" rel="noopener noreferrer">Table 4</a></p>
+<p>The main comparison supports robustness on information-dense tasks, but uses different compression budgets. An appendix matches FastV† and VisionZip to VisionWeave’s <strong>mean savings for each dataset</strong>. The 27B mean scores are <strong>70.10, 70.33, and 76.73</strong>; the 4B scores are <strong>72.20, 71.90, and 72.59</strong>. Much of the 27B gap comes from ScreenSpotV2: excluding it gives <strong>73.86, 73.85, and 74.63</strong>. Baselines still lead on some tasks, and matching dataset averages does not match per-example budgets. <a href="https://arxiv.org/html/2610.07987v1#A5.T8" target="_blank" rel="noopener noreferrer">Table 8</a></p>
+<h3 id="section-11">Serving experiment: the 2.30× throughput result has specific conditions</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Metric</th>
+<th style="text-align:right">Native 27B</th>
+<th style="text-align:right">VisionWeave</th>
+<th style="text-align:right">Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Throughput, requests/min ↑</td>
+<td style="text-align:right">0.90</td>
+<td style="text-align:right">2.07</td>
+<td style="text-align:right">2.30×</td>
+</tr>
+<tr>
+<td>Mean time to first token, seconds ↓</td>
+<td style="text-align:right">169.90</td>
+<td style="text-align:right">77.54</td>
+<td style="text-align:right">54.4% lower</td>
+</tr>
+<tr>
+<td>P95 time to first token, seconds ↓</td>
+<td style="text-align:right">281.41</td>
+<td style="text-align:right">120.59</td>
+<td style="text-align:right">57.1% lower</td>
+</tr>
+<tr>
+<td>Mean time per output token, milliseconds ↓</td>
+<td style="text-align:right">355.64</td>
+<td style="text-align:right">140.29</td>
+<td style="text-align:right">60.6% lower</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2610.07987v1#S3.T5" target="_blank" rel="noopener noreferrer">Table 5 and Appendix E.4</a>.</em></p>
+<p>Both use <strong>2×A100-80GB, BF16, TP=2</strong> on LongVideoBench at <strong>2 FPS, up to 256 frames, and 1,024 native visual tokens per frame</strong>. Client concurrency is four and the server limit eight, with chunked prefill and CUDA-graph decoding enabled. This supports real acceleration for the tested long-video workload. It does not guarantee the same 2.30× gain for short images, different concurrency, or other hardware. The serving input budget also differs from the earlier 512-token main table.</p>
+<h3 id="section-12">Ablations: where tokens go matters alongside how many remain</h3>
+<p>Shuffling routing scores within a sample preserves its number of coarse selections while breaking their spatial alignment. The 27B mean falls from <strong>76.73 to 71.37</strong>, with ScreenSpotV2 falling from <strong>91.43 to 59.28</strong>. The 4B mean falls from <strong>72.59 to 70.28</strong>. This tests spatial allocation more directly than comparing different budgets alone. <a href="https://arxiv.org/html/2610.07987v1#S4.T6" target="_blank" rel="noopener noreferrer">Table 6</a></p>
+<p>The pooler ablation compares gated pooling with a pixel-unshuffle projector after 4B Stage 1, both at 75% savings. Gated pooling leads on all eight tasks, gaining <strong>2.64</strong> points on DocVQA and <strong>2.77</strong> on VideoOCR. The 27B Stage 3 ablation raises the mean from <strong>73.15 to 76.73</strong>, including grounding from <strong>66.59 to 91.43</strong>, while RealWorldQA decreases <strong>1.18 points</strong>. These results support adaptation to actual mixed inputs, but do not independently isolate every routing-depth, coordinate, and training-budget choice. <a href="https://arxiv.org/html/2610.07987v1#A5.T7" target="_blank" rel="noopener noreferrer">Figure 7 and Table 7</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/visionweave/coverage.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/visionweave/coverage.png" alt="Mixed-granularity and pruning comparisons for interfaces and documents" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Examine click targets and text: mixed granularities represent every region, whereas pruning can leave gaps. These cases suggest a mechanism; they do not replace quantitative evaluation. Original Figure 9, PDF page 13; rendered from the original vector figure without redrawing.</figcaption></figure>
+<h3 id="section-13">Additional control: adjust compression without retraining</h3>
+<p>Lowering the routing threshold selects more coarse representations. On Video-MME, reducing the 27B threshold from <strong>0.5 to 0.25</strong> increases savings from <strong>54.2% to 66.0%</strong>, with a <strong>0.37-point</strong> score loss. The same adjustment increases 4B savings from <strong>51.4% to 62.1%</strong>, retaining <strong>67.22</strong>. This provides operating choices beyond the default, rather than a lossless-compression guarantee across all tasks. <a href="https://arxiv.org/html/2610.07987v1#S3.SS5" target="_blank" rel="noopener noreferrer">Section 3.5 and Figure 8</a></p>
+<h2 id="section-14">6. Our reflections</h2>
+<h3 id="section-15">Topic reflection: what is this field studying?</h3>
+<p>Visual-efficiency research is making representational demand a learned decision. Here, content allocation, spatial coordinates, and language-model adaptation enter one training and deployment process. For scientific-document reading, captions, small print, axes, and backgrounds have different value. Preserving evidence according to the research question is a natural next direction.</p>
+<h3 id="section-16">Limitations reflection: what remains unresolved?</h3>
+<ol>
+<li><strong>Content adaptation has task boundaries.</strong> The router does not directly read the textual question and supports only two granularities. Near-native averages may hide failures on critical small text or locations.</li>
+<li><strong>Contributions and comparisons are not fully separated.</strong> The trained system and heuristic baselines receive different investment, and FastV† modifies the original implementation. Ablations do not exhaust router, positional, and training alternatives.</li>
+<li><strong>Reproduction and cost recovery need more evidence.</strong> Training is substantial and weights remain unavailable. Serving gains come from one long-video configuration, without a complete cross-workload, training-amortized cost study.</li>
+</ol>
+<h3 id="section-17">Solution reflection: which directions could address these problems?</h3>
+<ol>
+<li><strong>Test question-conditioned granularity.</strong> Pair different questions about the same image, track small text, rare objects, and localization errors, and compare additional scales and fallback to fine representations.</li>
+<li><strong>Build fuller controlled comparisons.</strong> Match per-example token budgets and training investment; compare routers, coordinates, and equally distilled baselines, with repeated runs and uncertainty estimates.</li>
+<li><strong>Publish reproducible cost curves.</strong> Release trained weights, data mixtures, and evaluation configurations; measure short-image and long-video latency and cost across concurrency levels, then estimate the volume needed to amortize training.</li>
+</ol>
+<p><em>Based on the <a href="https://arxiv.org/pdf/2610.07987v1" target="_blank" rel="noopener noreferrer">v1 PDF</a> and the official repository snapshot linked above. Figures reproduce original Figures 2, 3, and 9, credited to Yuan Feng and coauthors under the paper’s <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> license; converted to PNG without redrawing. Tables excerpt reported results. Interpretations, synthesized limitations, and proposed experiments are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: where should visual models spend computation?</a></li><li><a href="#section-2">2. Related work: from removing tokens to learning granularity</a></li><li><a href="#section-3">3. Research questions: how much capability survives fewer representations?</a></li><li><a href="#section-4">4. Method: construct two representations, then learn their allocation</a></li><li><a href="#section-9">5. Experiments and results: quality first, then speed and mechanisms</a></li><li><a href="#section-14">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../vharness/"><span>Paper reading</span><strong>VHarness: visual reasoning as callable tools for coding agents</strong><i aria-hidden="true">↗</i></a><a href="../frontier3dbench/"><span>Paper reading</span><strong>Frontier3DBench: from 3D objects to interactive worlds</strong><i aria-hidden="true">↗</i></a><a href="../second-thought/"><span>Paper reading</span><strong>Second Thought: reasoning while agents act and wait</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

@@ -1,5 +1,36 @@
 [
   {
+    "slug": "visionweave",
+    "source": "https://arxiv.org/abs/2610.07987v1",
+    "source_pdf": "https://arxiv.org/pdf/2610.07987v1",
+    "source_pdf_sha256": "80350d7b64ea9132421f73d8362b8533d8fb382f38ff753841ff029b998a49f4",
+    "figure_manifest": "assets/img/blog/visionweave/sources.json",
+    "imported_on": "2026-11-22",
+    "source_archive_sha256": "4367580b1bf7f7887ac849a0cf9b3c2111d8985087934306c9a82aefe3b59831",
+    "scope": "Complete bilingual six-section reading with three reflection subsections. Original Figures 2, 3, 9. All eight 27B main task results and 4B aggregate before serving, matched-dataset-budget, routing shuffle, pooler, Stage 3 and threshold analyses. Distinguishes per-task relative performance from overall accuracy, visual-token savings from total compute, input budgets across experiments, off-policy teacher supervision, two-level routing, non-question-conditioned vision routing, and incomplete weight availability.",
+    "related_sources": [
+      "https://arxiv.org/abs/2403.06764",
+      "https://arxiv.org/abs/2412.04467",
+      "https://arxiv.org/abs/2510.12793",
+      "https://github.com/FFY0/VisionWeave/tree/321a4460e6febb84d10f68cd0ee7bee1fd78c59f"
+    ]
+  },
+  {
+    "slug": "vharness",
+    "source": "https://arxiv.org/abs/2611.17797v1",
+    "source_pdf": "https://arxiv.org/pdf/2611.17797v1",
+    "source_pdf_sha256": "e9819a278caa55fd74700cbcc987b85446265c4d75605f17bb94cb34aa0a0ded",
+    "figure_manifest": "assets/img/blog/vharness/sources.json",
+    "imported_on": "2026-11-22",
+    "scope": "Complete bilingual six-section reading with three reflection subsections. Original method Figures 1 and 3, rights retained. All four multimodal main paired model comparisons across three tasks before shared-50-case text-only results, five-action versus free-form interface, same-backend frontier ablation and output-token costs. Distinguishes offline similarity from human/function evaluation, coordinate/mesh alignment, cumulative output from context size, additional inference from cost-matched causal effects, and unavailable implementation.",
+    "related_sources": [
+      "https://aclanthology.org/2025.naacl-long.199/",
+      "https://arxiv.org/abs/2606.01057",
+      "https://vision-as-a-tool.github.io/",
+      "https://github.com/TidalHarley/Vision-as-a-Tool/tree/7ae2705dee8c957f8e375adc6ab48e06074c11ff"
+    ]
+  },
+  {
     "slug": "frontier3dbench",
     "source": "https://arxiv.org/abs/2611.09017v1",
     "source_pdf": "https://arxiv.org/pdf/2611.09017v1",

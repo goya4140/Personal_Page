@@ -1,5 +1,55 @@
 [
   {
+    "slug": "visionweave",
+    "title_zh": "VisionWeave：让多模态模型学习哪里值得细看",
+    "title_en": "VisionWeave: learning where visual detail is worth keeping",
+    "summary_zh": "解读粗细视觉表示、三阶段自蒸馏与内容路由，核对 43% token 节省、跨任务质量和真实服务加速的条件。",
+    "summary_en": "Coarse and fine representations, three-stage self-distillation, and content routing, with the conditions behind 43% token savings, task quality, and serving gains.",
+    "tags_zh": [
+      "人工智能",
+      "高效多模态模型",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Efficient multimodal models",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-22",
+    "paper": {
+      "title": "VisionWeave: Weaving Elastic Visual Representations as a Native Capability of MLLMs",
+      "url": "https://arxiv.org/abs/2610.07987v1",
+      "venue": "arXiv v1 · 2026-10-06"
+    },
+    "cover": "assets/img/blog/visionweave/overview.png"
+  },
+  {
+    "slug": "vharness",
+    "title_zh": "VHarness：把视觉判断做成编程 Agent 可以调用的工具",
+    "title_en": "VHarness: visual reasoning as callable tools for coding agents",
+    "summary_zh": "解读五种视觉动作、按需修订流程，以及网页、SVG、三维重建的质量提升与额外推理成本。",
+    "summary_en": "Five visual actions, on-demand refinement, and the quality–compute trade-off across HTML, SVG, and 3D reconstruction.",
+    "tags_zh": [
+      "人工智能",
+      "多模态编程智能体",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Multimodal coding agents",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-22",
+    "paper": {
+      "title": "Vision-as-a-Tool: Visual Harness for Multimodal Agentic Coding",
+      "url": "https://arxiv.org/abs/2611.17797v1",
+      "venue": "arXiv v1 · 2026-11-13"
+    },
+    "cover": "assets/img/blog/vharness/overview.png"
+  },
+  {
     "slug": "frontier3dbench",
     "title_zh": "Frontier3DBench：Agent 能从 3D 物体建到可交互世界吗？",
     "title_en": "Frontier3DBench: from 3D objects to interactive worlds",

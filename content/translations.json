@@ -133,6 +133,14 @@
     "frontier3dbench": {
       "source_sha256": "09cd0492a193a666605cd50c94869baba7554c4c695e9fee8df1f1a420e1aba8",
       "english_sha256": "40d8996f752fef90f2108a315d1ca84d08c75e9d5d76ac24217e3c6321678957"
+    },
+    "visionweave": {
+      "source_sha256": "3b5f40e96be0a82687944893bede82801d9a8a24e32469809cbb36b88c18e02d",
+      "english_sha256": "1cdd7dca2bee78d1fe6fcbbe9c643010d2f002fd6e46f897c727b6862e328cc5"
+    },
+    "vharness": {
+      "source_sha256": "904a69b2c29a5dc308db0527d07bf706240d49db51cea48f09f0a148438cabb7",
+      "english_sha256": "20a7afa47158d7fc0d91fa7f7fdb67bd73697f9eae08d7805fb643ba7af80277"
     }
   }
 }

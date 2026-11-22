@@ -1,0 +1,44 @@
+{
+  "source": "https://arxiv.org/pdf/2610.07987v1",
+  "source_pdf_sha256": "80350d7b64ea9132421f73d8362b8533d8fb382f38ff753841ff029b998a49f4",
+  "source_archive": "https://arxiv.org/src/2610.07987v1",
+  "source_archive_sha256": "4367580b1bf7f7887ac849a0cf9b3c2111d8985087934306c9a82aefe3b59831",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Yuan Feng, Qize Yang, Ruizhe Chen, Sibo Song, Haolin He, Muzhi Zhu, Zihan Liu, Yunfei Chu, Xize Cheng, Yuxuan Wang, Jin Xu, and Xike Xie. VisionWeave, arXiv v1, 2026-10-06.",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": 3,
+      "pdf_page": 3,
+      "source_archive_member": "figures/adavisual_framework.pdf",
+      "source_asset_sha256": "6dcd91a111355db6aff4b069a41208485870e7d76b4f4050323850044b314923",
+      "operation": "Original vector figure rendered as PNG; no cropping or redrawing",
+      "width": 2600,
+      "height": 818,
+      "sha256": "c44062e278e3ffe6135f8640e709abc445b59b739c55c9966a8dc1c60ffbeb82"
+    },
+    {
+      "file": "benchmark.png",
+      "figure": 2,
+      "pdf_page": 2,
+      "source_archive_member": "figures/adaptive_compression_512t_eightbench.pdf",
+      "source_asset_sha256": "e1a57ae2d0fb5a9e4017804b245afde12a98c841a6fd8c5d63575bb662495bef",
+      "operation": "Original vector figure rendered as PNG; no cropping or redrawing",
+      "width": 2600,
+      "height": 970,
+      "sha256": "9e1ec308c770a955b749890f0ddfd6abaac914b38e803bc190dac315d420f8cb"
+    },
+    {
+      "file": "coverage.png",
+      "figure": 9,
+      "pdf_page": 13,
+      "source_archive_member": "figures/granularity_case_studies.pdf",
+      "source_asset_sha256": "73d944c8fa20e80209872023ffdc91ab8c6d51c0927be0be568547e6086db550",
+      "operation": "Original vector figure rendered as PNG; no cropping or redrawing",
+      "width": 2600,
+      "height": 2053,
+      "sha256": "0cacd6b4b3591e92e298fb06d889b9e962605b7efa1c0d553b26741f63c71fcb"
+    }
+  ]
+}
