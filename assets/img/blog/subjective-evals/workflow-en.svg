@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="740" viewBox="0 0 1440 740" role="img" aria-labelledby="title desc">
+<title id="title">Research reports: requirements to inspectable evidence</title><desc id="desc">Teaching design · Retain inputs, decisions, versions, and use records</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#5b8477"/></marker></defs>
+<rect width="1440" height="740" rx="24" fill="#f5f2e9"/>
+<g font-family="Arial, PingFang SC, Noto Sans CJK SC, sans-serif">
+<text x="60" y="78" font-size="38" fill="#17313c" font-weight="700">Research reports: requirements to inspectable evidence</text>
+<text x="60" y="125" font-size="23" fill="#536a6f" font-weight="400">Teaching design · Retain inputs, decisions, versions, and use records</text>
+<rect x="60" y="190" width="410" height="310" rx="20" fill="#fffefa" stroke="#b7c9be" stroke-width="2"/>
+<text x="85" y="245" font-size="28" fill="#17313c" font-weight="700">01  Specify evidence</text>
+<text x="85" y="290" font-size="23" fill="#536a6f" font-weight="400">Task + source material</text>
+<text x="85" y="350" font-size="22" fill="#17313c" font-weight="400">Are claims supported?</text>
+<text x="85" y="401" font-size="22" fill="#17313c" font-weight="400">Are comparisons valid?</text>
+<text x="85" y="452" font-size="22" fill="#17313c" font-weight="400">Is the experiment executable?</text>
+<path d="M477 341 H506" fill="none" stroke="#5b8477" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="515" y="190" width="410" height="310" rx="20" fill="#fffefa" stroke="#b7c9be" stroke-width="2"/>
+<text x="540" y="245" font-size="28" fill="#17313c" font-weight="700">02  Check independently</text>
+<text x="540" y="290" font-size="23" fill="#536a6f" font-weight="400">Report + review records</text>
+<text x="540" y="350" font-size="22" fill="#17313c" font-weight="400">Rules and evidence locations</text>
+<text x="540" y="401" font-size="22" fill="#17313c" font-weight="400">Judge development / acceptance</text>
+<text x="540" y="452" font-size="22" fill="#17313c" font-weight="400">Retain errors and disagreements</text>
+<path d="M932 341 H961" fill="none" stroke="#5b8477" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="970" y="190" width="410" height="310" rx="20" fill="#fffefa" stroke="#b7c9be" stroke-width="2"/>
+<text x="995" y="245" font-size="28" fill="#17313c" font-weight="700">03  Compare and use</text>
+<text x="995" y="290" font-size="23" fill="#536a6f" font-weight="400">Differences + user feedback</text>
+<text x="995" y="350" font-size="22" fill="#17313c" font-weight="400">Paired effects and uncertainty</text>
+<text x="995" y="401" font-size="22" fill="#17313c" font-weight="400">Adoption and revision records</text>
+<text x="995" y="452" font-size="22" fill="#17313c" font-weight="400">Quality, time, and cost</text>
+<path d="M 1175 512 V 600 H 265 V 515" fill="none" stroke="#5b8477" stroke-dasharray="10 8" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="330" y="568" width="780" height="52" rx="10" fill="#f5f2e9"/>
+<text x="355" y="602" font-size="24" fill="#17313c" font-weight="400">Turn new failures into tests for the next evaluation version</text>
+<text x="60" y="690" font-size="21" fill="#536a6f" font-weight="400">Our illustrative design; no experiment conducted; not the source author’s software architecture</text>
+</g></svg>

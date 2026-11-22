@@ -1,5 +1,34 @@
 [
   {
+    "slug": "subjective-evals",
+    "title_zh": "主观任务怎么评：从人工判断到科研 Agent 的可靠评测",
+    "title_en": "Evaluating subjective tasks: reliable judgments for research agents",
+    "summary_zh": "阅读 Cameron R. Wolfe 的评测实践博客，用科研报告示例讲清人工校准、自动裁判、配对统计和真实使用反馈，并区分建议与实验证据。",
+    "summary_en": "A reading of Cameron R. Wolfe’s evaluation guide, with an independent research-report example covering human review, judges, paired statistics, and real-use feedback.",
+    "tags_zh": [
+      "人工智能",
+      "智能体评测",
+      "博客阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Agent evaluation",
+      "Blog reading"
+    ],
+    "kind": "notes",
+    "source_type": "blog",
+    "date": "2026-11-22",
+    "paper": {
+      "title": "Evaluating Agents on Highly Subjective Tasks",
+      "url": "https://cameronrwolfe.substack.com/p/subjective-evals",
+      "venue": "Cameron R. Wolfe · Deep (Learning) Focus · 2026-10-21"
+    },
+    "covers": {
+      "zh": "assets/img/blog/subjective-evals/workflow-zh.svg",
+      "en": "assets/img/blog/subjective-evals/workflow-en.svg"
+    }
+  },
+  {
     "slug": "visionweave",
     "title_zh": "VisionWeave：让多模态模型学习哪里值得细看",
     "title_en": "VisionWeave: learning where visual detail is worth keeping",

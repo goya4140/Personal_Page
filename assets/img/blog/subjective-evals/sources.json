@@ -1,0 +1,24 @@
+{
+  "slug": "subjective-evals",
+  "accessed_on": "2026-11-22",
+  "source_article": {
+    "title": "Evaluating Agents on Highly Subjective Tasks",
+    "author": "Cameron R. Wolfe",
+    "published_on": "2026-10-21",
+    "url": "https://cameronrwolfe.substack.com/p/subjective-evals",
+    "public_html_sha256": "2b208fd137916d9d76d4782bb1abd28b72c2ce30cdc5661dd541008cc09622b8"
+  },
+  "figures": [
+    {
+      "files": [
+        "workflow-zh.svg",
+        "workflow-en.svg"
+      ],
+      "type": "original teaching diagram",
+      "creator": "Linhao Wang blog editorial",
+      "source_figure": null,
+      "description": "Independent research-report application design. Not a reproduction of a source illustration, not a released architecture, and not an executed experiment."
+    }
+  ],
+  "tables": "Original proposed review sheet and synthetic paired-outcome data; no source experimental results reproduced."
+}

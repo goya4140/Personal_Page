@@ -141,6 +141,10 @@
     "vharness": {
       "source_sha256": "904a69b2c29a5dc308db0527d07bf706240d49db51cea48f09f0a148438cabb7",
       "english_sha256": "20a7afa47158d7fc0d91fa7f7fdb67bd73697f9eae08d7805fb643ba7af80277"
+    },
+    "subjective-evals": {
+      "source_sha256": "4360aae0547fdece8a01de50272a5f342db6f5f3128404d71546d87e72f7a1f6",
+      "english_sha256": "356dff9ecf899e3f287e782850d7d0f84f8ac702e9f5503e8e0d17e2c3d14ae2"
     }
   }
 }

@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>主观任务怎么评：从人工判断到科研 Agent 的可靠评测 | Linhao Wang</title>
+  <meta name="description" content="阅读 Cameron R. Wolfe 的评测实践博客，用科研报告示例讲清人工校准、自动裁判、配对统计和真实使用反馈，并区分建议与实验证据。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="主观任务怎么评：从人工判断到科研 Agent 的可靠评测">
+  <meta property="og:description" content="阅读 Cameron R. Wolfe 的评测实践博客，用科研报告示例讲清人工校准、自动裁判、配对统计和真实使用反馈，并区分建议与实验证据。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/subjective-evals/"><link rel="canonical" href="https://goya4140.github.io/blog/subjective-evals/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="主观任务怎么评：从人工判断到科研 Agent 的可靠评测" data-title-en="Evaluating subjective tasks: reliable judgments for research agents" data-language-url="../../en/blog/subjective-evals/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">博客阅读</span><span>约 9 分钟</span><span>中文原稿</span><time datetime="2026-11-22">2026-11-22</time></div><div class="article-heading-layout has-art"><div><h1>主观任务怎么评：从人工判断到科研 Agent 的可靠评测</h1><p class="article-summary">阅读 Cameron R. Wolfe 的评测实践博客，用科研报告示例讲清人工校准、自动裁判、配对统计和真实使用反馈，并区分建议与实验证据。</p><div class="post-topics"><span>人工智能</span><span>智能体评测</span><span>博客阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/subjective-evals/workflow-zh.svg" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/subjective-evals/workflow-zh.svg" alt="主观任务怎么评：从人工判断到科研 Agent 的可靠评测" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读原文</span><a href="https://cameronrwolfe.substack.com/p/subjective-evals" target="_blank" rel="noopener noreferrer">Evaluating Agents on Highly Subjective Tasks ↗</a><small>Cameron R. Wolfe · Deep (Learning) Focus · 2026-10-21</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：开放式任务到底在评什么</a></li><li><a href="#section-2">二、相关文献解读：把裁判、统计与工作流分开看</a></li><li><a href="#section-3">三、研究问题解读：我们归纳的三个问题</a></li><li><a href="#section-4">四、方法解读：把路线落实为科研报告评审</a></li><li><a href="#section-9">五、证据与验证边界：哪些结论目前成立</a></li><li><a href="#section-13">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="subjective-evals" lang="zh-CN"><p>一份科研综述可能引用齐全，却没有回答真正的问题；另一份报告读起来流畅，却把相关性写成了因果性。评价这类开放式产出，需要同时检查事实、论证和使用价值。怎样知道一次改动真的让 Agent 变好了？</p>
+<p>本文阅读 Cameron R. Wolfe 于 2026 年 10 月 21 日发布的技术博客 <strong><a href="https://cameronrwolfe.substack.com/p/subjective-evals" target="_blank" rel="noopener noreferrer">Evaluating Agents on Highly Subjective Tasks</a></strong>。作者组织了一条三层路线：人工评审定义质量，经过校准的自动评测支持快速迭代，线上监测检验真实使用效果，再将新问题带回评测。文章提供实践建议，没有报告证明整个路线有效的统一对照实验。下文简述其主张，结合原始研究和我们自拟的科研报告示例展开分析。</p>
+<h2 id="section-1">一、课题解读：开放式任务到底在评什么</h2>
+<p>先设想一个具体任务：请 Agent 比较几种医学预测方法，并建议下一步实验。我们至少关心三个不同的问题：引用是否支持结论，比较是否公平，建议能否执行。三者可能给出不同的评价结果。</p>
+<p>这里的“主观”需要拆开理解。<strong>部分质量可以核查，部分取决于任务目标，还有部分体现评审者的偏好。</strong> 例如，一篇论文是否真的报告了某个样本量可以核查；综述应覆盖哪些研究，要参照问题范围；语言是否足够简洁，还与读者经验有关。把这些判断压成一个“整体质量 8 分”，会隐藏最需要改进的环节。</p>
+<p>我们的阅读重点因此是测量设计：先明确希望改善什么，再决定让谁判断、依据什么证据判断，以及测量多精确才足以影响下一次决策。</p>
+<h2 id="section-2">二、相关文献解读：把裁判、统计与工作流分开看</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>原始材料</th>
+<th>提供什么依据</th>
+<th>本文采用的观察角度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2306.05685v4" target="_blank" rel="noopener noreferrer">Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</a></td>
+<td>研究模型裁判与人类偏好的一致性，并分析位置、冗长和自我偏好等偏差</td>
+<td>裁判能否可靠判断当前领域，需要单独验证</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2411.00640v1" target="_blank" rel="noopener noreferrer">Adding Error Bars to Evals</a></td>
+<td>讨论置信区间、题目聚类、重复生成、配对比较和功效分析</td>
+<td>分数差距的大小，需要和不确定性一起解释</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/research/demystifying-evals-for-ai-agents" target="_blank" rel="noopener noreferrer">Demystifying evals for AI agents</a></td>
+<td>从 Agent 的任务、运行轨迹、产物和判分器出发，讨论评测维护</td>
+<td>判分错误、执行环境问题和 Agent 失败应分别排查</td>
+</tr>
+</tbody>
+</table></div><p>这三类材料分别帮助我们检查“尺子是否合适”“测量是否精确”“流程是否真实”。Wolfe 的博客将这些问题放进持续开发的语境；下面的具体评审表与验证方案是我们的应用设计。</p>
+<h2 id="section-3">三、研究问题解读：我们归纳的三个问题</h2>
+<ol>
+<li><strong>质量定义能否落实到可检查的证据？</strong> 需要区分事实正确、推理充分和表达偏好，避免用一个总分替代所有判断。</li>
+<li><strong>自动分数能否支持选型？</strong> 既要检查裁判是否误判，也要检查模型之间的差距是否超过抽样和运行噪声。</li>
+<li><strong>离线结论能否帮助真实研究？</strong> 在固定题集上胜出之后，还需要知道研究者是否更容易核查、采用或修订这些产出。</li>
+</ol>
+<p>这些是我们的阅读归纳，并非原作者逐字提出的研究问题。</p>
+<h2 id="section-4">四、方法解读：把路线落实为科研报告评审</h2>
+<p>下图和本节是一套<strong>教学用的落地方案</strong>。它展示我们会保存哪些证据，并非原文插图或作者发布的软件架构。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/subjective-evals/workflow-zh.svg" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/subjective-evals/workflow-zh.svg" alt="科研报告评测的教学流程：明确证据、独立核验、版本比较和研究者使用反馈" loading="lazy" decoding="async"></a><figcaption>图 1 · 本文自绘的科研报告评测方案。每一步都留下可回看的记录；虚线表示将使用中发现的问题加入下一版评测。它是我们的应用示例，不代表已实施实验。</figcaption></figure>
+<h3 id="section-5">第一步：先写检查项，再讨论总分</h3>
+<p>假设任务是“比较三种医学预测方法，提出一项外部验证实验”。可以使用下面的评审记录。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>维度</th>
+<th>需要查看的证据</th>
+<th>教学示例中的判断规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事实支持</td>
+<td>原文段落、表格和报告中的对应主张</td>
+<td>核心数字有出处，引用确实支持该主张</td>
+</tr>
+<tr>
+<td>比较有效性</td>
+<td>人群、数据划分、指标和外部验证条件</td>
+<td>不把不同测试条件下的数字直接解释为方法优劣</td>
+</tr>
+<tr>
+<td>实验可执行性</td>
+<td>数据需求、对照、终点和执行限制</td>
+<td>建议包含可操作的对照和预先指定的终点</td>
+</tr>
+<tr>
+<td>不确定性表达</td>
+<td>证据不足、冲突或缺失的位置</td>
+<td>明确标记无法确认的结论</td>
+</tr>
+</tbody>
+</table></div><p>这里需要区分两个角色：<strong>rubric 规定检查什么，judge 执行检查。</strong> 同一份规则可以交给人或模型，某些项目也能由程序辅助验证。找到 DOI 只能证明文献可定位，不能证明引用支持结论。</p>
+<p>为了发现规则歧义，我们建议让两位评审者先独立查看相同报告，再对照各自标出的证据。分歧可能来自漏看材料，也可能来自对“足够外部验证”的不同理解。应记录分歧原因；保留无法消除的合理偏好，而不是为了提高一致率把重要标准删掉。</p>
+<h3 id="section-6">第二步：把裁判开发集与独立验收集分开</h3>
+<p>我们建议保存一组“任务、报告、证据位置、人工判定及理由”记录。其中一部分用于修改裁判提示词，另一部分留作独立验收。若反复查看验收结果并据此改规则，该部分也参与了开发，需要另留新的检查数据。</p>
+<p>验收时重点查看两类错误：证据有问题却通过，以及有效答案被拒绝。按检查项分别统计，能够发现“总一致率很高，但总漏掉最关键的事实错误”的情况。模型裁判的位置和冗长偏差已有研究依据，因此在成对比较时，我们还会匿名化系统身份，并交换答案展示顺序检查判定变化。<a href="https://arxiv.org/html/2306.05685v4#S3" target="_blank" rel="noopener noreferrer">相关偏差分析见 MT-Bench 论文第 3 节</a>。</p>
+<h3 id="section-7">第三步：比较版本时，保留题目之间的对应关系</h3>
+<p>让两个 Agent 版本回答相同的问题，并对每个问题记录分数差。共享题目有助于控制题目难度造成的波动。统计分析应以这些配对差值为依据，而不是只比较两个总分。<a href="https://arxiv.org/html/2411.00640v1#S4" target="_blank" rel="noopener noreferrer">统计依据见原始论文第 4 节</a>。</p>
+<p>如果同一篇论文衍生出多道问题，这些问题可能相关，计算区间时应考虑按原论文聚类。多次生成能够帮助估计同一题上的运行波动，但增加重复运行并没有增加新的研究主题。对于我们的场景，扩展主题覆盖和重复已有题目是两种不同的预算用途。</p>
+<h3 id="section-8">第四步：记录研究者用了什么、为什么修改</h3>
+<p>我们的应用建议是保存报告的采用、修订与放弃记录，并请研究者指出具体原因。比如，“补上了一项关键基线”比一个笼统的点赞更容易转成下一道测试题。</p>
+<p>这些反馈仍需解释：停留时间增加，可能意味着内容有用，也可能意味着核查更费力；引用被保留，也不能独自证明结论正确。若比较两个版本的真实使用效果，应提前明确分配方式、主要终点、观察周期和费用口径，避免在看到数据后再挑最有利的指标。</p>
+<h2 id="section-9">五、证据与验证边界：哪些结论目前成立</h2>
+<h3 id="section-10">先看整体证据：实践路线还需要场景内验证</h3>
+<p>原博客没有报告一个统一的样本、基线、成本和统计检验来量化三层路线的净收益。因此，不能从该文推出“采用后准确率提高多少”或“人力节省多少”。其价值在于提供组织评测的思路；具体收益仍需要在目标工作流里验证。</p>
+<p>原始裁判研究支持“模型可以近似部分人类判断”，同时报告了偏差；统计论文支持对差值做不确定性分析。这些证据各有范围，尚不足以证明任何一个科研裁判已经可靠。我们的验收对象应当是当前任务、当前规则和当前裁判组合。</p>
+<h3 id="section-11">教学计算：60% 到 70% 为什么还不能急着宣布进步</h3>
+<p>下面是<strong>我们构造的虚拟数据</strong>，不是博客、引用论文或真实 Agent 的实验结果。假设有 100 个独立抽样的研究问题，每个版本各运行一次，由固定评审规则给出二元结果。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>同一题上的配对结果</th>
+<th style="text-align:right">题数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>两个版本都通过</td>
+<td style="text-align:right">48</td>
+</tr>
+<tr>
+<td>只有旧版通过</td>
+<td style="text-align:right">12</td>
+</tr>
+<tr>
+<td>只有新版通过</td>
+<td style="text-align:right">22</td>
+</tr>
+<tr>
+<td>两个版本都未通过</td>
+<td style="text-align:right">18</td>
+</tr>
+<tr>
+<td>合计</td>
+<td style="text-align:right">100</td>
+</tr>
+</tbody>
+</table></div><p>旧版通过 60 / 100，新版通过 70 / 100，提升 <strong>10 个百分点</strong>。令每题差值为新版结果减旧版结果，取值为 −1、0、1；差值均值为 0.10，样本方差为 1 / 3，均值标准误约为 0.0577。用正态近似得到的 95% 差值置信区间约为 <strong>[−1.3，21.3] 个百分点</strong>，包含零。</p>
+<p>这表示该设置下证据仍不够精确，无法按这一双侧区间确认提升；它也没有证明两个版本等效。区间依赖独立抽样等假设，若问题共享同一来源，或裁判发生系统性误判，还需要另行处理。</p>
+<p>再假设每题、每版本生成 3 次，每份报告由模型裁判判 3 次，总量是 <strong>600 次生成、1,800 次判分</strong>，仍只覆盖 <strong>100 个问题</strong>。分析时要保留“题目—生成—判分”的层级，不能把 1,800 次判分当作 1,800 个独立研究任务。这里应报告平均运行表现；挑每题最好的报告会改变被评价的目标。</p>
+<h3 id="section-12">我们建议怎样验证这套方案</h3>
+<p>可以先比较三种判分设置：笼统整体打分、逐项 rubric、经过独立人工数据验收的 rubric。让三者评价同一批报告，比较关键错误的漏判、正确报告的误拒、与盲评专家的分歧，以及每份报告的时间和费用。这检验的是判分方案。</p>
+<p>再固定判分方案，比较两个 Agent 版本，报告配对差值、区间、各主题结果和总成本。这才检验 Agent 是否改善。最后，若要检验完整工作流的价值，还需比较研究者完成真实任务的质量与投入。三项实验回答不同问题，不能互相替代；本文没有执行这些实验。</p>
+<h2 id="section-13">六、我们自己的思考</h2>
+<h3 id="section-14">课题思考：这个领域在研究什么</h3>
+<p>我们关心的是一条可追溯的判断链：什么算好、证据在哪里、谁作出了判断、这次判断能支持什么决策。对于科研 Agent，报告更像论文、评审分数更高与研究结论更可靠，需要分别测量。</p>
+<h3 id="section-15">局限问题思考：目前还存在哪些问题</h3>
+<p>第一，专家的一致意见也可能遗漏重要观点，尤其是判断新颖性和研究价值时。第二，反复围绕固定裁判优化，可能奖励更讨巧的写法。第三，完整核查需要阅读原文、运行实验和专家时间，其成本可能超过生成报告本身。这些是我们对应用场景的判断，尚待验证。</p>
+<h3 id="section-16">解决方案思考：这些问题有哪些解决方向</h3>
+<p>对应第一点，可以保留分歧理由和不同领域的评审，检查少数意见是否揭示证据缺口。对应第二点，可以保留未参与开发的主题、独立裁判和人工抽查，观察改进能否迁移。对应第三点，可以尝试按风险分配核查预算：先筛查来源和数字，再将关键结论或争议样本交给专家；比较同等预算下的错误发现率和下游决策质量。这些是可检验的研究方向。</p>
+<p><em>阅读范围：原博客的公开正文，访问于 2026-11-22；补充材料为上文链接的原始研究与官方工程指南。本文为独立解读，并非全文翻译；图表和数字案例均为我们自绘、自拟的教学材料。未声称复现原文系统或完成真实用户实验。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：开放式任务到底在评什么</a></li><li><a href="#section-2">二、相关文献解读：把裁判、统计与工作流分开看</a></li><li><a href="#section-3">三、研究问题解读：我们归纳的三个问题</a></li><li><a href="#section-4">四、方法解读：把路线落实为科研报告评审</a></li><li><a href="#section-9">五、证据与验证边界：哪些结论目前成立</a></li><li><a href="#section-13">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../earlyeval/"><span>论文阅读</span><strong>EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>论文阅读</span><strong>VisionWeave：让多模态模型学习哪里值得细看</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>论文阅读</span><strong>VHarness：把视觉判断做成编程 Agent 可以调用的工具</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

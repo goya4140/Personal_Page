@@ -1,0 +1,145 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evaluating subjective tasks: reliable judgments for research agents | Linhao Wang</title>
+  <meta name="description" content="A reading of Cameron R. Wolfe’s evaluation guide, with an independent research-report example covering human review, judges, paired statistics, and real-use feedback.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Evaluating subjective tasks: reliable judgments for research agents">
+  <meta property="og:description" content="A reading of Cameron R. Wolfe’s evaluation guide, with an independent research-report example covering human review, judges, paired statistics, and real-use feedback.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/subjective-evals/"><link rel="canonical" href="https://goya4140.github.io/en/blog/subjective-evals/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="主观任务怎么评：从人工判断到科研 Agent 的可靠评测" data-title-en="Evaluating subjective tasks: reliable judgments for research agents" data-language-url="../../../blog/subjective-evals/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Blog reading</span><span>8 min read</span><span>English translation</span><time datetime="2026-11-22">2026-11-22</time></div><div class="article-heading-layout has-art"><div><h1>Evaluating subjective tasks: reliable judgments for research agents</h1><p class="article-summary">A reading of Cameron R. Wolfe’s evaluation guide, with an independent research-report example covering human review, judges, paired statistics, and real-use feedback.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Agent evaluation</span><span>Blog reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/subjective-evals/workflow-en.svg" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/subjective-evals/workflow-en.svg" alt="Evaluating subjective tasks: reliable judgments for research agents" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Source article</span><a href="https://cameronrwolfe.substack.com/p/subjective-evals" target="_blank" rel="noopener noreferrer">Evaluating Agents on Highly Subjective Tasks ↗</a><small>Cameron R. Wolfe · Deep (Learning) Focus · 2026-10-21</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: what are we measuring in open-ended work?</a></li><li><a href="#section-2">2. Related work: judges, statistics, and workflow</a></li><li><a href="#section-3">3. Questions: our three-part reading</a></li><li><a href="#section-4">4. Method: applying the roadmap to research reports</a></li><li><a href="#section-9">5. Evidence and validation boundaries</a></li><li><a href="#section-13">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="subjective-evals" lang="en"><p>A research review can contain many citations yet miss the actual question. Another report may read fluently while confusing correlation with causation. Evaluating such outputs involves facts, arguments, and practical value. How can we tell whether an agent change actually helps?</p>
+<p>This post reads Cameron R. Wolfe's technical blog <strong><a href="https://cameronrwolfe.substack.com/p/subjective-evals" target="_blank" rel="noopener noreferrer">Evaluating Agents on Highly Subjective Tasks</a></strong>, published on October 21, 2026. Its roadmap connects human evaluation to define quality, calibrated automatic evaluation for rapid iteration, and production monitoring to check real use and return new problems to evaluation. It offers practical guidance without a unified controlled experiment validating the entire roadmap. We briefly outline the argument, then develop an independent research-report example using primary research.</p>
+<h2 id="section-1">1. Topic: what are we measuring in open-ended work?</h2>
+<p>Consider an agent asked to compare medical prediction methods and recommend an experiment. We care whether sources support the claims, whether comparisons are fair, and whether the recommendation is executable. These questions can yield different verdicts.</p>
+<p>“Subjective” needs unpacking. <strong>Some quality is verifiable, some depends on the task, and some reflects reviewer preferences.</strong> A reported sample size can be checked. Required literature coverage depends on the question. Appropriate concision also depends on the reader's expertise. Compressing everything into an overall score of eight conceals the part that needs improvement.</p>
+<p>Our focus is measurement design: define the desired improvement, identify who can judge it and from which evidence, then determine the precision needed for the next decision.</p>
+<h2 id="section-2">2. Related work: judges, statistics, and workflow</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Primary material</th>
+<th>Evidence it contributes</th>
+<th>Our reading perspective</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2306.05685v4" target="_blank" rel="noopener noreferrer">Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</a></td>
+<td>Studies agreement with human preferences and position, verbosity, and self-enhancement biases</td>
+<td>Reliability in the current domain requires separate validation</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2411.00640v1" target="_blank" rel="noopener noreferrer">Adding Error Bars to Evals</a></td>
+<td>Discusses intervals, question clusters, repeated generation, paired comparisons, and power analysis</td>
+<td>Interpret score differences alongside uncertainty</td>
+</tr>
+<tr>
+<td><a href="https://www.anthropic.com/research/demystifying-evals-for-ai-agents" target="_blank" rel="noopener noreferrer">Demystifying evals for AI agents</a></td>
+<td>Examines evaluation maintenance through tasks, trajectories, artifacts, and graders</td>
+<td>Investigate grading errors, environment problems, and agent failures separately</td>
+</tr>
+</tbody>
+</table></div><p>These address the suitability of the measuring instrument, measurement precision, and workflow fidelity. Wolfe places these concerns in continuous development. The review sheet and validation plan below are our application design.</p>
+<h2 id="section-3">3. Questions: our three-part reading</h2>
+<ol>
+<li><strong>Can quality definitions point to inspectable evidence?</strong> Separate factual correctness, argument quality, and presentation preferences.</li>
+<li><strong>Can automatic scores support selection?</strong> Check both judge errors and whether differences exceed sampling and execution noise.</li>
+<li><strong>Can offline conclusions help actual research?</strong> After winning on fixed tasks, does an output become easier to verify, use, or revise?</li>
+</ol>
+<p>These are our organizing questions rather than questions quoted from the author.</p>
+<h2 id="section-4">4. Method: applying the roadmap to research reports</h2>
+<p>The diagram and this section are an <strong>illustrative implementation plan</strong> showing which records we would retain. They are neither an original source figure nor a software architecture released by Wolfe.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/subjective-evals/workflow-en.svg" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/subjective-evals/workflow-en.svg" alt="An illustrative research-report evaluation workflow: evidence criteria, independent checks, version comparisons, and researcher feedback" loading="lazy" decoding="async"></a><figcaption>Figure 1. Our proposed research-report evaluation workflow. Each stage retains inspectable records; the dashed path returns problems found during use to a future evaluation version. This is an application example, not a completed experiment.</figcaption></figure>
+<h3 id="section-5">Step 1: write checks before discussing an aggregate score</h3>
+<p>For a task asking for a comparison of three medical prediction methods and an external-validation experiment, we could use this sheet.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Dimension</th>
+<th>Evidence to inspect</th>
+<th>Illustrative decision rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Factual support</td>
+<td>Source passages, tables, and corresponding report claims</td>
+<td>Core numbers have sources that actually support the claims</td>
+</tr>
+<tr>
+<td>Valid comparisons</td>
+<td>Populations, data splits, metrics, and external-validation conditions</td>
+<td>Numbers from different test conditions are not treated as direct evidence of superiority</td>
+</tr>
+<tr>
+<td>Executable experiment</td>
+<td>Data needs, controls, endpoints, and constraints</td>
+<td>The proposal includes workable controls and a prespecified endpoint</td>
+</tr>
+<tr>
+<td>Uncertainty</td>
+<td>Missing, conflicting, or insufficient evidence</td>
+<td>Unconfirmed conclusions are explicitly marked</td>
+</tr>
+</tbody>
+</table></div><p>Two roles matter: <strong>the rubric specifies the checks; the judge performs them.</strong> Humans or models can apply the same rules, with programs assisting some checks. Locating a DOI establishes that a source is findable, not that it supports a claim.</p>
+<p>To expose ambiguity, we propose having two reviewers independently inspect the same reports, then compare their evidence annotations. Disagreement may reflect an overlooked passage or different interpretations of sufficient external validation. Record the reason and preserve reasonable differences in preference rather than removing important criteria merely to increase agreement.</p>
+<h3 id="section-6">Step 2: separate judge development from independent acceptance checks</h3>
+<p>We propose retaining records containing the task, report, evidence locations, human decisions, and rationales. Use one portion to revise judge prompts and another for independent acceptance checks. Repeatedly inspecting acceptance results and changing rules turns that portion into development data; fresh checks are then needed.</p>
+<p>Inspect unsupported reports that pass and valid reports that fail. Per-criterion results can expose a judge that agrees overall yet misses critical factual errors. Given documented position and verbosity biases, our paired comparisons would also conceal system identity and swap presentation order to check verdict changes. <a href="https://arxiv.org/html/2306.05685v4#S3" target="_blank" rel="noopener noreferrer">See Section 3 of the MT-Bench paper</a>.</p>
+<h3 id="section-7">Step 3: retain question-level pairing when comparing versions</h3>
+<p>Have both agent versions answer the same questions and retain each question's score difference. Shared questions help control difficulty variation. Analyze these paired differences rather than only the two aggregate scores. <a href="https://arxiv.org/html/2411.00640v1#S4" target="_blank" rel="noopener noreferrer">See Section 4 of the statistical paper</a>.</p>
+<p>Questions derived from one paper may be correlated, requiring uncertainty calculations that consider source-paper clusters. Repeated generation helps estimate variation within a question but adds no new research topics. Expanding topic coverage and rerunning existing questions are different uses of evaluation budget.</p>
+<h3 id="section-8">Step 4: record what researchers use and why they revise it</h3>
+<p>Our application proposal retains adoption, revision, and abandonment records, with researchers' specific explanations. “A critical baseline was added” is easier to turn into a test case than an unexplained positive rating.</p>
+<p>Interpret these signals carefully. Longer reading time may reflect usefulness or more difficult verification. Retaining a citation alone does not establish correctness. A real-use comparison should specify assignment, primary endpoint, observation window, and cost accounting before results are observed.</p>
+<h2 id="section-9">5. Evidence and validation boundaries</h2>
+<h3 id="section-10">Overall evidence: the roadmap still needs validation in its target setting</h3>
+<p>The source blog gives no unified sample, baseline, cost measurement, and statistical test quantifying the roadmap's net benefit. It therefore does not establish a particular accuracy gain or labor saving. Its contribution is an organizing approach; benefits require validation in the target workflow.</p>
+<p>Primary judge research supports approximating some human judgments while documenting biases. Statistical research supports uncertainty analysis for differences. Neither establishes that a particular scientific judge is already reliable. Acceptance should concern the current combination of task, rules, and judge.</p>
+<h3 id="section-11">Teaching calculation: why a change from 60% to 70% needs care</h3>
+<p>The following is <strong>our synthetic example</strong>, not a result from the blog, cited papers, or actual agents. Assume 100 independently sampled research questions, one run per version, and binary judgments under fixed review rules.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Paired outcome on the same question</th>
+<th style="text-align:right">Questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Both versions pass</td>
+<td style="text-align:right">48</td>
+</tr>
+<tr>
+<td>Only the old version passes</td>
+<td style="text-align:right">12</td>
+</tr>
+<tr>
+<td>Only the new version passes</td>
+<td style="text-align:right">22</td>
+</tr>
+<tr>
+<td>Neither passes</td>
+<td style="text-align:right">18</td>
+</tr>
+<tr>
+<td>Total</td>
+<td style="text-align:right">100</td>
+</tr>
+</tbody>
+</table></div><p>The old version passes 60 / 100 and the new version 70 / 100: <strong>10 percentage points</strong> higher. Define each difference as new minus old, taking values −1, 0, or 1. Its mean is 0.10, sample variance 1 / 3, and standard error about 0.0577. A normal-approximation 95% confidence interval for the difference is approximately <strong>[−1.3, 21.3] percentage points</strong>, including zero.</p>
+<p>Under this setup, evidence is insufficiently precise to confirm improvement using that two-sided interval. It does not establish equivalence either. Independence and sampling assumptions matter; shared sources or systematic judge errors require additional treatment.</p>
+<p>If each version generates 3 reports per question and a model judge grades each report 3 times, that produces <strong>600 generations and 1,800 judgments</strong>, still covering <strong>100 questions</strong>. Preserve the question–generation–judgment hierarchy rather than treating the judgments as independent research tasks. Report average run performance here; selecting the best report per question changes the evaluation target.</p>
+<h3 id="section-12">How we propose testing this design</h3>
+<p>First compare holistic grading, a criterion-level rubric, and a rubric accepted against independent human data. Grade the same reports, measuring missed critical errors, rejected valid reports, disagreement with blinded experts, and time and cost per report. This tests the grading design.</p>
+<p>Then hold grading fixed and compare agent versions, reporting paired differences, intervals, topic-level results, and total costs. This tests agent improvement. Testing the complete workflow additionally requires comparing researchers' real task quality and effort. These experiments answer different questions and cannot substitute for one another. We have not conducted them.</p>
+<h2 id="section-13">6. Our reflections</h2>
+<h3 id="section-14">Topic: what this field is studying</h3>
+<p>We care about a traceable chain of judgments: what counts as good, where the evidence is, who judged it, and which decision the judgment supports. For scientific agents, polished reports, higher reviewer scores, and more reliable conclusions require distinct measurements.</p>
+<h3 id="section-15">Limitations: what remains unresolved</h3>
+<p>First, expert consensus can miss important perspectives, particularly concerning novelty and research value. Second, repeated optimization against a fixed judge may reward appealing presentation. Third, source reading, experimental checks, and expert time may cost more than report generation. These are our application concerns, pending validation.</p>
+<h3 id="section-16">Directions: how these problems could be investigated</h3>
+<p>For the first concern, preserve disagreement rationales and reviewers from different fields, checking whether minority views expose evidence gaps. For the second, retain development-independent topics, judges, and human audits to test transfer. For the third, investigate risk-based verification: screen sources and numbers, then route critical claims or disputed reports to experts. Compare error discovery and downstream decision quality under equal budgets. These are testable proposals.</p>
+<p><em>Scope: the blog's public text, accessed 2026-11-22, supplemented by the linked primary research and official engineering guide. This is an independent reading, not a full translation. Diagrams, tables, and numerical cases are our own teaching materials. We claim neither a system reproduction nor completed user experiments.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: what are we measuring in open-ended work?</a></li><li><a href="#section-2">2. Related work: judges, statistics, and workflow</a></li><li><a href="#section-3">3. Questions: our three-part reading</a></li><li><a href="#section-4">4. Method: applying the roadmap to research reports</a></li><li><a href="#section-9">5. Evidence and validation boundaries</a></li><li><a href="#section-13">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../earlyeval/"><span>Paper reading</span><strong>EarlyEval: predicting outcomes before agent evaluation finishes</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>Paper reading</span><strong>VisionWeave: learning where visual detail is worth keeping</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>Paper reading</span><strong>VHarness: visual reasoning as callable tools for coding agents</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>
