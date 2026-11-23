@@ -145,6 +145,10 @@
     "subjective-evals": {
       "source_sha256": "4360aae0547fdece8a01de50272a5f342db6f5f3128404d71546d87e72f7a1f6",
       "english_sha256": "356dff9ecf899e3f287e782850d7d0f84f8ac702e9f5503e8e0d17e2c3d14ae2"
+    },
+    "gameasgbench": {
+      "source_sha256": "656a7646f2f0233cffcada3c8a2d0abc979e165ddab669d5d76a3a64113eccf2",
+      "english_sha256": "0991d7f5baa1adb8f62989530c8a95698bf07ae14c803745d5a9775fd7c66c86"
     }
   }
 }

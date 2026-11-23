@@ -1,0 +1,244 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？ | Linhao Wang</title>
+  <meta name="description" content="解读预声明评测接口、L1/L2 证据层与 P0/P1/P2 优先级，理解为什么 93.2% 的平均检查分仍只对应 55.3% 的严格任务成功率。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？">
+  <meta property="og:description" content="解读预声明评测接口、L1/L2 证据层与 P0/P1/P2 优先级，理解为什么 93.2% 的平均检查分仍只对应 55.3% 的严格任务成功率。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/gameasgbench/"><link rel="canonical" href="https://goya4140.github.io/blog/gameasgbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？" data-title-en="GameASG-Bench: did the game-generation agent deliver complete behavior?" data-language-url="../../en/blog/gameasgbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 13 分钟</span><span>中文原稿</span><time datetime="2026-11-23">2026-11-23</time></div><div class="article-heading-layout has-art"><div><h1>GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？</h1><p class="article-summary">解读预声明评测接口、L1/L2 证据层与 P0/P1/P2 优先级，理解为什么 93.2% 的平均检查分仍只对应 55.3% 的严格任务成功率。</p><div class="post-topics"><span>人工智能</span><span>自主软件生成</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/gameasgbench/taxonomy.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/gameasgbench/taxonomy.png" alt="GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2609.21293v1" target="_blank" rel="noopener noreferrer">GameASG-Bench: Benchmarking Autonomous Software Generation for Game Development ↗</a><small>arXiv v1 · 2026-09-18</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样判断 Agent 交付了一个真正可用的应用</a></li><li><a href="#section-2">二、相关文献解读：从代码生成走向可验证的完整应用</a></li><li><a href="#section-3">三、研究问题解读：高检查通过率是否真的代表完成了任务</a></li><li><a href="#section-4">四、方法解读：先规定可测试接口，再用浏览器证据验证</a></li><li><a href="#section-9">五、实验设计与结果：任务级成功远低于检查平均分</a></li><li><a href="#section-15">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="gameasgbench" lang="zh-CN"><p>把一个游戏项目写出来，和交付一个满足需求的游戏，不是同一件事。页面能启动、代码能编译、甚至大多数检查都通过，仍然可能在一次真实的拖拽、状态重置或连续操作中失败。GameASG-Bench 试图把这条差距测出来。</p>
+<p>本文解读 Xiuhui Zhang、Yi Chen、Shusheng Xu 等人的 <strong>GameASG-Bench: Benchmarking Autonomous Software Generation for Game Development</strong>，依据 2026 年 9 月 18 日提交的 <a href="https://arxiv.org/abs/2609.21293v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>。论文的核心不是提出新的游戏生成模型，而是把“行为可测试性”提前写进生成任务：Agent 除了生成游戏，还要实现一套让评测器能准备场景、发送玩家级动作、读取稳定状态并检查不变量的接口。官方代码位于 <a href="https://github.com/areal-project/GameASG-Bench" target="_blank" rel="noopener noreferrer">areal-project/GameASG-Bench</a>。</p>
+<h2 id="section-1">一、课题解读：怎样判断 Agent 交付了一个真正可用的应用</h2>
+<p>自主软件生成希望把人的需求直接变成可执行应用。Agent 会读文件、改代码、调用工具、运行程序，再根据错误修订。对于一个完整应用，局部函数正确远远不够：输入处理、状态转移、渲染、资源变化、失败条件和重新开始必须协同工作。</p>
+<p>游戏是研究这个问题的一个紧凑代理。它通常是自包含的，但同时包含操作、空间关系、状态机、反馈和终止条件。一个游戏“看起来能玩”并不能说明鼠标和触摸都能推动流程，也不能说明重置后旧状态不会泄漏，更不能说明一条连续操作链会到达正确终态。</p>
+<p>因此，可靠评测需要同时回答三件事：交付物是否满足源代码层面的接口要求；真实浏览器输入是否改变了可见游戏；状态快照是否与画面和运行时行为一致。只给出一个“可玩/不可玩”标签，还不足以定位失败发生在什么需求上。</p>
+<h2 id="section-2">二、相关文献解读：从代码生成走向可验证的完整应用</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要探索</th>
+<th>与本篇的连接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.17637" target="_blank" rel="noopener noreferrer">WebGameBench</a></td>
+<td>通过真实浏览器交互评价浏览器原生游戏</td>
+<td>说明游戏应用可以作为 requirement-to-application 的行为载体</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2606.17861" target="_blank" rel="noopener noreferrer">GameCraft-Bench</a></td>
+<td>要求 Agent 端到端生成可玩的 Godot 游戏，并结合回放与多模态证据</td>
+<td>将完整游戏交付和可复现验证联系起来</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.07442" target="_blank" rel="noopener noreferrer">GameGen-Verifier</a></td>
+<td>将需求拆成前置条件—交互—后置条件，并通过运行时状态注入验证</td>
+<td>提供细粒度行为检查的另一条路线</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2602.11103" target="_blank" rel="noopener noreferrer">GameDevBench</a></td>
+<td>评测 Agent 对 Godot 游戏项目的开发和修改能力</td>
+<td>把游戏开发从局部代码任务扩展到项目级任务</td>
+</tr>
+</tbody>
+</table></div><p>GameASG-Bench 的位置更具体：<strong>在生成开始前先固定评测接口和可执行检查，让不同内部实现的游戏都能接受同一套行为测试。</strong> 它不要求 Agent 使用某种类名或内部数据结构，但要求公开接口的语义、真实游戏状态和可见行为彼此对应。</p>
+<h2 id="section-3">三、研究问题解读：高检查通过率是否真的代表完成了任务</h2>
+<p>以下四个问题是我们的阅读归纳，论文在实验部分明确以 RQ1–RQ4 组织：</p>
+<ol>
+<li>当需求包含完整玩法循环时，现有 Agent stack 能否完成全部必需行为？</li>
+<li>工具权限和名义 turn budget 会怎样影响完成率？</li>
+<li>推理强度提高是否稳定带来更多完整任务，额外 token 是否值得？</li>
+<li>对同一个模型，换用不同 harness 后，成功的是不是同一批任务？</li>
+</ol>
+<p>这些问题要求把“通过了多少个检查”和“有多少个任务所有必需检查都通过”明确分开。后者才更接近一个可交付应用的任务级完成。</p>
+<h2 id="section-4">四、方法解读：先规定可测试接口，再用浏览器证据验证</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/gameasgbench/taxonomy.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/gameasgbench/taxonomy.png" alt="GameASG-Bench 的 47 道任务组成：游戏类型、2D/3D 维度和参考技术" loading="lazy" decoding="async"></a><figcaption>图 1 · 三个面板依次展示 47 道任务的类型、空间维度和参考实现技术。来源：原论文 Figure 1；源文件 Figures/taxonomy_genre.pdf、taxonomy_dimension.pdf、taxonomy_technology.pdf，渲染并纵向拼接，未改动图中数据。论文版本：arXiv v1。</figcaption></figure>
+<h3 id="section-5">第一步：让每道任务同时描述玩法和测试接口</h3>
+<p>每道任务要求生成一个自包含的浏览器原生游戏，交付文件是 <code>index.html</code>。任务包包含三个文档：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>文档</th>
+<th>文件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generation prompt</td>
+<td><code>target.md</code></td>
+<td>工作区、交付协议和简短玩法目标；由 harness 直接传给 Agent</td>
+</tr>
+<tr>
+<td>Gameplay design requirement</td>
+<td><code>game-spec.md</code></td>
+<td>目标、控制、实体、状态转移、反馈、终止和重启要求</td>
+</tr>
+<tr>
+<td>Evaluation interface specification</td>
+<td><code>tdd.md</code></td>
+<td>场景准备、动作和观察语义、拒绝行为与不变量</td>
+</tr>
+</tbody>
+</table></div><p>人类作者在生成前写好场景、动作、快照字段和检查代码；Agent 读取玩法与 TDD 文档，同时实现游戏和评测接口。这样评测器不需要知道游戏内部对象图，只需要知道接口的稳定含义。</p>
+<h3 id="section-6">第二步：用四个接口方法连接“准备—操作—观察”</h3>
+<p>每个任务通过 <code>window.__gameTest</code> 暴露四类能力：</p>
+<ol>
+<li><code>reset</code> 恢复初始状态并清除临时效果；</li>
+<li><code>loadScenario</code> 把游戏带到一个可合法到达的中间状态，不能直接制造待测结果；</li>
+<li><code>input</code> 接收玩家级动作，例如移动单位或选择目标；</li>
+<li><code>getSnapshot</code> 返回可序列化的相关状态。</li>
+</ol>
+<p>关键约束是，接口操作和快照必须作用于驱动可见游戏的底层状态。否则 Agent 可以写出一套自测专用的“假状态”：快照显示成功，画面和真实输入却没有变化。<code>loadScenario</code> 允许跳过漫长前置流程，但不允许绕过最终被测动作。</p>
+<h3 id="section-7">第三步：把证据拆成 L1、L2 两层，把要求拆成 P0、P1、P2 三级</h3>
+<p>L1 检查源代码层面的合规性。共享 runner 读取 HTML 和本地脚本，执行工具检查、正则断言与反模式规则。它能发现接口是否声明、代码是否包含必要结构，但正则命中注释或字符串时，并不能证明玩法真的正确。</p>
+<p>L2 在本地服务上用无头 Chromium 运行 <code>checks.js</code>。检查按 prepare–act–observe 顺序进行：先加载合法场景，再调用语义动作或发送真实鼠标/触摸输入，最后比较快照、渲染、运行时错误和不变量。每项检查返回 PASS、FAIL 或 NOT_APPLICABLE，且每次检查在新页面中启动。</p>
+<p>要求优先级与证据层是两套正交概念：P0 是启动、接口可用和最低运行条件；P1 是核心玩法、交互和不变量；P2 是扩展能力和体验完整度。严格任务成功要求交付有效、评测完成、所有 L1 检查通过，以及所有适用的 L2 P0/P1 检查通过。用公式写就是：</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>s</mi><mi>g</mi></msub><mo>=</mo><msub><mi>d</mi><mi>g</mi></msub><msub><mi>e</mi><mi>g</mi></msub><munder><mo>∏</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi mathvariant="script">L</mi><mi>g</mi></msub><mo>∪</mo><msub><mi mathvariant="script">B</mi><mi>g</mi></msub></mrow></munder><msub><mi>p</mi><mrow><mi>g</mi><mo separator="true">,</mo><mi>c</mi></mrow></msub><mo separator="true">,</mo><mspace width="2em"/><mi>S</mi><mi>R</mi><mo stretchy="false">(</mo><mi mathvariant="script">G</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="script">G</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munder><mo>∑</mo><mrow><mi>g</mi><mo>∈</mo><mi mathvariant="script">G</mi></mrow></munder><msub><mi>s</mi><mi>g</mi></msub><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">s_g=d_g e_g\prod_{c\in\mathcal{L}_g\cup\mathcal{B}_g}p_{g,c},\qquad
+SR(\mathcal{G})=\frac{1}{|\mathcal{G}|}\sum_{g\in\mathcal{G}}s_g.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.5417em;vertical-align:-1.4917em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="mrel mtight">∈</span><span class="mord mtight"><span class="mord mathcal mtight">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span><span class="mbin mtight">∪</span><span class="mord mtight"><span class="mord mathcal mtight" style="margin-right:0.0304em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.0304em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∏</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4917em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">c</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mopen">(</span><span class="mord mathcal" style="margin-right:0.0593em;">G</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.7519em;vertical-align:-1.4304em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathcal" style="margin-right:0.0593em;">G</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mrel mtight">∈</span><span class="mord mathcal mtight" style="margin-right:0.0593em;">G</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4304em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></div>
+<p>其中 (d_g) 表示交付有效，(e_g) 表示评测完成，(p_{g,c}) 表示检查 (c) 是否通过。主指标的分母是全部计划任务，包含生成或评测失败的任务；只有在论文明确报告 conditional strict success 时，才改用完成评测的任务作分母。</p>
+<h3 id="section-8">第四步：构建有正例控制的任务集</h3>
+<p>基准包含 <strong>47 道任务、12 个主要游戏类型</strong>，其中 32 道是 2D、15 道是 3D。参考实现主要使用 Canvas 2D 或 Three.js，但这些技术标签不限制 Agent 的合规实现。整套测试包括 336 个 L1 检查和 885 个 L2 检查，其中 L2 的 P1 核心检查有 534 个。</p>
+<p>每个参考实现都先由人工按玩法和 TDD 独立核验，再运行全部 L1 和适用的 L2 P0/P1。47 个参考实现全部通过核心验收，这为检查套件提供了正例控制。任务不要求后端、账号、外部数据库、私有或付费素材，也不要求无限多人网络服务，目的是把问题集中在输入、状态、渲染和玩法逻辑的整合上。</p>
+<h2 id="section-9">五、实验设计与结果：任务级成功远低于检查平均分</h2>
+<h3 id="section-10">主实验：九个 Agent stack 的端到端表现</h3>
+<p>每个任务—配置组合从干净工作区开始运行一次，浏览器视口固定为 1280 × 800。RQ1 比较九个 stack，模型使用各自最大推理强度和完整工具权限；主指标是 47 道计划任务上的 strict task success rate，其他指标是检查通过率。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>模型</th>
+<th>Harness</th>
+<th style="text-align:right">严格成功</th>
+<th style="text-align:right">L1 均值</th>
+<th style="text-align:right">L2 均值</th>
+<th style="text-align:right">L2 P0</th>
+<th style="text-align:right">L2 P1</th>
+<th style="text-align:right">L2 P2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-6-Astra</td>
+<td>Codex CLI</td>
+<td style="text-align:right"><strong>26/47 (55.3%)</strong></td>
+<td style="text-align:right">98.0</td>
+<td style="text-align:right"><strong>93.2</strong></td>
+<td style="text-align:right"><strong>99.0</strong></td>
+<td style="text-align:right"><strong>92.7</strong></td>
+<td style="text-align:right"><strong>92.4</strong></td>
+</tr>
+<tr>
+<td>Claude-Opus-5</td>
+<td>Claude Code</td>
+<td style="text-align:right">24/47 (51.1%)</td>
+<td style="text-align:right"><strong>99.6</strong></td>
+<td style="text-align:right">90.4</td>
+<td style="text-align:right">91.2</td>
+<td style="text-align:right">89.9</td>
+<td style="text-align:right">91.1</td>
+</tr>
+<tr>
+<td>GPT-5.6-Sol</td>
+<td>Codex CLI</td>
+<td style="text-align:right">21/47 (44.7%)</td>
+<td style="text-align:right">98.9</td>
+<td style="text-align:right">91.3</td>
+<td style="text-align:right">100.0</td>
+<td style="text-align:right">89.7</td>
+<td style="text-align:right">91.9</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Flash</td>
+<td>Claude Code</td>
+<td style="text-align:right">18/47 (38.3%)</td>
+<td style="text-align:right">99.4</td>
+<td style="text-align:right">89.3</td>
+<td style="text-align:right">98.0</td>
+<td style="text-align:right">86.7</td>
+<td style="text-align:right">90.2</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Pro</td>
+<td>Claude Code</td>
+<td style="text-align:right">15/47 (31.9%)</td>
+<td style="text-align:right">99.6</td>
+<td style="text-align:right">85.2</td>
+<td style="text-align:right">85.3</td>
+<td style="text-align:right">83.9</td>
+<td style="text-align:right">88.9</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>Claude Code</td>
+<td style="text-align:right">15/47 (31.9%)</td>
+<td style="text-align:right">97.7</td>
+<td style="text-align:right">88.5</td>
+<td style="text-align:right">98.0</td>
+<td style="text-align:right">86.3</td>
+<td style="text-align:right">89.7</td>
+</tr>
+<tr>
+<td>GLM-5.2</td>
+<td>Claude Code</td>
+<td style="text-align:right">11/47 (23.4%)</td>
+<td style="text-align:right">98.8</td>
+<td style="text-align:right">84.6</td>
+<td style="text-align:right">91.2</td>
+<td style="text-align:right">83.3</td>
+<td style="text-align:right">83.0</td>
+</tr>
+<tr>
+<td>Hunyuan-3</td>
+<td>Claude Code</td>
+<td style="text-align:right">10/47 (21.3%)</td>
+<td style="text-align:right">98.3</td>
+<td style="text-align:right">81.7</td>
+<td style="text-align:right">96.1</td>
+<td style="text-align:right">78.2</td>
+<td style="text-align:right">82.3</td>
+</tr>
+<tr>
+<td>MiniMax-M3</td>
+<td>Claude Code</td>
+<td style="text-align:right">7/47 (14.9%)</td>
+<td style="text-align:right">98.3</td>
+<td style="text-align:right">70.6</td>
+<td style="text-align:right">91.2</td>
+<td style="text-align:right">64.5</td>
+<td style="text-align:right">75.4</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：原论文 Table 3，PDF 第 7 页。L1/L2 是检查通过率；strict success 要求同一任务的所有必需检查都通过。</em></p>
+<p>最重要的结果不是“最高 L2 均值为 93.2%”，而是最高严格任务成功率只有 <strong>26/47 = 55.3%</strong>。GPT-6-Astra 的 L1 均值为 98.0%，但只有 40 个交付物通过全部 L1；单个必需检查失败就会阻止 strict success。GPT-5.6-Sol 的 L2 均值高于 Claude-Opus-5（91.3 对 90.4），严格成功却更少（21 对 24）。这正是平均检查分会掩盖任务级缺陷的例子。</p>
+<p>资源也没有简单的“越大越好”关系：Astra 平均输出 55.5k token、26 个严格成功；DeepSeek-V4-Flash 平均输出约 203.6k token，却只有 18 个严格成功。论文报告的每题平均费用中，Astra 为 USD 4.4445，Claude-Opus-5 为 USD 11.8500，DeepSeek-V4-Flash 为 USD 0.2461；这些费用是作者实验中的 API 用量统计，不等于完整复现实验成本。</p>
+<h3 id="section-11">分析一：工具权限与名义 turn budget</h3>
+<p>固定 DeepSeek-V4-Flash、Claude Code、最大推理强度和 120-turn 基线，作者先改变工具权限。完整工具访问得到 <strong>18/47</strong> 个严格成功；无工具、只读写文件、文件加语法检查分别是 7、6、9 个。完整工具将 L2 P1 通过率提高到 86.7%，但“加语法检查”从 6 个提高到 9 个严格成功时，P1 反而从 66.2% 变成 63.4%，说明成功任务数和 pooled check rate 不必同步变化。</p>
+<p>再固定完整工具，改变名义 turn budget：30、60、120 turns 时，完成评测的任务数分别为 10/47、32/47、47/47，严格成功分别为 7、13、18 个。按全部 47 道计划任务计算，成功率从 14.9% 上升到 27.7% 和 38.3%。条件成功率则是 70.0%、40.6%、38.3%。因此预算增加的一个直接作用，是让更多任务完成生成、验证和交付；不能把全计划分母上的增长都解释成代码质量提升。</p>
+<h3 id="section-12">分析二：推理强度存在效率拐点</h3>
+<p>同样固定模型、harness、工具和 120 turns，低、高、最大推理强度的严格成功分别是 7/47、19/47、18/47。高强度的 19 个成功超过最大强度的 18 个，同时平均推理 token 为 138,232，比最大强度的 189,210 少 <strong>26.9%</strong>。最大强度的 P0、P1、P2 检查通过率最高，但任务级成功率并不单调增加。</p>
+<p>这组结果支持一个谨慎结论：更多思考预算可能提高局部检查分，却不保证跨越“所有必需检查都通过”的最后一步。实验是每个配置每题一次，不能由此证明高强度在更多随机种子下都优于最大强度。</p>
+<h3 id="section-13">分析三：相同总成功数，可能是不同的任务集合</h3>
+<p>DeepSeek-V4-Flash 在最大推理强度、完整工具下分别使用 Claude Code 和 Codex CLI。两个 harness 都是 <strong>18/47 (38.3%)</strong> 严格成功，但只有 <strong>10 道任务</strong>在两者下同时成功；8 道只在 Claude Code 成功，8 道只在 Codex CLI 成功，21 道两者都失败。</p>
+<p>资源画像也不同：Codex CLI 平均产物 69.5 KB，对比 Claude Code 的 85.2 KB 小 18.4%；平均输出 token 112.8k，对比 203.6k 少 44.6%。这说明 harness 不只是一个薄薄的命令包装层，它的系统指令、上下文管理、工具 schema、执行协议和端点都可能改变修复路径。总成功数相同，不能说明两个环境等价。</p>
+<h3 id="section-14">分析四：真实输入和场景准备能抓到自测遗漏</h3>
+<p>论文给出两个诊断案例。GPT-6-Astra 生成的 Diner Dasher 通过 L1 和 L2 P0/P2，但真实鼠标和触摸拖拽不能推动服务进度；问题只有在玩家级输入检查中暴露。DeepSeek-V4-Flash 生成的 Turbo Smash Beast 在自测里通过显式推进时间的路径，但评测先加载场景，再用真实驾驶输入，重置/场景模式抑制了自然时间推进，导致加速和滑行失败。</p>
+<p>这些案例回应了方法设计的核心：接口自测能说明“某个调用路径能工作”，真实输入与场景准备的组合才检查“玩家在合法状态中完成动作时，画面和状态一起正确变化”。附录还记录了触摸坐标、隐藏完成界面、未闭合语法、更新循环、Canvas 负半径以及重置状态泄漏等由执行反馈触发的修复。</p>
+<h2 id="section-15">六、我们自己的思考</h2>
+<h3 id="section-16">课题思考：这个领域在研究什么</h3>
+<p>这个方向研究的是从“生成代码”走向“交付完整行为”。GameASG-Bench 把责任拆成三方：人类作者在生成前定义可控动作和可观察语义，Agent 实现接口和游戏，评测器用固定程序执行并报告证据。这样，评测对象不再只是源代码或截图，而是需求、运行时状态、玩家输入和可见结果之间的对应关系。</p>
+<p>它还把“正确性”从一个二元标签拆成两条轴：检查通过率告诉我们局部要求完成得怎样，strict success 告诉我们一项任务能否作为整体交付。两者同时报告，才能看见应用级生成中常见的最后一公里问题。</p>
+<h3 id="section-17">局限问题思考：目前还存在哪些问题</h3>
+<p>第一，L1 正则和接口声明可能被注释或字符串命中，论文也明确承认它们不是玩法正确性的证据。严格成功依赖 L2，但 L2 只执行作者预先写好的动作序列，仍可能遗漏未列出的交互组合。</p>
+<p>第二，<code>NOT_APPLICABLE</code> 的处理存在协议风险。论文指出当前 runner 没有禁止必需 P1 检查返回 NOT_APPLICABLE；如果任务作者或实现让关键检查被排除，适用检查分母和严格成功解释都会受到影响。</p>
+<p>第三，47 道浏览器游戏是一个有边界的代理。它主要测试自包含、有限时长的 2D/3D 游戏，不覆盖后端、账号、多人服务、长时间运行和复杂商业应用；每个任务—配置只跑一次，也无法估计生成随机性的方差。</p>
+<p>第四，RQ2–RQ4 主要围绕 DeepSeek-V4-Flash 和两个 harness 展开。工具权限、turn budget、推理强度与运行协议之间仍可能交互，资源成本也只报告可用的 token/API 统计，不能直接换算成完整工程人力。</p>
+<h3 id="section-18">解决方案思考：这些问题有哪些解决方向</h3>
+<p>对应第一点，可以把源代码检查降级为诊断证据，并增加不依赖 Agent 自报的浏览器状态、渲染差分、输入监听和终态一致性检查；同时对动作顺序和非法操作做系统化组合测试。</p>
+<p>对应第二点，应在 runner 中禁止必需 P1 返回 NOT_APPLICABLE，或者将其统一计为失败，并发布每项检查的适用性审计。对关键任务还可以加入隐藏的重启、边界状态和跨页面回归测试。</p>
+<p>对应第三点，可以沿同一接口协议扩展到后端服务、持久化应用和多人会话，把一次性任务改成多轮独立生成并报告置信区间。浏览器游戏仍可作为快速回归集，但不应单独代表所有自主软件生成能力。</p>
+<p>对应第四点，应在相同模型与 harness 下重复多次，使用配对任务分析差异，并把失败修复、浏览器运行、评测和基础设施成本全部计入。对 harness 的比较还应公开系统指令、工具 schema 和终端协议的可控版本，才能更接近可复现的因果对比。</p>
+<p><em>阅读依据：论文第 1–4 节、Appendix A–B，arXiv v1；<a href="https://arxiv.org/pdf/2609.21293v1" target="_blank" rel="noopener noreferrer">原文 PDF</a>、<a href="https://github.com/areal-project/GameASG-Bench" target="_blank" rel="noopener noreferrer">官方仓库</a>。图 1 来自原论文 Figure 1，源文件为三个 taxonomy PDF，按原数据渲染并拼接；论文在 arXiv 采用 non-exclusive distribution license，图注保留原作者和版本信息。本文未重新运行整套基准；实验数值为作者报告，分母解释、限制和后续方向为我们的分析。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样判断 Agent 交付了一个真正可用的应用</a></li><li><a href="#section-2">二、相关文献解读：从代码生成走向可验证的完整应用</a></li><li><a href="#section-3">三、研究问题解读：高检查通过率是否真的代表完成了任务</a></li><li><a href="#section-4">四、方法解读：先规定可测试接口，再用浏览器证据验证</a></li><li><a href="#section-9">五、实验设计与结果：任务级成功远低于检查平均分</a></li><li><a href="#section-15">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../visionweave/"><span>论文阅读</span><strong>VisionWeave：让多模态模型学习哪里值得细看</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>论文阅读</span><strong>VHarness：把视觉判断做成编程 Agent 可以调用的工具</strong><i aria-hidden="true">↗</i></a><a href="../frontier3dbench/"><span>论文阅读</span><strong>Frontier3DBench：Agent 能从 3D 物体建到可交互世界吗？</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

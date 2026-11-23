@@ -1,5 +1,22 @@
 [
   {
+    "slug": "gameasgbench",
+    "source": "https://arxiv.org/abs/2609.21293v1",
+    "source_pdf": "https://arxiv.org/pdf/2609.21293v1",
+    "source_pdf_sha256": "ea41bead03656b0f2d5c321a665d0392935c40461235fea204ff9f812571011c",
+    "source_archive_sha256": "81daccf369adefd15d4b2b511f9fc460fccf02aefe95807d85fe3859a0e559fe",
+    "figure_manifest": "assets/img/blog/gameasgbench/sources.json",
+    "scope": "Complete bilingual six-section reading with original Figure 1 taxonomy panels, task documents and interface semantics, strict-success equation, 9-stack main results before tool/budget, reasoning-effort, harness, diagnostic and limitation analyses. Preserves task, check and denominator counts; separates L1 source checks from L2 browser behavior, P0/P1/P2 priorities, planned-task versus evaluated-task denominators, pooled versus mean check rates, and API usage estimates. Includes code-repository observations about target.md/game-spec.md/tdd.md, window.__gameTest and checks.json/checks.js; no benchmark rerun claimed.",
+    "related_sources": [
+      "https://github.com/areal-project/GameASG-Bench",
+      "https://arxiv.org/abs/2605.17637",
+      "https://arxiv.org/abs/2606.17861",
+      "https://arxiv.org/abs/2605.07442",
+      "https://arxiv.org/abs/2602.11103"
+    ],
+    "imported_on": "2026-11-23"
+  },
+  {
     "slug": "subjective-evals",
     "source": "https://cameronrwolfe.substack.com/p/subjective-evals",
     "source_type": "technical blog",

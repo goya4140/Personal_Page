@@ -1,5 +1,30 @@
 [
   {
+    "slug": "gameasgbench",
+    "title_zh": "GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？",
+    "title_en": "GameASG-Bench: did the game-generation agent deliver complete behavior?",
+    "summary_zh": "解读预声明评测接口、L1/L2 证据层与 P0/P1/P2 优先级，理解为什么 93.2% 的平均检查分仍只对应 55.3% 的严格任务成功率。",
+    "summary_en": "Pre-declared evaluation interfaces, L1/L2 evidence layers, and P0/P1/P2 priorities explain why a 93.2% mean check rate still corresponds to only 55.3% strict task success.",
+    "tags_zh": [
+      "人工智能",
+      "自主软件生成",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Autonomous software generation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-23",
+    "paper": {
+      "title": "GameASG-Bench: Benchmarking Autonomous Software Generation for Game Development",
+      "url": "https://arxiv.org/abs/2609.21293v1",
+      "venue": "arXiv v1 · 2026-09-18"
+    },
+    "cover": "assets/img/blog/gameasgbench/taxonomy.png"
+  },
+  {
     "slug": "subjective-evals",
     "title_zh": "主观任务怎么评：从人工判断到科研 Agent 的可靠评测",
     "title_en": "Evaluating subjective tasks: reliable judgments for research agents",
