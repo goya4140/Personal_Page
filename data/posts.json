@@ -894,5 +894,30 @@
       "title": "Self-Refine: Iterative Refinement with Self-Feedback",
       "url": "https://arxiv.org/abs/2303.17651"
     }
+  },
+  {
+    "slug": "worldcoderbench",
+    "title_zh": "WorldCoder-Bench：用运行时契约评测可验证的三维世界",
+    "title_en": "WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts",
+    "summary_zh": "从截图与 DOM 观察走向 StateProbe 运行时探测，理解物理、资产和状态同步如何被统一评测。",
+    "summary_en": "From screenshots and DOM inspection to StateProbe runtime probes for physics, assets, and state synchronization.",
+    "tags_zh": [
+      "人工智能",
+      "3D 世界生成",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "3D world synthesis",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-27",
+    "paper": {
+      "title": "WorldCoder-Bench: Benchmarking Physically Grounded 3D World Synthesis",
+      "url": "https://arxiv.org/abs/2606.01869",
+      "venue": "arXiv v3 · 2026-11-06"
+    },
+    "cover": "assets/img/blog/worldcoderbench/evaluation.png"
   }
 ]

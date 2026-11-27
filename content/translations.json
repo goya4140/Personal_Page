@@ -149,6 +149,10 @@
     "gameasgbench": {
       "source_sha256": "656a7646f2f0233cffcada3c8a2d0abc979e165ddab669d5d76a3a64113eccf2",
       "english_sha256": "0991d7f5baa1adb8f62989530c8a95698bf07ae14c803745d5a9775fd7c66c86"
+    },
+    "worldcoderbench": {
+      "source_sha256": "6b2a6555bbc9cab1428df5ade116a4391af0dc03c137ec3e89b0b67e81169bb4",
+      "english_sha256": "04a16cfca70a2faeaf2fd12d9bd4692efb4301a483074f245e7bac6f6b0d26df"
     }
   }
 }

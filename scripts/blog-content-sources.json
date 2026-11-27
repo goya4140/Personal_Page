@@ -364,5 +364,20 @@
       "https://arxiv.org/abs/2504.08066"
     ],
     "imported_on": "2026-11-10"
+  },
+  {
+    "slug": "worldcoderbench",
+    "source": "https://arxiv.org/abs/2606.01869",
+    "source_pdf": "https://arxiv.org/pdf/2606.01869v3",
+    "source_pdf_sha256": "e6331a2da74fb3bfbbb473c408cafda1b7eb959ed97b02f6c5e2e35af34e518b",
+    "source_archive_sha256": "180db96829c6721147e416a495dc1c5a3987cf3582440f54923401ac5f1b4268",
+    "figure_manifest": "assets/img/blog/worldcoderbench/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 3, 5, 6, and 7; distinguish V-Cov from A/S/T-Cov, hidden behavioral contracts from visual proxies, Core/Extended/Robust scopes, diagnostic-subset denominators, and RoA/TEM accounting assumptions.",
+    "related_sources": [
+      "https://arxiv.org/abs/2506.06251",
+      "https://arxiv.org/abs/2601.02430",
+      "https://github.com/shuolucs/WorldCoder-Bench"
+    ],
+    "imported_on": "2026-11-27"
   }
 ]

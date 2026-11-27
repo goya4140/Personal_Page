@@ -1,0 +1,228 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts | Linhao Wang</title>
+  <meta name="description" content="From screenshots and DOM inspection to StateProbe runtime probes for physics, assets, and state synchronization.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts">
+  <meta property="og:description" content="From screenshots and DOM inspection to StateProbe runtime probes for physics, assets, and state synchronization.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/worldcoderbench/"><link rel="canonical" href="https://goya4140.github.io/en/blog/worldcoderbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="WorldCoder-Bench：用运行时契约评测可验证的三维世界" data-title-en="WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts" data-language-url="../../../blog/worldcoderbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>9 min read</span><span>English translation</span><time datetime="2026-11-27">2026-11-27</time></div><div class="article-heading-layout has-art"><div><h1>WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts</h1><p class="article-summary">From screenshots and DOM inspection to StateProbe runtime probes for physics, assets, and state synchronization.</p><div class="post-topics"><span>Artificial Intelligence</span><span>3D world synthesis</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/worldcoderbench/evaluation.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/worldcoderbench/evaluation.png" alt="WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2606.01869" target="_blank" rel="noopener noreferrer">WorldCoder-Bench: Benchmarking Physically Grounded 3D World Synthesis ↗</a><small>arXiv v3 · 2026-11-06</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: what does it mean to build a working 3D world?</a></li><li><a href="#section-2">2. Related work: from web-code evaluation to runtime contracts</a></li><li><a href="#section-3">3. Research questions: which kinds of “success” should be separated?</a></li><li><a href="#section-4">4. Method: from task construction to StateProbe</a></li><li><a href="#section-10">5. Experiments and results: overall validity before failure diagnosis</a></li><li><a href="#section-15">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="worldcoderbench" lang="en"><p>Generating a moving 3D world is much harder than drawing a few objects. Assets must load, physical state must evolve, controls must update the engine rather than only the HUD, and a multi-step user activity must remain consistent. WorldCoder-Bench turns these requirements into an executable benchmark and uses StateProbe to inspect browser runtime state instead of judging screenshots alone.</p>
+<p>This post reads <a href="https://arxiv.org/abs/2606.01869" target="_blank" rel="noopener noreferrer">WorldCoder-Bench: Benchmarking Physically Grounded 3D World Synthesis</a> by Shuo Lu, Yinuo Xu, Kecheng Yu, and colleagues (current arXiv v3, 6 Nov 2026). It contributes tasks and an evaluation protocol, not a new 3D generator. See the <a href="https://github.com/shuolucs/WorldCoder-Bench" target="_blank" rel="noopener noreferrer">paper repository</a> and <a href="https://anonymous.4open.science/r/WorldCoder-Bench/" target="_blank" rel="noopener noreferrer">anonymous release</a> for code and data.</p>
+<h2 id="section-1">1. Topic: what does it mean to build a working 3D world?</h2>
+<p>A browser-based Three.js world combines geometry, materials, animation, physics, and interaction. A screenshot can indicate whether it looks right; the DOM can reveal buttons and labels. Neither exposes the canvas's coordinates, velocities, collision state, selected mode, or hidden variables. A ball may be rendered in the right place without obeying gravity, or a door may display “open” while still blocking the player.</p>
+<p>The research target is therefore not image generation alone, but <strong>executable, interactive, verifiable worlds</strong> from natural-language specifications. A valid artifact must instantiate the scene and assets, make user actions trigger the right state transitions, and preserve physical or logical constraints afterwards. Evaluation must turn hidden browser state into auditable evidence.</p>
+<h2 id="section-2">2. Related work: from web-code evaluation to runtime contracts</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Direction</th>
+<th>Typical approach</th>
+<th>Gap addressed here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web/UI-to-code benchmarks</td>
+<td>Compare screenshots, DOM, or visual judgments</td>
+<td>Three.js logic lives inside <code>&lt;canvas&gt;</code>, so DOM observation is insufficient</td>
+</tr>
+<tr>
+<td>Interactive web evaluation</td>
+<td>Click, type, and inspect outcomes</td>
+<td>Exploration is costly and nondeterministic, and rarely checks hidden physical quantities</td>
+</tr>
+<tr>
+<td>3D and game benchmarks</td>
+<td>Focus on appearance, scenes, or local interactions</td>
+<td>Physical correctness, asset loading, and state synchronization are seldom tested together</td>
+</tr>
+</tbody>
+</table></div><p>The paper replaces a single reference HTML with a <strong>behavioral contract</strong>. Multiple implementations are valid if the runtime states after prescribed actions satisfy the same contract. This permits implementation diversity while hiding the checks that would otherwise invite metric gaming.</p>
+<h2 id="section-3">3. Research questions: which kinds of “success” should be separated?</h2>
+<p>Our reading groups the paper's questions as follows:</p>
+<ol>
+<li>Can screenshots, DOM inspection, and generic visual judges reliably determine whether a 3D world actually works?</li>
+<li>How can a benchmark be large while every task remains deterministically testable at runtime?</li>
+<li>Do generated worlds survive changes to gravity, object counts, initial states, or asset names?</li>
+<li>What is the relationship between correctness, cost, and generation speed?</li>
+</ol>
+<p>StateProbe answers these questions by loading the output in sandboxed Chromium, reading a standardized runtime interface, executing hidden actions, and checking hidden contracts over each state transition.</p>
+<h2 id="section-4">4. Method: from task construction to StateProbe</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/worldcoderbench/construct.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/worldcoderbench/construct.png" alt="WorldCoder-Bench task-construction pipeline" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Expert seeds → LLM expansion and filtering → browser validation → behavioral contracts → hidden checks and perturbation variants. Source: original Figure 3, rendered from the v3 source figure.</figcaption></figure>
+<h3 id="section-5">Step 1: define the deliverable as runnable HTML</h3>
+<p>Each task contains <code>task.json</code> and an optional <code>assets/</code> directory. The model sees the natural-language brief, required observable-state schema, and resources, then emits a self-contained Three.js HTML. It does not see the action sequence, thresholds, assertion scripts, or hidden contract. The benchmark has 2,026 expert-curated tasks in three macro-categories and 15 fine-grained domains:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Macro-category</th>
+<th>User intent</th>
+<th>Typical checks</th>
+<th style="text-align:right">Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simulation</td>
+<td>Observe system evolution</td>
+<td>Physics, chemistry, soft bodies, conservation</td>
+<td style="text-align:right">649</td>
+</tr>
+<tr>
+<td>Rendering</td>
+<td>Control visual presentation</td>
+<td>Materials, shaders, post-processing, procedural effects</td>
+<td style="text-align:right">620</td>
+</tr>
+<tr>
+<td>Application</td>
+<td>Complete an interactive goal</td>
+<td>Games, animation, products, architecture, visualization</td>
+<td style="text-align:right">757</td>
+</tr>
+</tbody>
+</table></div><h3 id="section-6">Step 2: curate tasks while holding out evaluation logic</h3>
+<p>Five PhD researchers in graphics and interactive systems hand-crafted seed tasks over two months. LLM expansion produced more than 10,000 candidates; annotators removed ambiguous, trivial, or nondeterministically evaluable tasks; headless-browser checks verified assets, loading, and interface stability; experts then authored contracts for affordances, reachable states, action transitions, and numerical invariants.</p>
+<p>The released splits serve different purposes: Core has 205 difficult leaderboard tasks, Extended has 1,621 broader hidden tasks, Robust has 615 perturbation variants (three per Core task), and Dev has 200 tasks with public contracts. Robust changes gravity, elasticity, masses, object counts, initial states, prompt wording, or <code>.glb</code> filenames, and adapts the contract. It tests sensitivity to changed specifications, but the paper explicitly notes that perturbation alone cannot prove resistance to template memorization.</p>
+<h3 id="section-7">Step 3: harden the checker with mutation testing</h3>
+<p>Starting from validated reference implementations, the authors inject stale state updates, corrupted physical constants, broken asset loading, swapped event targets, and HUD mismatches. A contract is retained only if it rejects these mutants; otherwise it is revised or the task is discarded. This reduces permissive evaluation, but does not prove that every possible defect is covered.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/worldcoderbench/evaluation.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/worldcoderbench/evaluation.png" alt="StateProbe turns external observation into runtime probes" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Screenshots, DOM, and pure-agent exploration observe the canvas indirectly; StateProbe reads state, applies actions, and checks before/after deltas under hidden contracts. Source: original Figure 5, rendered from the v3 source figure.</figcaption></figure>
+<h3 id="section-8">Step 4: execute actions and record before/after state</h3>
+<p>Generated programs expose an interface such as <code>window.__3D_STATE__</code> containing coordinates, velocities, modes, counters, camera distance, and interaction flags. StateProbe uses Playwright/Chromium with a version-locked Three.js archive. It first checks loading, a live WebGL context, a render loop, and early exceptions; failures are labeled <code>Runtime_Crash</code>.</p>
+<p>For executable outputs, the evaluator applies clicks, key presses, drags, or physics-step commands. It snapshots state before and after every action, evaluates hidden postconditions over the delta, and labels the task <code>Runtime_Crash</code>, <code>Check_Fail</code>, or <code>Check_Pass</code>. The result is a replayable trace rather than a subjective “looks good.”</p>
+<h3 id="section-9">Step 5: coverage and quality-adjusted utility</h3>
+<ul>
+<li><strong>A-Cov (Affordance Coverage):</strong> specified objects, controls, and affordances are present.</li>
+<li><strong>S-Cov (State Coverage):</strong> required intermediate states are reachable.</li>
+<li><strong>T-Cov (Transition Coverage):</strong> action-triggered postconditions pass.</li>
+<li><strong>V-Cov (Verification Coverage):</strong> the tier-weighted primary score.</li>
+</ul>
+<p>V-Cov is the leaderboard metric; the first three diagnose “present but inert” and “reachable but not synchronized” failures. The paper also defines Return on Automation (RoA) and Time Efficiency Multiplier (TEM): estimated human effort discounted by V-Cov, divided by model cost or generation time. Because the calculation uses an assumed developer rate of about $60/hour and difficulty-conditioned effort estimates, these are <strong>utility proxies</strong>, not observed replacement costs.</p>
+<h2 id="section-10">5. Experiments and results: overall validity before failure diagnosis</h2>
+<h3 id="section-11">Main experiment: nine models on 205 Core tasks</h3>
+<p>All nine models receive the same <code>task.json</code> and assets zero-shot and emit one HTML file. Core contains 205 difficult tasks. Results below are percentages, higher is better:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">V-Cov</th>
+<th style="text-align:right">Simulation</th>
+<th style="text-align:right">Rendering</th>
+<th style="text-align:right">Application</th>
+<th style="text-align:right">A-Cov</th>
+<th style="text-align:right">S-Cov</th>
+<th style="text-align:right">T-Cov</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.4</td>
+<td style="text-align:right"><strong>27.8</strong></td>
+<td style="text-align:right">26.8</td>
+<td style="text-align:right"><strong>37.8</strong></td>
+<td style="text-align:right"><strong>23.5</strong></td>
+<td style="text-align:right">66.2</td>
+<td style="text-align:right">46.1</td>
+<td style="text-align:right">26.3</td>
+</tr>
+<tr>
+<td>Gemini 3.1 Pro</td>
+<td style="text-align:right">26.5</td>
+<td style="text-align:right"><strong>27.0</strong></td>
+<td style="text-align:right">35.9</td>
+<td style="text-align:right">21.4</td>
+<td style="text-align:right"><strong>67.4</strong></td>
+<td style="text-align:right"><strong>45.9</strong></td>
+<td style="text-align:right">25.1</td>
+</tr>
+<tr>
+<td>Qwen 3.6-Plus</td>
+<td style="text-align:right">25.3</td>
+<td style="text-align:right">24.6</td>
+<td style="text-align:right">30.4</td>
+<td style="text-align:right">23.2</td>
+<td style="text-align:right">65.3</td>
+<td style="text-align:right">43.6</td>
+<td style="text-align:right">23.7</td>
+</tr>
+<tr>
+<td>MiniMax M2.7</td>
+<td style="text-align:right">23.0</td>
+<td style="text-align:right">22.6</td>
+<td style="text-align:right">30.2</td>
+<td style="text-align:right">19.7</td>
+<td style="text-align:right">57.6</td>
+<td style="text-align:right">39.9</td>
+<td style="text-align:right">21.7</td>
+</tr>
+<tr>
+<td>DeepSeek V3.2</td>
+<td style="text-align:right">21.9</td>
+<td style="text-align:right">21.3</td>
+<td style="text-align:right">28.8</td>
+<td style="text-align:right">18.8</td>
+<td style="text-align:right">60.5</td>
+<td style="text-align:right">37.4</td>
+<td style="text-align:right">20.7</td>
+</tr>
+<tr>
+<td>Claude Sonnet 4.6</td>
+<td style="text-align:right">18.7</td>
+<td style="text-align:right">21.4</td>
+<td style="text-align:right">25.1</td>
+<td style="text-align:right">13.7</td>
+<td style="text-align:right">56.5</td>
+<td style="text-align:right">33.4</td>
+<td style="text-align:right">17.0</td>
+</tr>
+<tr>
+<td>Kimi K2.5</td>
+<td style="text-align:right">18.2</td>
+<td style="text-align:right">13.6</td>
+<td style="text-align:right">29.3</td>
+<td style="text-align:right">15.8</td>
+<td style="text-align:right">50.9</td>
+<td style="text-align:right">34.4</td>
+<td style="text-align:right">17.1</td>
+</tr>
+<tr>
+<td>Claude Opus 4.6</td>
+<td style="text-align:right">17.5</td>
+<td style="text-align:right">18.2</td>
+<td style="text-align:right">22.2</td>
+<td style="text-align:right">14.6</td>
+<td style="text-align:right">58.6</td>
+<td style="text-align:right">38.3</td>
+<td style="text-align:right">15.8</td>
+</tr>
+<tr>
+<td>DeepSeek V4-Flash</td>
+<td style="text-align:right">16.5</td>
+<td style="text-align:right">11.8</td>
+<td style="text-align:right">24.2</td>
+<td style="text-align:right">15.8</td>
+<td style="text-align:right">40.6</td>
+<td style="text-align:right">30.7</td>
+<td style="text-align:right">15.9</td>
+</tr>
+</tbody>
+</table></div><p>The most important result is not simply the winner: <strong>no model exceeds 30% V-Cov</strong>. A-Cov ranges from 40.6–67.4%, S-Cov from 30.7–46.1%, and T-Cov from 15.8–26.3%. Models can place objects and controls more readily than they can make actions drive the correct state chain. Rendering (22.2–37.8%) is stronger overall than Simulation (11.8–27.0%) and Application (13.7–23.5%), consistent with more regular material/shader APIs than numerical physics and multi-step synchronization.</p>
+<h3 id="section-12">Comparison: external observation is not contract verification</h3>
+<p>Across 1,434 model–task pairs, DOM-only inspection has Kendall τb = -0.021 against the contract score, screenshot plus VLM has τb = -0.068, and an eight-step pure agent has τb = +0.111. The agent still calls <strong>45.6%</strong> of outputs with V-Cov below 30% passing. Relative to DOM, the reported costs are about 1×, 50×, and 400×. Seeing a button, matching a picture, or probing a few steps is therefore not a substitute for contract-level state verification.</p>
+<h3 id="section-13">Robust: scores fall when specifications change</h3>
+<p>On 615 perturbation variants, GPT-5.4 and Gemini reach <strong>19.9%</strong> and <strong>19.1%</strong> V-Cov; Qwen drops from 25.3% on Core to <strong>13.5%</strong>. Robust is useful as a stress test, but the decline alone cannot be interpreted as a pure measure of memorization, because perturbation types vary by task.</p>
+<h3 id="section-14">Utility and error analysis: cheap is not correct, and schema drift dominates</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/worldcoderbench/roa-tem-pareto.jpg" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/worldcoderbench/roa-tem-pareto.jpg" alt="Per-domain RoA and TEM curves" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Quality-adjusted utility decomposed across 15 domains for three models on Core. RoA/TEM use the paper&#39;s prices and effort assumptions, not measured deployment savings. Source: original Figure 6, copied from the v3 source figure.</figcaption></figure>
+<p>Under the paper's assumptions, DeepSeek V4-Flash has the highest RoA ($19,150 per dollar), while GPT-5.4 has the highest TEM (68.87×). These values multiply low cost or latency by V-Cov; incorrect behavior is discounted. Human effort comes from seven practitioner estimates, and repair, evaluation, and infrastructure costs are not measured.</p>
+<p>The authors inspect 596 records with zero T-Cov. The primary diagnostic distribution is dominated by <strong>state-schema drift (42.8%)</strong> and <strong>broken interaction chains (40.8%)</strong>, together 83.6%; physics violation is 0.4% and semantic misunderstanding 2.7%. These percentages come from a zero-T-Cov diagnostic subset, labels can overlap, and they are not population failure rates. Completing Kimi's missing interface raises V-Cov only from 18.2% to 20.1%, and Opus from 17.5% to 18.9%: adding an interface does not make the behavior chain correct.</p>
+<h2 id="section-15">6. Our reflections</h2>
+<h3 id="section-16">Topic reflection: what is this field studying?</h3>
+<p>WorldCoder-Bench moves the target from “render a plausible 3D picture” to “deliver a program that can be operated and verified.” Its strongest abstraction is to express correctness as a contract over before/after states: implementation details may differ, but behavioral evidence must agree. For research-agent evaluation, this is a step from result screenshots toward auditable execution traces.</p>
+<h3 id="section-17">Limitation reflection: what remains unresolved?</h3>
+<p>First, <code>__3D_STATE__</code> is itself a required observable interface; omission or schema drift can obscure visual quality, so the benchmark jointly tests observability compliance and behavior. Second, Core is a difficulty-selected diagnostic set, not a representative sample of all browser 3D requests. Third, RoA/TEM depend on public prices, seven effort estimates, and one generation-latency accounting; they exclude repair loops. Fourth, perturbations test changed specifications but cannot by themselves separate template recall, pretraining knowledge, and mechanism understanding.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/worldcoderbench/error-analysis.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/worldcoderbench/error-analysis.png" alt="Error taxonomy and model diagnostic profiles" loading="lazy" decoding="async"></a><figcaption>Figure 4 · Error taxonomy for 596 zero-T-Cov records. Primary-summary and multi-label prevalence use different denominators, and labels can overlap. Source: original Figure 7, copied from the v3 source figure.</figcaption></figure>
+<h3 id="section-18">Solution reflection: where could evaluation go next?</h3>
+<p>Evaluation could maintain two parallel evidence streams: runtime contracts for state and actions, plus multi-view rendering, geometry, and asset-semantic checks for appearance. Complete applications should report end-to-end route success, state persistence, collision failures, and recovery—not only average coverage. Generalization should vary unseen mechanisms, asset combinations, and interaction topologies with stratified results for each perturbation. Finally, cost studies should log every attempt, retry, tool call, evaluator run, and human repair, producing a real cost curve from first draft to deliverable.</p>
+<p><strong>One-sentence takeaway:</strong> WorldCoder-Bench does not merely help an evaluator “see more clearly”; it enters the world's runtime and asks whether each action caused the required state change. Current models remain far from reliably delivering verifiable interactive 3D worlds.</p>
+<p><strong>References:</strong> <a href="https://arxiv.org/abs/2606.01869" target="_blank" rel="noopener noreferrer">arXiv record and versions</a>, <a href="https://arxiv.org/html/2606.01869v1" target="_blank" rel="noopener noreferrer">HTML full text</a>, <a href="https://github.com/shuolucs/WorldCoder-Bench" target="_blank" rel="noopener noreferrer">code and data</a>.</p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: what does it mean to build a working 3D world?</a></li><li><a href="#section-2">2. Related work: from web-code evaluation to runtime contracts</a></li><li><a href="#section-3">3. Research questions: which kinds of “success” should be separated?</a></li><li><a href="#section-4">4. Method: from task construction to StateProbe</a></li><li><a href="#section-10">5. Experiments and results: overall validity before failure diagnosis</a></li><li><a href="#section-15">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../gameasgbench/"><span>Paper reading</span><strong>GameASG-Bench: did the game-generation agent deliver complete behavior?</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>Paper reading</span><strong>VisionWeave: learning where visual detail is worth keeping</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>Paper reading</span><strong>VHarness: visual reasoning as callable tools for coding agents</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

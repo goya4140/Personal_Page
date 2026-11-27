@@ -1,0 +1,228 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorldCoder-Bench：用运行时契约评测可验证的三维世界 | Linhao Wang</title>
+  <meta name="description" content="从截图与 DOM 观察走向 StateProbe 运行时探测，理解物理、资产和状态同步如何被统一评测。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="WorldCoder-Bench：用运行时契约评测可验证的三维世界">
+  <meta property="og:description" content="从截图与 DOM 观察走向 StateProbe 运行时探测，理解物理、资产和状态同步如何被统一评测。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/worldcoderbench/"><link rel="canonical" href="https://goya4140.github.io/blog/worldcoderbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="WorldCoder-Bench：用运行时契约评测可验证的三维世界" data-title-en="WorldCoder-Bench: evaluating verifiable 3D worlds with runtime contracts" data-language-url="../../en/blog/worldcoderbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 10 分钟</span><span>中文原稿</span><time datetime="2026-11-27">2026-11-27</time></div><div class="article-heading-layout has-art"><div><h1>WorldCoder-Bench：用运行时契约评测可验证的三维世界</h1><p class="article-summary">从截图与 DOM 观察走向 StateProbe 运行时探测，理解物理、资产和状态同步如何被统一评测。</p><div class="post-topics"><span>人工智能</span><span>3D 世界生成</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/worldcoderbench/evaluation.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/worldcoderbench/evaluation.png" alt="WorldCoder-Bench：用运行时契约评测可验证的三维世界" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2606.01869" target="_blank" rel="noopener noreferrer">WorldCoder-Bench: Benchmarking Physically Grounded 3D World Synthesis ↗</a><small>arXiv v3 · 2026-11-06</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样判断 Agent 真正建好了一个三维世界</a></li><li><a href="#section-2">二、相关文献解读：从网页代码评测走向运行时契约</a></li><li><a href="#section-3">三、研究问题解读：我们要区分哪几种“看起来成功”</a></li><li><a href="#section-4">四、方法解读：从任务构造到 StateProbe</a></li><li><a href="#section-10">五、实验设计与结果：先看整体有效性，再看失败在哪里</a></li><li><a href="#section-15">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="worldcoderbench" lang="zh-CN"><p>让模型生成一个会动的三维世界，难点并不在于“画出几个物体”。物体要加载，物理状态要演化，按钮和键盘要真正改变引擎状态，用户完成一串动作之后，世界还要保持一致。WorldCoder-Bench 把这些要求做成可执行的基准，并用 StateProbe 直接检查浏览器运行时，而不是只看截图。</p>
+<p>本文解读 Shuo Lu、Yinuo Xu、Kecheng Yu 等人的 <a href="https://arxiv.org/abs/2606.01869" target="_blank" rel="noopener noreferrer">WorldCoder-Bench: Benchmarking Physically Grounded 3D World Synthesis</a>（当前 arXiv v3，2026-11-06）。论文提出的是任务集和评测协议，不是新的 3D 生成模型；代码与数据入口见<a href="https://github.com/shuolucs/WorldCoder-Bench" target="_blank" rel="noopener noreferrer">论文仓库</a>和<a href="https://anonymous.4open.science/r/WorldCoder-Bench/" target="_blank" rel="noopener noreferrer">匿名发布页</a>。</p>
+<h2 id="section-1">一、课题解读：怎样判断 Agent 真正建好了一个三维世界</h2>
+<p>浏览器里的 Three.js 世界同时包含几何、材质、动画、物理和交互。截图能告诉我们“看起来像不像”，DOM 能告诉我们是否有按钮和文本，却看不到 canvas 内部的坐标、速度、碰撞、选中模式和状态变量。一个小球可以被画在正确位置，但没有按重力运动；一个门可以显示“打开”，但玩家实际穿不过去。</p>
+<p>因此，这个课题研究的不是单纯的图像生成，而是从自然语言生成<strong>可执行、可交互、可验证的世界</strong>。合格的产物至少要满足三层要求：场景与资产存在，用户操作能触发正确的状态转移，物理或逻辑约束在转移之后仍成立。评测也必须把浏览器中的隐藏状态变成可审计的证据。</p>
+<h2 id="section-2">二、相关文献解读：从网页代码评测走向运行时契约</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>方向</th>
+<th>主要做法</th>
+<th>WorldCoder-Bench 补上的缺口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web/UI-to-code 基准</td>
+<td>通过截图、DOM 或视觉裁判比较页面</td>
+<td>Three.js 的核心逻辑在 <code>&lt;canvas&gt;</code> 内，DOM 观察不足</td>
+</tr>
+<tr>
+<td>交互式网页评测</td>
+<td>让 Agent 点击、输入并观察结果</td>
+<td>探索成本高、轨迹不确定，不能稳定检查隐藏物理量</td>
+</tr>
+<tr>
+<td>3D 生成与游戏基准</td>
+<td>关注外观、场景或局部交互</td>
+<td>很少把物理正确性、资产加载和状态同步放进同一份契约</td>
+</tr>
+</tbody>
+</table></div><p>论文的关键转向是把“参考答案”从一份固定 HTML 改成<strong>行为契约</strong>：不同实现只要在规定动作后满足相同的状态约束，就都可以通过。这样既允许代码风格不同，又能把检查点隐藏起来，减少针对评测脚本的投机。</p>
+<h2 id="section-3">三、研究问题解读：我们要区分哪几种“看起来成功”</h2>
+<p>下面是我们的阅读归纳：</p>
+<ol>
+<li>现有截图、DOM 和通用视觉裁判，能否可靠地判断一个三维世界是否真的工作？</li>
+<li>如何构造规模足够大、但每道题都能进行确定性运行时检查的任务集？</li>
+<li>模型生成的世界能否在改变重力、物体数量、初始状态或资产名称之后仍然成立？</li>
+<li>正确性、成本和生成速度之间的关系是什么？</li>
+</ol>
+<p>论文的回答是 StateProbe：在沙箱 Chromium 中加载模型输出，读取标准化运行时接口，按隐藏动作序列逐步探测，并对每个状态变化检查隐藏契约。</p>
+<h2 id="section-4">四、方法解读：从任务构造到 StateProbe</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/worldcoderbench/construct.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/worldcoderbench/construct.png" alt="WorldCoder-Bench 的任务构造流水线" loading="lazy" decoding="async"></a><figcaption>图 1 · 专家种子 → LLM 扩展与筛选 → 浏览器执行验证 → 行为契约 → 隐藏检查与扰动变体。来源：原论文 Figure 3，v3 源文件原图渲染。</figcaption></figure>
+<h3 id="section-5">第一步：把生成目标规定成一个可运行的 HTML</h3>
+<p>每道题由 <code>task.json</code> 和可选的 <code>assets/</code> 目录组成。模型只能看到自然语言说明、需要暴露的状态接口和资源，必须输出一个自包含的 Three.js HTML。它不能看到动作序列、阈值、断言脚本或隐藏契约。数据集有 2,026 道专家策划任务，覆盖三类意图和 15 个细粒度领域：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>宏类别</th>
+<th>用户意图</th>
+<th>典型检查</th>
+<th style="text-align:right">任务数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simulation</td>
+<td>观察系统演化</td>
+<td>物理、化学、软体和守恒行为</td>
+<td style="text-align:right">649</td>
+</tr>
+<tr>
+<td>Rendering</td>
+<td>控制视觉呈现</td>
+<td>材质、着色器、后处理和程序化效果</td>
+<td style="text-align:right">620</td>
+</tr>
+<tr>
+<td>Application</td>
+<td>完成交互目标</td>
+<td>游戏、动画、产品、建筑和可视化流程</td>
+<td style="text-align:right">757</td>
+</tr>
+</tbody>
+</table></div><h3 id="section-6">第二步：四阶段构造并隐藏评测逻辑</h3>
+<p>五位 3D 图形与交互系统博士先用两个月手工制作种子题；随后用 LLM 扩展出超过 10,000 个候选，人工删掉含糊、琐碎或无法确定性评测的题；通过无头浏览器检查资产、加载和接口稳定性；最后由专家写出 affordance、可达状态、动作转移和数值不变量的契约。</p>
+<p>最终发布四个用途不同的切分：Core 205 道困难主榜题，Extended 1,621 道更广泛的隐藏题，Robust 615 个由 Core 每题生成三个扰动变体，以及 Dev 200 道公开契约题。Robust 改变重力、弹性、质量、对象数量、初始状态、提示措辞或 <code>.glb</code> 文件名；契约也随变体改写。它能测试对规格变化的敏感性，但论文也明确说，这种扰动本身不能单独证明模型没有记忆模板。</p>
+<h3 id="section-7">第三步：用 mutation testing 先检查“检查器是否严格”</h3>
+<p>专家从参考实现写契约，然后故意注入删除状态更新、缩放物理常数、加载错误资源、交换事件目标或 HUD 不同步等缺陷。只有能拒绝这些缺陷的契约才被保留，否则就修改或放弃任务。这一步不是证明检查器覆盖所有可能的错误，而是降低“宽松阈值也能过”的风险。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/worldcoderbench/evaluation.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/worldcoderbench/evaluation.png" alt="StateProbe 把外部观察变成运行时状态探测" loading="lazy" decoding="async"></a><figcaption>图 2 · 截图、DOM 和纯 Agent 探索只能间接观察 canvas；StateProbe 在隐藏契约下读取状态、施加动作并检查前后差分。来源：原论文 Figure 5，v3 源文件原图渲染。</figcaption></figure>
+<h3 id="section-8">第四步：在浏览器中执行动作、记录前后状态</h3>
+<p>模型需要暴露类似 <code>window.__3D_STATE__</code> 的接口，报告坐标、速度、模式、计数器、相机距离和交互标志。StateProbe 运行固定版本的 Three.js 和 Playwright/Chromium，先检查页面是否加载、是否有 WebGL 上下文、是否持续渲染以及是否出现早期异常；失败记为 <code>Runtime_Crash</code>。</p>
+<p>对可运行程序，评测器依次执行点击、按键、拖拽或物理步进命令。每个动作前后各取一次快照，验证状态差分和隐藏后置条件，最后把任务标为 <code>Runtime_Crash</code>、<code>Check_Fail</code> 或 <code>Check_Pass</code>。这是一条可复现、可回放的探测轨迹，而不是一次主观“看起来不错”的判断。</p>
+<h3 id="section-9">第五步：从四类覆盖率到质量调整后的效用</h3>
+<ul>
+<li><strong>A-Cov（Affordance Coverage）</strong>：对象、控件和可交互能力是否出现。</li>
+<li><strong>S-Cov（State Coverage）</strong>：规定的中间状态是否可到达。</li>
+<li><strong>T-Cov（Transition Coverage）</strong>：动作后的状态转移是否满足后置条件。</li>
+<li><strong>V-Cov（Verification Coverage）</strong>：按契约层级加权的主榜分数。</li>
+</ul>
+<p>V-Cov 是主指标，前三者用于定位“有东西但不动”“能到中间态但转移失败”等问题。论文还定义质量调整后的 Return on Automation（RoA）和 Time Efficiency Multiplier（TEM）：用 V-Cov 折扣估计的人类工时，再除以模型费用或生成时间。作者用约 60 美元/小时的开发者工资假设和困难等级工时估计，因此这两个数是<strong>效用代理</strong>，不是已经实测的替代人工成本。</p>
+<h2 id="section-10">五、实验设计与结果：先看整体有效性，再看失败在哪里</h2>
+<h3 id="section-11">主实验：九个模型在 205 道 Core 上的整体表现</h3>
+<p>九个模型都以 zero-shot 方式接收同一 <code>task.json</code> 和资产目录，输出单个 HTML。Core 有 205 道高难度题，最终主榜结果如下（百分比越高越好）：</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>模型</th>
+<th style="text-align:right">V-Cov</th>
+<th style="text-align:right">Simulation</th>
+<th style="text-align:right">Rendering</th>
+<th style="text-align:right">Application</th>
+<th style="text-align:right">A-Cov</th>
+<th style="text-align:right">S-Cov</th>
+<th style="text-align:right">T-Cov</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.4</td>
+<td style="text-align:right"><strong>27.8</strong></td>
+<td style="text-align:right">26.8</td>
+<td style="text-align:right"><strong>37.8</strong></td>
+<td style="text-align:right"><strong>23.5</strong></td>
+<td style="text-align:right">66.2</td>
+<td style="text-align:right">46.1</td>
+<td style="text-align:right">26.3</td>
+</tr>
+<tr>
+<td>Gemini 3.1 Pro</td>
+<td style="text-align:right">26.5</td>
+<td style="text-align:right"><strong>27.0</strong></td>
+<td style="text-align:right">35.9</td>
+<td style="text-align:right">21.4</td>
+<td style="text-align:right"><strong>67.4</strong></td>
+<td style="text-align:right"><strong>45.9</strong></td>
+<td style="text-align:right">25.1</td>
+</tr>
+<tr>
+<td>Qwen 3.6-Plus</td>
+<td style="text-align:right">25.3</td>
+<td style="text-align:right">24.6</td>
+<td style="text-align:right">30.4</td>
+<td style="text-align:right">23.2</td>
+<td style="text-align:right">65.3</td>
+<td style="text-align:right">43.6</td>
+<td style="text-align:right">23.7</td>
+</tr>
+<tr>
+<td>MiniMax M2.7</td>
+<td style="text-align:right">23.0</td>
+<td style="text-align:right">22.6</td>
+<td style="text-align:right">30.2</td>
+<td style="text-align:right">19.7</td>
+<td style="text-align:right">57.6</td>
+<td style="text-align:right">39.9</td>
+<td style="text-align:right">21.7</td>
+</tr>
+<tr>
+<td>DeepSeek V3.2</td>
+<td style="text-align:right">21.9</td>
+<td style="text-align:right">21.3</td>
+<td style="text-align:right">28.8</td>
+<td style="text-align:right">18.8</td>
+<td style="text-align:right">60.5</td>
+<td style="text-align:right">37.4</td>
+<td style="text-align:right">20.7</td>
+</tr>
+<tr>
+<td>Claude Sonnet 4.6</td>
+<td style="text-align:right">18.7</td>
+<td style="text-align:right">21.4</td>
+<td style="text-align:right">25.1</td>
+<td style="text-align:right">13.7</td>
+<td style="text-align:right">56.5</td>
+<td style="text-align:right">33.4</td>
+<td style="text-align:right">17.0</td>
+</tr>
+<tr>
+<td>Kimi K2.5</td>
+<td style="text-align:right">18.2</td>
+<td style="text-align:right">13.6</td>
+<td style="text-align:right">29.3</td>
+<td style="text-align:right">15.8</td>
+<td style="text-align:right">50.9</td>
+<td style="text-align:right">34.4</td>
+<td style="text-align:right">17.1</td>
+</tr>
+<tr>
+<td>Claude Opus 4.6</td>
+<td style="text-align:right">17.5</td>
+<td style="text-align:right">18.2</td>
+<td style="text-align:right">22.2</td>
+<td style="text-align:right">14.6</td>
+<td style="text-align:right">58.6</td>
+<td style="text-align:right">38.3</td>
+<td style="text-align:right">15.8</td>
+</tr>
+<tr>
+<td>DeepSeek V4-Flash</td>
+<td style="text-align:right">16.5</td>
+<td style="text-align:right">11.8</td>
+<td style="text-align:right">24.2</td>
+<td style="text-align:right">15.8</td>
+<td style="text-align:right">40.6</td>
+<td style="text-align:right">30.7</td>
+<td style="text-align:right">15.9</td>
+</tr>
+</tbody>
+</table></div><p>主实验最重要的结论不是“谁第一”，而是<strong>没有模型超过 30% V-Cov</strong>。A-Cov 为 40.6–67.4%，S-Cov 为 30.7–46.1%，T-Cov 只有 15.8–26.3%：模型更容易放置对象和控件，较难让动作真的驱动正确的状态链。Rendering（22.2–37.8%）整体高于 Simulation（11.8–27.0%）和 Application（13.7–23.5%），符合材质/着色器 API 比数值物理和多步同步更规整的直觉。</p>
+<h3 id="section-12">对照实验：外部观察与隐藏契约并不等价</h3>
+<p>作者在 1,434 个模型—任务对上比较三种替代评测：DOM-only 的 Kendall τb 为 -0.021，截图加 VLM 为 -0.068，八步纯 Agent 探索为 +0.111；但后者仍把 <strong>45.6%</strong> 的低 V-Cov（低于 30%）输出判为通过。相对 DOM 的成本约为 1×、50×、400×。这说明“看到了按钮”“画面相似”或“探查了几步”都不能替代契约级状态验证。</p>
+<h3 id="section-13">Robust：规格一变，分数进一步下降</h3>
+<p>在 615 个扰动变体上，GPT-5.4 和 Gemini 分别为 <strong>19.9%</strong> 和 <strong>19.1%</strong> V-Cov；Qwen 从 Core 的 25.3% 降到 <strong>13.5%</strong>。这支持 Robust 作为压力测试的价值，但不能把下降单独解释为“记忆被打破”，因为不同题目的扰动类型并不完全相同。</p>
+<h3 id="section-14">效用和错误分析：便宜不等于正确，接口漂移是主因</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/worldcoderbench/roa-tem-pareto.jpg" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/worldcoderbench/roa-tem-pareto.jpg" alt="RoA 与 TEM 的按领域效用曲线" loading="lazy" decoding="async"></a><figcaption>图 3 · Core 上三种模型按 15 个细粒度领域分解的质量调整效用。RoA/TEM 使用论文的价格与工时假设，不是实测部署节省。来源：原论文 Figure 6，v3 源文件原图。</figcaption></figure>
+<p>在作者的假设下，DeepSeek V4-Flash 的 RoA 最高（19,150 美元/美元），GPT-5.4 的 TEM 最高（68.87 倍）。这只是把低成本或低延迟与 V-Cov 相乘后的估计：如果输出行为错误，效用会被折扣；并且人类工时来自七位实践者估计，未测量真实修复、评测和基础设施成本。</p>
+<p>作者分析了 596 条 T-Cov 为零的记录。主要诊断分布中，<strong>状态模式漂移 42.8%</strong>、<strong>交互链断裂 40.8%</strong>，两者合计 83.6%；物理违反为 0.4%，语义误解为 2.7%。这些百分比来自零 T-Cov 诊断子集，标签可重叠，不能当成全体失败率。补全 Kimi 缺失的状态接口只让 V-Cov 从 18.2% 升到 20.1%，Opus 从 17.5% 升到 18.9%，说明“补上接口”仍不等于行为链已经正确。</p>
+<h2 id="section-15">六、我们自己的思考</h2>
+<h3 id="section-16">课题思考：这个领域在研究什么</h3>
+<p>WorldCoder-Bench 把研究对象从“生成一张像样的三维画面”推进到“交付一段能被操作、能被验证的程序”。它最有价值的抽象是把正确性写成动作前后的状态契约：实现细节可以不同，但行为证据必须一致。对科研智能体评测而言，这也是从结果截图走向可审计执行轨迹的一步。</p>
+<h3 id="section-17">局限问题思考：目前还存在哪些问题</h3>
+<p>第一，<code>__3D_STATE__</code> 是模型必须实现的可观测接口，接口本身的缺失或漂移可能遮蔽真实画面质量；评测因此更像“遵守可观测性协议并实现行为”的联合测试。第二，205 道 Core 是按难度筛出的诊断集，不能直接代表所有浏览器 3D 请求。第三，RoA/TEM 依赖公开价格、七位专家工时和一次生成延迟，不包括修复循环，也不等同于生产替代率。第四，Robust 的扰动测试了规格变化，却仍无法单独分离模板记忆、预训练知识和机制理解。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/worldcoderbench/error-analysis.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/worldcoderbench/error-analysis.png" alt="错误类型与模型诊断画像" loading="lazy" decoding="async"></a><figcaption>图 4 · 596 条零 T-Cov 记录的错误分类；主摘要比例与多标签记录比例分母不同，且标签可重叠。来源：原论文 Figure 7，v3 源文件原图。</figcaption></figure>
+<h3 id="section-18">解决方案思考：这些问题有哪些解决方向</h3>
+<p>可以把评测拆成两条并行证据链：一条验证引擎状态和动作契约，另一条用多视角渲染、几何检查和资产语义验证外观，避免可观测性接口替代全部质量。对完整应用，应额外报告端到端路线成功率、状态保持率、碰撞失败率和恢复能力，而不是只给覆盖率平均数。对泛化，应把未见物理机制、未见资产组合和新交互拓扑做成正交测试，并报告每种扰动的分层结果。最后，成本实验应记录所有尝试、重试、工具调用、评测和人工修复时间，形成从“首稿”到“可交付”的真实成本曲线。</p>
+<p><strong>一句话总结：</strong> WorldCoder-Bench 的核心不是让评测器“看得更清楚”，而是让评测器进入世界的运行时，直接问每个动作之后状态是否真的发生了应有的变化；结果显示，当前模型距离稳定交付可验证的交互三维世界仍然很远。</p>
+<p><strong>参考</strong>：<a href="https://arxiv.org/abs/2606.01869" target="_blank" rel="noopener noreferrer">论文摘要与版本记录</a>、<a href="https://arxiv.org/html/2606.01869v1" target="_blank" rel="noopener noreferrer">HTML 全文</a>、<a href="https://github.com/shuolucs/WorldCoder-Bench" target="_blank" rel="noopener noreferrer">代码与数据</a>。</p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样判断 Agent 真正建好了一个三维世界</a></li><li><a href="#section-2">二、相关文献解读：从网页代码评测走向运行时契约</a></li><li><a href="#section-3">三、研究问题解读：我们要区分哪几种“看起来成功”</a></li><li><a href="#section-4">四、方法解读：从任务构造到 StateProbe</a></li><li><a href="#section-10">五、实验设计与结果：先看整体有效性，再看失败在哪里</a></li><li><a href="#section-15">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../gameasgbench/"><span>论文阅读</span><strong>GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>论文阅读</span><strong>VisionWeave：让多模态模型学习哪里值得细看</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>论文阅读</span><strong>VHarness：把视觉判断做成编程 Agent 可以调用的工具</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

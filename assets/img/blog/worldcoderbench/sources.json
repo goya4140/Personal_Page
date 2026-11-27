@@ -1,0 +1,10 @@
+{
+  "slug": "worldcoderbench",
+  "license": "Paper source distributed with arXiv submission; paper states CC BY 4.0.",
+  "figures": [
+    {"file": "evaluation.png", "source": "WorldCoder-Bench v3 source images/evaluation.pdf (paper Figure 5), rendered at 160 dpi."},
+    {"file": "construct.png", "source": "WorldCoder-Bench v3 source images/construct.pdf (paper Figure 3), rendered at 160 dpi."},
+    {"file": "error-analysis.png", "source": "WorldCoder-Bench v3 source images/ErrorAnalysis.png (paper Figure 7), copied without edits."},
+    {"file": "roa-tem-pareto.jpg", "source": "WorldCoder-Bench v3 source images/fig_roa_tem_pareto.jpg (paper Figure 6), copied without edits."}
+  ]
+}
