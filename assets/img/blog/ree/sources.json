@@ -1,0 +1,10 @@
+{
+  "slug": "ree",
+  "license": "Paper source distributed with arXiv submission; arXiv HTML states CC BY-NC-SA 4.0.",
+  "figures": [
+    {"file": "teaser.png", "source": "REE v1 source figures/teaser.pdf (paper Figure 1), rendered at 160 dpi."},
+    {"file": "composition.png", "source": "REE v1 source figures/composition.pdf (paper Figure 2), rendered at 160 dpi."},
+    {"file": "parity.png", "source": "REE v1 source figures/parity.pdf (paper Figure 5), rendered at 160 dpi."},
+    {"file": "insiderun.png", "source": "REE v1 source figures/insiderun.pdf (paper Figure 6), rendered at 160 dpi."}
+  ]
+}

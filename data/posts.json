@@ -969,5 +969,30 @@
       "venue": "arXiv v1 · 2025-06-16"
     },
     "cover": "assets/img/blog/alphaevolve/method-detailed.png"
+  },
+  {
+    "slug": "ree",
+    "title_zh": "REE：给科研智能体的一场科学研究入门考试",
+    "title_en": "REE: a scientific research entrance exam for AI agents",
+    "summary_zh": "用 100 道跨学科开放问题、专家参考、隐藏测试和 12 小时迭代预算，评估科研智能体能否真正改进研究方案。",
+    "summary_en": "Evaluating whether research agents can improve scientific solutions with 100 open problems, expert references, held-out tests, and a 12-hour iterative budget.",
+    "tags_zh": [
+      "AI for Science",
+      "科研能力评测",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Scientific agent evaluation",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-28",
+    "paper": {
+      "title": "REE: A Scientific Research Entrance Exam for AI Agents",
+      "url": "https://arxiv.org/abs/2611.34646v1",
+      "venue": "arXiv v1 · 2026-11-25"
+    },
+    "cover": "assets/img/blog/ree/teaser.png"
   }
 ]

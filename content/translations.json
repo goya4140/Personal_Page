@@ -161,6 +161,10 @@
     "alphaevolve": {
       "source_sha256": "00b6978b5546b7e6dc6d972e8b5bef525e59ae394a5d911a123036576c623a6e",
       "english_sha256": "ce04a9f9f1a36c9cef6b799c21a661421d92cc5fe7c91b72659df5c770b4eb5a"
+    },
+    "ree": {
+      "source_sha256": "b10d788f22d5ea294c86519d9bb09ab19dc82e7a572833587d119a7888d84701",
+      "english_sha256": "e20f5e74d82dbc4dad3b954f4ea2833dfaf465f0bac1f6264b9dc28db6f4fda2"
     }
   }
 }

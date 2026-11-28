@@ -409,5 +409,20 @@
       "https://colab.research.google.com/github/google-deepmind/alphaevolve_results/blob/master/mathematical_results.ipynb"
     ],
     "imported_on": "2026-11-28"
+  },
+  {
+    "slug": "ree",
+    "source": "https://arxiv.org/abs/2611.34646v1",
+    "source_pdf": "https://arxiv.org/pdf/2611.34646v1",
+    "source_pdf_sha256": "b6cf4405696dbe8fe3954b99ae8b63e93feeb3108f7aa5c6ab87be60b277d268",
+    "source_archive_sha256": "6508554391a490ebd5bc7b186d87884160693ad11c5217922ea12d69aec65ccb",
+    "figure_manifest": "assets/img/blog/ree/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1, 2, 5, and 6; distinguish score, margin, win rate and W5, comparable expert references from historical published scores, hidden-test results from development metrics, single-run configuration comparisons, and LLM-assisted method tracing from human review.",
+    "related_sources": [
+      "https://arxiv.org/abs/2506.13131",
+      "https://arxiv.org/abs/2504.08066",
+      "https://huggingface.co/datasets/Tokenwave-AI/REE"
+    ],
+    "imported_on": "2026-11-28"
   }
 ]
