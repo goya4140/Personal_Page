@@ -153,6 +153,10 @@
     "worldcoderbench": {
       "source_sha256": "6b2a6555bbc9cab1428df5ade116a4391af0dc03c137ec3e89b0b67e81169bb4",
       "english_sha256": "04a16cfca70a2faeaf2fd12d9bd4692efb4301a483074f245e7bac6f6b0d26df"
+    },
+    "globals": {
+      "source_sha256": "6cc6aea65bc3be22f48624f362f22ab856d440183482fd0d06f0f5432024e1c8",
+      "english_sha256": "7e1afa3e1eb9ede19e86f722a09737edbac4cda637d2438f5fa666bca4f40603"
     }
   }
 }

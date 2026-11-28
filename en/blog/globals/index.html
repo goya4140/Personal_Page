@@ -1,0 +1,210 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lobals: revisiting visual evidence in latent space | Linhao Wang</title>
+  <meta name="description" content="A training-free test-time decoder selects a layer window by visual-token attention and re-computes it to improve visual perception.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Lobals: revisiting visual evidence in latent space">
+  <meta property="og:description" content="A training-free test-time decoder selects a layer window by visual-token attention and re-computes it to improve visual perception.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/globals/"><link rel="canonical" href="https://goya4140.github.io/en/blog/globals/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="Lobals：让多模态模型在隐空间回看视觉证据" data-title-en="Lobals: revisiting visual evidence in latent space" data-language-url="../../../blog/globals/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>9 min read</span><span>English translation</span><time datetime="2026-11-28">2026-11-28</time></div><div class="article-heading-layout has-art"><div><h1>Lobals: revisiting visual evidence in latent space</h1><p class="article-summary">A training-free test-time decoder selects a layer window by visual-token attention and re-computes it to improve visual perception.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Multimodal models</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/globals/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/globals/overview.png" alt="Lobals: revisiting visual evidence in latent space" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2611.30480" target="_blank" rel="noopener noreferrer">Test-Time Latent Computation to Improve Visual Perception in Multimodal Large Language Models ↗</a><small>arXiv v1 · 2026-11-23</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: why visual understanding may need a second look</a></li><li><a href="#section-2">2. Related work: from token reasoning to latent computation</a></li><li><a href="#section-3">3. Research questions: what does the paper test?</a></li><li><a href="#section-4">4. Method: from stable layers to Lobals decoding</a></li><li><a href="#section-8">5. Experiments and results: where do the gains come from, and what do they cost?</a></li><li><a href="#section-13">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="globals" lang="en"><p>Many vision-language models do not literally fail to see an image; during the later part of decoding, they gradually shift attention from visual tokens toward language output. The result can be a wrong count, an unsupported inference such as “it may be raining,” or a fluent answer that is no longer grounded in the image. <strong>Test-Time Latent Computation to Improve Visual Perception in Multimodal Large Language Models</strong> asks whether we can make the model compute again in a visually relevant hidden-state region at test time, without training new parameters or adding external tools.</p>
+<p>This post reads <a href="https://arxiv.org/abs/2611.30480" target="_blank" rel="noopener noreferrer">Test-Time Latent Computation to Improve Visual Perception in Multimodal Large Language Models</a> by Chen Yang, Zheng Fang, Wenqi Fan, and Jun Xia (arXiv v1, 23 Nov 2026). The paper proposes the training-free <strong>Lobals (Look Back in the Latent Space)</strong> decoder and releases <a href="https://github.com/wuycM/Lobals" target="_blank" rel="noopener noreferrer">implementation code</a>.</p>
+<h2 id="section-1">1. Topic: why visual understanding may need a second look</h2>
+<p>An MLLM encodes an image into visual tokens, combines them with text tokens, and processes the sequence through Transformer layers before producing an answer. Shallow layers tend to aggregate visual information, middle layers perform cross-modal integration, and deeper layers become increasingly output-oriented. If the model relies on language patterns too early, a fluent answer may drift away from the image.</p>
+<p>This is especially visible in counting, spatial relations, fine-grained recognition, and visual hallucination. Test-time scaling need not only generate a longer reasoning trace. It can also add computation in <strong>latent space</strong>: preserve the current semantic state, re-run a layer window that is strongly interacting with the image, and then continue decoding.</p>
+<h2 id="section-2">2. Related work: from token reasoning to latent computation</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Direction</th>
+<th>Main idea</th>
+<th>Relation to Lobals</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Layer-wise representation analysis</td>
+<td>Study how semantics and predictions emerge with depth</td>
+<td>Motivates treating layers as functionally non-uniform</td>
+</tr>
+<tr>
+<td>Trained recurrent computation</td>
+<td>Add effective depth through shared or looped Transformer blocks</td>
+<td>Lobals adds latent computation without parameter updates or training</td>
+</tr>
+<tr>
+<td>Training-free depth adaptation</td>
+<td>Skip or repeat contiguous blocks in a frozen model</td>
+<td>Lobals places repetition in the visually grounded window</td>
+</tr>
+<tr>
+<td>Visual-hallucination mitigation</td>
+<td>Amplify visual tokens or use contrastive decoding</td>
+<td>Lobals reopens a visual-interaction region instead of editing attention weights</td>
+</tr>
+</tbody>
+</table></div><p>The distinction is therefore not simply “repeat some layers.” Lobals first identifies a <strong>stable reusable band</strong> that does not disrupt normal language generation, then selects a window inside it from visual-token attention at every decoding step.</p>
+<h2 id="section-3">3. Research questions: what does the paper test?</h2>
+<p>Our reading organizes the questions as follows:</p>
+<ol>
+<li>Do MLLMs contain contiguous layer regions that can be safely re-forwarded, and how can their boundaries be found?</li>
+<li>Is selecting a window by visual-token attention more reliable than fixed or random repetition?</li>
+<li>Can this extra latent computation improve general multimodal understanding, hallucination mitigation, and vision-centric tasks together?</li>
+<li>Is the gain worth the latency, and how sensitive is it to the window length?</li>
+</ol>
+<h2 id="section-4">4. Method: from stable layers to Lobals decoding</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/globals/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/globals/overview.png" alt="Lobals latent-space revisit" loading="lazy" decoding="async"></a><figcaption>Figure 1 · A normal pass traverses the stack once. Lobals feeds the hidden state at the end of a reusable band back into one window, then continues to the output layers. Source: original Figure 1, PDF page 3; rendered from the source figure.</figcaption></figure>
+<h3 id="section-5">Step 1: find a reusable band with fluency checks</h3>
+<p>The authors use 500 COCO images and the prompt “Describe the image” on Qwen3-VL-2B/8B/32B and InternVL3.5-14B. For each candidate range, they feed a hidden state after one layer back into an earlier start layer, re-run a contiguous block, and resume normal decoding. Repetition, garbling, or other non-fluent output on any sample marks that range as disruptive.</p>
+<p>The resulting stable regions are <strong>[4, 27]</strong> for Qwen3-VL-2B, <strong>[8, 35]</strong> for Qwen3-VL-8B, <strong>[8, 63]</strong> for Qwen3-VL-32B, and <strong>[8, 39]</strong> for InternVL3.5-14B. The start usually coincides with the first attention-sink layer, while the endpoint is the penultimate layer; the final layer is more directly tied to logits and is easier to perturb.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/globals/fluency-analysis.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/globals/fluency-analysis.png" alt="Fluency analysis across MLLMs" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Yellow cells mean all 500 generations remain fluent; blue means at least one becomes non-fluent. The reusable region is model-dependent. Source: original Figure 2, PDF page 4; rendered from the source figure.</figcaption></figure>
+<p>For Qwen3-VL-8B, re-forwarding inside the stable region produces an average hidden-state cosine similarity of <strong>0.996</strong>. Repeating layer 7 drops it to <strong>0.671</strong>, and repeating the early [1, 6] region drops it to <strong>0.277</strong>. This supports the interpretation of middle-to-late layers as progressive refinement, but it does not prove that they carry only visual reasoning.</p>
+<h3 id="section-6">Step 2: measure visual attention at each decoding step</h3>
+<p>Let the reusable band be (mathcal{R}=[s,e]), the current decoding step be (t), the visual-token positions be (mathcal{V}), and the number of heads be (H). The visual-token attention ratio is</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>α</mi><mi>t</mi><mrow><mo stretchy="false">(</mo><mi mathvariant="normal">ℓ</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>=</mo><mfrac><mn>1</mn><mi>H</mi></mfrac><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>1</mn></mrow><mi>H</mi></munderover><munder><mo>∑</mo><mrow><mi>j</mi><mo>∈</mo><mi mathvariant="script">V</mi></mrow></munder><msubsup><mi>A</mi><mrow><mi>t</mi><mo separator="true">,</mo><mi>h</mi><mo separator="true">,</mo><mi>j</mi></mrow><mrow><mo stretchy="false">(</mo><mi mathvariant="normal">ℓ</mi><mo stretchy="false">)</mo></mrow></msubsup><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">\alpha_t^{(\ell)}=\frac{1}{H}\sum_{h=1}^{H}\sum_{j\in\mathcal{V}}A_{t,h,j}^{(\ell)}.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1.2906em;vertical-align:-0.2458em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.4542em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mtight">ℓ</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2458em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:3.2588em;vertical-align:-1.4304em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0813em;">H</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.8283em;"><span style="top:-1.8479em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">h</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span><span style="top:-4.3em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0813em;">H</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.3021em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span><span class="mrel mtight">∈</span><span class="mord mathcal mtight" style="margin-right:0.0822em;">V</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4304em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.3987em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">t</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">h</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight" style="margin-right:0.0572em;">j</span></span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mtight">ℓ</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4374em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></div>
+<p>It is the average fraction of attention assigned to visual evidence at layer (ell). Given a window length (k), Lobals enumerates contiguous windows in (mathcal{R}) and selects</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msubsup><mi>W</mi><mi>t</mi><mo>∗</mo></msubsup><mo>=</mo><mi>arg</mi><mo>⁡</mo><munder><mrow><mi>max</mi><mo>⁡</mo></mrow><mrow><mi>W</mi><mo>⊆</mo><mi mathvariant="script">R</mi><mo separator="true">,</mo><mtext> </mtext><mi mathvariant="normal">∣</mi><mi>W</mi><mi mathvariant="normal">∣</mi><mo>=</mo><mi>k</mi></mrow></munder><munder><mo>∑</mo><mrow><mi mathvariant="normal">ℓ</mi><mo>∈</mo><mi>W</mi></mrow></munder><msubsup><mi>α</mi><mi>t</mi><mrow><mo stretchy="false">(</mo><mi mathvariant="normal">ℓ</mi><mo stretchy="false">)</mo></mrow></msubsup><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">W_t^*=\arg\max_{W\subseteq\mathcal{R},\,|W|=k}\sum_{\ell\in W}\alpha_t^{(\ell)}.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.9857em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.1389em;">W</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-2.453em;margin-left:-0.1389em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.3795em;vertical-align:-1.3295em;"></span><span class="mop">ar<span style="margin-right:0.0139em;">g</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.4306em;"><span style="top:-2.309em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.1389em;">W</span><span class="mrel mtight">⊆</span><span class="mord mathcal mtight">R</span><span class="mpunct mtight">,</span><span class="mspace mtight" style="margin-right:0.1952em;"></span><span class="mord mtight">∣</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">W</span><span class="mord mtight">∣</span><span class="mrel mtight">=</span><span class="mord mathnormal mtight" style="margin-right:0.0315em;">k</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop">max</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.966em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8479em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">ℓ</span><span class="mrel mtight">∈</span><span class="mord mathnormal mtight" style="margin-right:0.1389em;">W</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.3295em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0448em;"><span style="top:-2.4542em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">t</span></span></span><span style="top:-3.2198em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mtight">ℓ</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2458em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></div>
+<p>The selection happens <strong>at every generation step</strong>, so different output tokens can revisit different layer windows for the same image.</p>
+<h3 id="section-7">Step 3: feed the endpoint state back into the selected window</h3>
+<p>The normal path runs from (s) through (e), then enters the final output layers. Lobals first completes this normal pass and obtains (mathbf h_t^{(e)}), feeds it back into the selected window (W_t^*=[a_t,b_t]), re-runs those layers, and passes the refined state to the layers after (e). It changes neither weights nor external tools.</p>
+<p>Implementation-wise, the next step still uses the KV cache created by the normal forward pass. The revisit only refines the hidden state used for the current token prediction and does not write new keys or values into the persistent cache, preserving standard autoregressive decoding consistency.</p>
+<h2 id="section-8">5. Experiments and results: where do the gains come from, and what do they cost?</h2>
+<h3 id="section-9">Main experiment: three open-weight MLLMs and six multimodal benchmarks</h3>
+<p>The authors evaluate Qwen3-VL-2B, Qwen3-VL-8B, and InternVL3.5-14B, comparing Base, VCD, PAI, VAF, and Lobals. The benchmarks cover general understanding (RealWorldQA, MMStar, MME), hallucination (POPE, MMHal-Bench), and vision-centric understanding (MMVP). Experiments use temperature 0 and top-p 1.0 on NVIDIA H200 GPUs; the average normalizes MME by 2800 and MMHal-Bench by 6.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model</th>
+<th>Method</th>
+<th style="text-align:right">RealWorldQA</th>
+<th style="text-align:right">MMStar</th>
+<th style="text-align:right">MME</th>
+<th style="text-align:right">POPE</th>
+<th style="text-align:right">MMHal</th>
+<th style="text-align:right">MMVP</th>
+<th style="text-align:right">Average</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3-VL-2B</td>
+<td>Base</td>
+<td style="text-align:right">63.92</td>
+<td style="text-align:right">53.46</td>
+<td style="text-align:right">2019.80</td>
+<td style="text-align:right">89.96</td>
+<td style="text-align:right">3.58</td>
+<td style="text-align:right">44.21%</td>
+<td style="text-align:right">68.47</td>
+</tr>
+<tr>
+<td></td>
+<td>Lobals</td>
+<td style="text-align:right"><strong>64.71</strong></td>
+<td style="text-align:right">54.64</td>
+<td style="text-align:right"><strong>2032.10</strong></td>
+<td style="text-align:right"><strong>89.97</strong></td>
+<td style="text-align:right"><strong>3.93</strong></td>
+<td style="text-align:right">35.53%</td>
+<td style="text-align:right"><strong>70.29</strong></td>
+</tr>
+<tr>
+<td>Qwen3-VL-8B</td>
+<td>Base</td>
+<td style="text-align:right">69.02</td>
+<td style="text-align:right">63.59</td>
+<td style="text-align:right">2368.80</td>
+<td style="text-align:right">88.90</td>
+<td style="text-align:right">4.53</td>
+<td style="text-align:right">30.53%</td>
+<td style="text-align:right">76.77</td>
+</tr>
+<tr>
+<td></td>
+<td>Lobals</td>
+<td style="text-align:right">69.93</td>
+<td style="text-align:right">64.22</td>
+<td style="text-align:right"><strong>2409.30</strong></td>
+<td style="text-align:right">89.26</td>
+<td style="text-align:right">4.62</td>
+<td style="text-align:right"><strong>29.47%</strong></td>
+<td style="text-align:right"><strong>78.13</strong></td>
+</tr>
+<tr>
+<td>InternVL3.5-14B</td>
+<td>Base</td>
+<td style="text-align:right">69.02</td>
+<td style="text-align:right">67.03</td>
+<td style="text-align:right">2379.20</td>
+<td style="text-align:right">85.88</td>
+<td style="text-align:right">4.25</td>
+<td style="text-align:right">23.96%</td>
+<td style="text-align:right">76.40</td>
+</tr>
+<tr>
+<td></td>
+<td>Lobals</td>
+<td style="text-align:right">69.93</td>
+<td style="text-align:right">67.09</td>
+<td style="text-align:right"><strong>2389.40</strong></td>
+<td style="text-align:right">85.99</td>
+<td style="text-align:right"><strong>4.30</strong></td>
+<td style="text-align:right">21.88%</td>
+<td style="text-align:right"><strong>76.78</strong></td>
+</tr>
+</tbody>
+</table></div><p>MMHal values in the table are normalized scores; percentage-valued columns follow each benchmark's definition. POPE and MMVP are higher-is-better, while MMHal's hallucination rate is lower-is-better. Lobals obtains the best or tied-best average on all three backbones and does not report a decline against the corresponding Base on every metric. Yet it does not improve every individual task: Qwen3-VL-2B's MMVP falls from 44.21% to 35.53%. The precise claim is therefore <strong>more stable and competitive overall</strong>, not monotonic improvement everywhere.</p>
+<h3 id="section-10">Mechanism ablation: extra computation helps, but visual grounding is steadier</h3>
+<p>On POPE with Qwen3-VL-8B, the authors compare fixed start, middle, end, random, and visually grounded windows:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Selection</th>
+<th style="text-align:right">Accuracy</th>
+<th style="text-align:right">F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Start</td>
+<td style="text-align:right">89.08</td>
+<td style="text-align:right">88.44</td>
+</tr>
+<tr>
+<td>Middle</td>
+<td style="text-align:right">89.01</td>
+<td style="text-align:right">88.45</td>
+</tr>
+<tr>
+<td>End</td>
+<td style="text-align:right">88.26</td>
+<td style="text-align:right">87.32</td>
+</tr>
+<tr>
+<td>Random</td>
+<td style="text-align:right">89.17</td>
+<td style="text-align:right">88.63</td>
+</tr>
+<tr>
+<td>Visually grounded (Lobals)</td>
+<td style="text-align:right"><strong>89.26</strong></td>
+<td style="text-align:right"><strong>88.75</strong></td>
+</tr>
+</tbody>
+</table></div><p>Across nine settings spanning three models and three benchmarks, Lobals beats random selection in <strong>8</strong> and never falls below the corresponding Base; random selection hurts Qwen3-VL-2B on RealWorldQA and POPE. Re-forwarding within the stable band may create the opportunity, but allocating the extra computation by visual evidence is more reliable.</p>
+<h3 id="section-11">Cases and attention analysis: how revisit can reduce visual hallucination</h3>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/globals/case-study-qwen.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/globals/case-study-qwen.png" alt="Lobals visual-question-answering cases" loading="lazy" decoding="async"></a><figcaption>Figure 3 · Two MMHal-Bench cases: Lobals corrects an oyster count from 6 to 5 and avoids an unsupported inference from cloudy weather to rain. Source: original Figure 4, PDF page 7; rendered from the source figure.</figcaption></figure>
+<p>In the oyster case, Qwen3-VL-8B counts six while Lobals counts five and explains the positions of the visible oysters. In the weather case, Qwen3-VL-2B adds “possibly rainy” beyond “cloudy,” whereas Lobals stays closer to visible evidence. These are qualitative examples, not an additional aggregate success rate.</p>
+<p>The attention analysis provides a mechanism-consistent clue: inside the Qwen3-VL-8B revisit window R13–R21, average first-token attention falls to <strong>15.6%</strong>, while visual-token attention rises to <strong>51.7%</strong>. The authors explicitly note that attention is not a causal measure of visual grounding, so this remains correlational evidence.</p>
+<h3 id="section-12">Efficiency and window length: the gain has a real compute cost</h3>
+<p>Qwen3-VL-8B has 36 layers and uses (k=9) in the main experiments. Because each token receives (k+1) additional layer evaluations, layer-level computation is approximately ((36+10)/36\approx1.28) times standard decoding. On an H200, end-to-end MMHal-Bench latency rises from <strong>2.53 s</strong> to <strong>4.30 s</strong> (1.70×), while output throughput falls from <strong>40.08</strong> to <strong>25.56 token/s</strong>, retaining 63.8% of baseline throughput. Longer is not always better: Qwen3-VL-2B performs best at (k=3), Qwen3-VL-8B at (k=9), so the optimum is model-dependent.</p>
+<h2 id="section-13">6. Our reflections</h2>
+<h3 id="section-14">Topic reflection: what is this field studying?</h3>
+<p>This work belongs to test-time compute scaling: parameters remain fixed, but the inference path reallocates computation for each input. It turns “think longer” into local recomputation of hidden states and connects visual understanding to the functional organization of Transformer depth. More broadly, the field is moving from asking whether a capability exists to asking where limited computation should be spent for each example.</p>
+<h3 id="section-15">Limitation reflection: what remains unresolved?</h3>
+<p>First, visual-attention ratio is a heuristic and may not equal the evidence the model truly relies on; the selected window may be suboptimal. Second, the reusable-band start depends on attention sinks, which future architectures may weaken or remove. Third, the main study covers only three open-weight backbones, and both the stable band and (k) are model-specific. Fourth, average gains are often modest while latency increases by 1.70×; for language-heavy tasks or long outputs, the trade-off must be recomputed.</p>
+<h3 id="section-16">Solution reflection: where could evaluation go next?</h3>
+<p>Window selection could combine gradients, occlusion tests, causal interventions, and multiple signals to test whether “visual relevance” actually causes better answers. Stable regions could be calibrated jointly from fluency, hidden-state similarity, and output consistency on new models. Experiments should include more architectures and visual encoders, and report per-example gain distributions rather than only means. Finally, an adaptive policy could decide whether to revisit and how long to revisit based on token difficulty, then plot accuracy–hallucination–latency Pareto curves.</p>
+<p><strong>One-sentence takeaway:</strong> Lobals does not make an MLLM produce a longer textual chain; it sends the hidden state back through the window that is most visually engaged and computes it once more. The result is a stable but not universal improvement across benchmarks, with a controllable yet real latency cost.</p>
+<p><strong>References:</strong> <a href="https://arxiv.org/abs/2611.30480" target="_blank" rel="noopener noreferrer">arXiv paper</a>, <a href="https://arxiv.org/html/2611.30480" target="_blank" rel="noopener noreferrer">HTML full text</a>, <a href="https://github.com/wuycM/Lobals" target="_blank" rel="noopener noreferrer">official code</a>.</p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: why visual understanding may need a second look</a></li><li><a href="#section-2">2. Related work: from token reasoning to latent computation</a></li><li><a href="#section-3">3. Research questions: what does the paper test?</a></li><li><a href="#section-4">4. Method: from stable layers to Lobals decoding</a></li><li><a href="#section-8">5. Experiments and results: where do the gains come from, and what do they cost?</a></li><li><a href="#section-13">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../gameasgbench/"><span>Paper reading</span><strong>GameASG-Bench: did the game-generation agent deliver complete behavior?</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>Paper reading</span><strong>VisionWeave: learning where visual detail is worth keeping</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>Paper reading</span><strong>VHarness: visual reasoning as callable tools for coding agents</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

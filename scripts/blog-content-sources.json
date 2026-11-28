@@ -379,5 +379,20 @@
       "https://github.com/shuolucs/WorldCoder-Bench"
     ],
     "imported_on": "2026-11-27"
+  },
+  {
+    "slug": "globals",
+    "source": "https://arxiv.org/abs/2611.30480",
+    "source_pdf": "https://arxiv.org/pdf/2611.30480v1",
+    "source_pdf_sha256": "c505eb526a83567943d345f7ffe1928f78924eb3c5bb532a866b4873cfe3fb32",
+    "source_archive_sha256": "fba2c2f7eb320082af7e62e10ae5f3303d7c8f45235108958a5a76f0f09fa0ee",
+    "figure_manifest": "assets/img/blog/globals/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 1, 2, 4, 5, and 6; distinguish stable-region observation from Lobals method, average benchmark scores from per-task changes, attention correlation from causality, and layer-level overhead from measured end-to-end latency.",
+    "related_sources": [
+      "https://arxiv.org/abs/2507.07996",
+      "https://arxiv.org/abs/2409.14199",
+      "https://github.com/wuycM/Lobals"
+    ],
+    "imported_on": "2026-11-28"
   }
 ]

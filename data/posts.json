@@ -919,5 +919,30 @@
       "venue": "arXiv v3 · 2026-11-06"
     },
     "cover": "assets/img/blog/worldcoderbench/evaluation.png"
+  },
+  {
+    "slug": "globals",
+    "title_zh": "Lobals：让多模态模型在隐空间回看视觉证据",
+    "title_en": "Lobals: revisiting visual evidence in latent space",
+    "summary_zh": "理解一种无需训练的测试时解码：按视觉 token 注意力选择中间层窗口，再计算一次以改善视觉感知。",
+    "summary_en": "A training-free test-time decoder selects a layer window by visual-token attention and re-computes it to improve visual perception.",
+    "tags_zh": [
+      "人工智能",
+      "多模态模型",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "Artificial Intelligence",
+      "Multimodal models",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-28",
+    "paper": {
+      "title": "Test-Time Latent Computation to Improve Visual Perception in Multimodal Large Language Models",
+      "url": "https://arxiv.org/abs/2611.30480",
+      "venue": "arXiv v1 · 2026-11-23"
+    },
+    "cover": "assets/img/blog/globals/overview.png"
   }
 ]

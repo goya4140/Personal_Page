@@ -1,0 +1,11 @@
+{
+  "slug": "globals",
+  "license": "Paper source distributed with arXiv submission; paper states CC BY 4.0.",
+  "figures": [
+    {"file": "overview.png", "source": "arXiv 2611.30480v1 source figure/overview.pdf (paper Figure 1), rendered at 160 dpi."},
+    {"file": "fluency-analysis.png", "source": "arXiv 2611.30480v1 source figure/fluency-analysis-0804.pdf (paper Figure 2), rendered at 160 dpi."},
+    {"file": "revisit-attention.png", "source": "arXiv 2611.30480v1 source figure/revist-attention.pdf (paper Figure 6), rendered at 160 dpi."},
+    {"file": "window-length.png", "source": "arXiv 2611.30480v1 source figure/k-sensitive-qwen.pdf (paper Figure 5), rendered at 160 dpi."},
+    {"file": "case-study-qwen.png", "source": "arXiv 2611.30480v1 source figure/case-study-qwen.pdf (paper Figure 4), rendered at 160 dpi."}
+  ]
+}
