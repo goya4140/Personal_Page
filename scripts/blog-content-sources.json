@@ -394,5 +394,20 @@
       "https://github.com/wuycM/Lobals"
     ],
     "imported_on": "2026-11-28"
+  },
+  {
+    "slug": "alphaevolve",
+    "source": "https://arxiv.org/abs/2506.13131",
+    "source_pdf": "https://arxiv.org/pdf/2506.13131v1",
+    "source_pdf_sha256": "f092c8cbd65da89951ee6496374da9a54963f9035758c25ac6e4625f506df9ad",
+    "source_archive_sha256": "a3ea37c5b6fe967fba459f0daca8548a78e2a1eac45e5c2aac83051ef113f21d",
+    "figure_manifest": "assets/img/blog/alphaevolve/sources.json",
+    "scope": "Complete bilingual six-section reading with three reflection subsections; original Figures 2, 5, 6, and 8-left; distinguish automated evaluator scores from deployment and human verification, aggregate mathematical discovery percentages from per-task success, and benchmark ablations from engineering case evidence.",
+    "related_sources": [
+      "https://arxiv.org/abs/2306.09927",
+      "https://arxiv.org/abs/2504.08066",
+      "https://colab.research.google.com/github/google-deepmind/alphaevolve_results/blob/master/mathematical_results.ipynb"
+    ],
+    "imported_on": "2026-11-28"
   }
 ]

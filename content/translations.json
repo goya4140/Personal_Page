@@ -157,6 +157,10 @@
     "globals": {
       "source_sha256": "6cc6aea65bc3be22f48624f362f22ab856d440183482fd0d06f0f5432024e1c8",
       "english_sha256": "7e1afa3e1eb9ede19e86f722a09737edbac4cda637d2438f5fa666bca4f40603"
+    },
+    "alphaevolve": {
+      "source_sha256": "00b6978b5546b7e6dc6d972e8b5bef525e59ae394a5d911a123036576c623a6e",
+      "english_sha256": "ce04a9f9f1a36c9cef6b799c21a661421d92cc5fe7c91b72659df5c770b4eb5a"
     }
   }
 }

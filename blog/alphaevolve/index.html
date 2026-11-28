@@ -1,0 +1,133 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlphaEvolve：让代码在评价器反馈中演化出新算法 | Linhao Wang</title>
+  <meta name="description" content="从可演化代码块、自动评价器和程序数据库出发，理解一个 coding agent 如何把测试时搜索推进到数学与工程发现。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AlphaEvolve：让代码在评价器反馈中演化出新算法">
+  <meta property="og:description" content="从可演化代码块、自动评价器和程序数据库出发，理解一个 coding agent 如何把测试时搜索推进到数学与工程发现。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/alphaevolve/"><link rel="canonical" href="https://goya4140.github.io/blog/alphaevolve/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AlphaEvolve：让代码在评价器反馈中演化出新算法" data-title-en="AlphaEvolve: evolving algorithms through executable feedback" data-language-url="../../en/blog/alphaevolve/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 10 分钟</span><span>中文原稿</span><time datetime="2026-11-28">2026-11-28</time></div><div class="article-heading-layout has-art"><div><h1>AlphaEvolve：让代码在评价器反馈中演化出新算法</h1><p class="article-summary">从可演化代码块、自动评价器和程序数据库出发，理解一个 coding agent 如何把测试时搜索推进到数学与工程发现。</p><div class="post-topics"><span>AI for Science</span><span>算法发现</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/alphaevolve/method-detailed.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/alphaevolve/method-detailed.png" alt="AlphaEvolve：让代码在评价器反馈中演化出新算法" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">AlphaEvolve: A coding agent for scientific and algorithmic discovery ↗</a><small>arXiv v1 · 2025-06-16</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：从代码生成到可验证的算法发现</a></li><li><a href="#section-2">二、相关文献解读：从 FunSearch 到更大规模的代码演化</a></li><li><a href="#section-3">三、研究问题解读：这套系统想回答什么</a></li><li><a href="#section-4">四、方法解读：一个以评价器为中心的异步演化闭环</a></li><li><a href="#section-10">五、实验设计与结果：先看整体发现，再看组件贡献</a></li><li><a href="#section-13">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="alphaevolve" lang="zh-CN"><p>如果一个模型只能提出“看起来不错”的算法想法，它还不能称为科学发现系统。真正困难的是把想法写成可运行的程序，交给评价器验证，再让后续搜索利用分数和失败反馈继续改变程序。AlphaEvolve 把这件事做成了一个以代码为载体的演化闭环。</p>
+<p>本文解读 Alexander Novikov、Ngân Vũ、Marvin Eisenberger 等人的 <a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">AlphaEvolve: A coding agent for scientific and algorithmic discovery</a>（arXiv v1，2025-06-16）。这篇白皮书介绍 Google DeepMind 的通用演化式 coding agent：它通过 LLM 生成代码 diff、自动评价和程序数据库持续改进算法，并展示矩阵乘法、数学构造和 Google 计算基础设施中的案例。</p>
+<h2 id="section-1">一、课题解读：从代码生成到可验证的算法发现</h2>
+<p>传统 coding agent 通常接收一个需求，生成能运行的代码；科研与算法发现还要多走几步：候选程序必须满足硬约束，性能要能在真实或模拟环境中测量，改进要能在未见输入上复现，偶然的高分不能直接当成新知识。</p>
+<p>这个领域研究的是<strong>如何把搜索、执行、验证和解释连接成一个长期循环</strong>。在可自动评分的问题里，程序可以同时是候选解、搜索策略和最终交付物。评价器把“是否正确”“是否更快”“是否更省资源”等目标转成数值反馈，模型再据此探索新的代码结构。</p>
+<h2 id="section-2">二、相关文献解读：从 FunSearch 到更大规模的代码演化</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>主要做法</th>
+<th>AlphaEvolve 延伸之处</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>遗传编程与程序演化</td>
+<td>预先设计 mutation/crossover 操作，迭代程序种群</td>
+<td>由 LLM 根据上下文提出跨函数、跨组件的修改</td>
+</tr>
+<tr>
+<td>FunSearch</td>
+<td>用 LLM 演化一个 Python 函数，发现数学构造或启发式</td>
+<td>演化整个代码文件，支持多语言、多目标和更长评测</td>
+</tr>
+<tr>
+<td>AlphaTensor 等专用系统</td>
+<td>针对矩阵乘法等单一问题设计搜索</td>
+<td>把“如何表示候选与如何评估”开放为任务配置</td>
+</tr>
+<tr>
+<td>AI 科研智能体</td>
+<td>在自然语言层面生成、排序和讨论假设</td>
+<td>以可执行程序为中间表示，用机器反馈压住幻觉</td>
+</tr>
+</tbody>
+</table></div><p>AlphaEvolve 的位置不是替代自然语言科研智能体，而是把高层想法落到可以执行的算法搜索阶段。它尤其适合数学、计算机科学和系统优化中能够写出可靠自动评价器的问题。</p>
+<h2 id="section-3">三、研究问题解读：这套系统想回答什么</h2>
+<p>下面是我们的阅读归纳，并非作者逐字列出的研究问题：</p>
+<ol>
+<li>能否让 LLM 直接修改较大的代码库，而不被限制在一个短函数或固定语言中？</li>
+<li>演化数据库、丰富上下文、元提示、多目标评分和强弱模型混合，分别是否真的有贡献？</li>
+<li>同一套闭环能否同时处理数学构造、算法发现和工业计算栈优化？</li>
+<li>什么样的自动评价器和验证流程，才能把候选程序的高分转化为可信的发现？</li>
+</ol>
+<h2 id="section-4">四、方法解读：一个以评价器为中心的异步演化闭环</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/alphaevolve/method-detailed.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/alphaevolve/method-detailed.png" alt="AlphaEvolve 的详细发现流程" loading="lazy" decoding="async"></a><figcaption>图 1 · 用户提供初始程序、可演化代码块和 evaluate 接口；Prompt sampler 组装候选上下文，LLM 输出 diff，Evaluator 运行评分，优质程序回写数据库并进入下一代。来源：原论文 Figure 2，PDF 第 5 页；源文件原图渲染。</figcaption></figure>
+<h3 id="section-5">第一步：把问题写成可评分的代码任务</h3>
+<p>用户需要提供初始程序、标记为可演化的代码块，以及一个 <code>evaluate</code> 函数。它接收生成的程序并返回一个标量字典，默认所有指标都要最大化。其余代码构成固定骨架，负责调用被演化部分和执行评测。</p>
+<p>这种接口让任务表达具有弹性：可以直接演化候选对象，也可以演化从零构造对象的函数、固定预算内的搜索算法，甚至联合演化“中间解”和“专门寻找它的搜索器”。表示层级不同会带来不同偏置，例如构造函数可能更偏向对称解。</p>
+<h3 id="section-6">第二步：从程序数据库采样丰富提示</h3>
+<p>数据库保存程序、分数和执行输出。Prompt sampler 从中挑选多个已有方案，再加入问题说明、公式、代码片段、论文或日志等显式上下文。系统还支持随机模板、把 evaluation 结果渲染进提示，以及单独演化的 meta prompt。</p>
+<p>相较只把上一个答案塞回上下文，这个设计让模型同时看到高分方案、不同结构和失败反馈，形成更大的“候选邻域”。</p>
+<h3 id="section-7">第三步：用模型集成提出代码 diff</h3>
+<p>AlphaEvolve 要求 LLM 用 SEARCH/REPLACE diff 修改当前程序，而不是返回一份无法对齐的完整新文件。论文中的实现混合 Gemini 2.0 Flash 与 Gemini 2.0 Pro：前者提高候选吞吐，后者偶尔提供更高质量、可能跨越局部最优的修改。</p>
+<p>它可以演化数百行代码、多个函数和多种语言；但“能改”不等于“能过”，每个 diff 都必须进入下一步执行验证。</p>
+<h3 id="section-8">第四步：评价器级联、并行执行和多目标评分</h3>
+<p>生成的程序先经过快速、小规模测试，只有达到阈值才进入更困难的评测；这叫 evaluation cascade。评价器也可以返回多个分数，例如速度、质量、资源使用和稳定性，或调用另一个 LLM 对代码简洁性等难以形式化的属性打分。</p>
+<p>当单次评测可能消耗约 100 个 compute-hours 时，系统把不同随机初始化或测试分片异步分发到评测集群。这里的关键是：<strong>搜索的速度由候选生成速度和评价吞吐共同决定</strong>，不是只看 LLM 每秒能写多少代码。</p>
+<h3 id="section-9">第五步：按进化算法把好程序重新放回数据库</h3>
+<p>有分数和执行结果的候选程序进入 evolutionary database。数据库负责重新暴露有潜力的程序，同时保留足够多样的历史方案，使搜索能够继续爬坡而不是永远复制当前冠军。整个系统以 asyncio 实现为异步 pipeline，候选生成、评测和数据库更新可以并行。</p>
+<h2 id="section-10">五、实验设计与结果：先看整体发现，再看组件贡献</h2>
+<h3 id="section-11">主实验：数学、算法和 Google 计算栈中的整体结果</h3>
+<p>这篇白皮书不是单一 benchmark，而是一组真实问题的应用报告。作者使用自动评价器驱动 AlphaEvolve，比较发现的算法或启发式与已有最佳结果，并在部分工程任务上使用未见数据、真实硬件或人工审查做验证。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>场景</th>
+<th>任务与评价</th>
+<th>主要结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>矩阵乘法</td>
+<td>以张量分解的 rank（标量乘法次数）为目标，算法需保持精确</td>
+<td>改进 14 个矩阵乘法目标；对任意特征 0 的 (4\times4) 复矩阵乘法发现 rank 48，优于递归 Strassen 的 49</td>
+</tr>
+<tr>
+<td>数学构造</td>
+<td>50 多个开放问题，用构造对象的数学性质自动评分</td>
+<td>约 75% 追平已知最好构造，约 20% 超过 SOTA 并得到新的可证明更优构造</td>
+</tr>
+<tr>
+<td>Borg 调度</td>
+<td>用历史工作负载模拟器评价 CPU/内存装箱启发式，并用近期未见数据测试</td>
+<td>部署后平均回收 Google 全舰队约 0.7% 原本闲置的计算资源</td>
+</tr>
+<tr>
+<td>Gemini kernel</td>
+<td>在真实 TPU 输入形状上最小化矩阵乘法 kernel 运行时间</td>
+<td>kernel 平均提速 23%，Gemini 总训练时间减少 1%；优化从数月缩到数天</td>
+</tr>
+<tr>
+<td>TPU 电路</td>
+<td>优化 Verilog RTL，同时通过功能验证并由 TPU 设计师审查</td>
+<td>找到去除冗余位的简单重写，集成到下一代 TPU 设计流程</td>
+</tr>
+<tr>
+<td>编译器生成 IR</td>
+<td>对 FlashAttention 的 XLA IR 及前后处理做随机输入数值验证</td>
+<td>kernel 提速 32%，输入/输出前后处理部分提速 15%</td>
+</tr>
+</tbody>
+</table></div><p>矩阵乘法案例是最容易核验的算法发现：搜索不只调参数，而是提出了 15 次跨组件修改，最终得到 48 次标量乘法的 (4\times4) 复矩阵算法。数学构造案例表明系统能在多种问题上找到新对象，但“约 20% 超过 SOTA”是跨问题的汇总比例，不是每道题都严格独立证明，也不是自然科学实验的成功率。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/alphaevolve/math-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/alphaevolve/math-results.png" alt="AlphaEvolve 发现的数学构造案例" loading="lazy" decoding="async"></a><figcaption>图 2 · 论文展示的若干数学构造与 SOTA 对比；图中是结果示例，不应读作所有 50 多个问题的完整分布。来源：原论文 Figure 5，PDF 第 13 页；源文件原图渲染。</figcaption></figure>
+<p>工程案例提供了更接近生产的证据链。Borg 启发式先在历史快照模拟，再用未见近期工作负载测试，最后全舰队部署并观察到与模拟一致的 0.7% 资源回收。Gemini kernel 任务则将半数真实输入形状用于演化、半数用于评价，避免只在搜索见过的形状上得分。TPU 和 XLA 任务都把数值或功能正确性作为硬门槛；因此“快了多少”必须和“仍然正确”同时报告。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/alphaevolve/borg-heuristic.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/alphaevolve/borg-heuristic.png" alt="Borg 调度启发式的资源残差评分" loading="lazy" decoding="async"></a><figcaption>图 3 · 发现的 CPU/内存残差启发式：颜色表示对候选机器的优先级评分。它只在 Borg 已判定可运行的机器中排序，因此结果在该层面保持正确性。来源：原论文 Figure 6，PDF 第 14 页；源文件原图渲染。</figcaption></figure>
+<h3 id="section-12">补充分析：哪些组件让搜索更有效</h3>
+<p>作者在矩阵乘法张量分解和 kissing-number 下界两个任务上做消融，比较：去掉演化、去掉提示中的显式上下文、去掉 meta-prompt evolution、只演化 loss function 而非完整文件，以及只使用单个小模型。图 8 的曲线是随 compute budget 增加的平均目标表现，阴影是三次不同随机种子的跨目标标准差。</p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/alphaevolve/ablation-matmul.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/alphaevolve/ablation-matmul.png" alt="AlphaEvolve 在矩阵分解任务上的组件消融" loading="lazy" decoding="async"></a><figcaption>图 4 · 左面板是低秩张量分解任务的消融；曲线按计算预算展示平均表现，阴影表示三次独立运行的波动。来源：原论文 Figure 8 左面板，PDF 第 18 页；保留源文件面板。</figcaption></figure>
+<p>论文的总体结论是每个组件都带来显著改善：演化数据库让后续代际看到并改进历史方案；显式上下文提供问题结构和反馈；meta prompt 帮助改进提示本身；全文件演化允许修改跨函数的协同逻辑；强模型提高候选质量。需要注意，这里的消融是两个代表性任务上的曲线比较，不是对所有工程案例的因果分解。</p>
+<h2 id="section-13">六、我们自己的思考</h2>
+<h3 id="section-14">课题思考：这个领域在研究什么</h3>
+<p>AlphaEvolve 展示了一种很清晰的科研智能体分工：LLM 负责提出结构化变化，程序执行负责兑现或拒绝变化，数据库负责积累搜索记忆，评价器负责把“好坏”变成下一轮可用的信号。它把测试时计算从“生成更多文本”扩展成“运行更多有反馈的程序”。</p>
+<p>其真正的突破点不只是使用更强的模型，而是把候选表示、自动评价和迭代预算组织成了一个可持续的发现环境。对于可计算的科学问题，可靠 evaluator 可能比更复杂的对话式规划更先决定系统的上限。</p>
+<h3 id="section-15">局限问题思考：目前还存在哪些问题</h3>
+<p>第一，系统依赖可自动化的评价器；很多自然科学实验仍无法用低成本、可重复的模拟器替代。第二，白皮书中的应用来自 Google 内部基础设施和精心选择的数学问题，资源、工程上下文和专家验证难以完全复现。第三，分数驱动的演化可能优化代理指标，尤其当多目标之间存在冲突或评价器不完整时。第四，AlphaEvolve 找到的是算法或启发式，如何从代码行为提炼可迁移的科学机制，论文没有系统回答。</p>
+<h3 id="section-16">解决方案思考：这些问题有哪些解决方向</h3>
+<p>针对第一点，可以让高层 LLM 先提出可检验的自然语言假设，再把其中可模拟的部分编译成 evaluator，并明确记录人工实验仍缺失的证据。针对第二点，应发布任务规格、初始程序、评价器、搜索预算和完整候选轨迹，用跨机构复现实验区分方法增益与基础设施优势。针对第三点，可以使用隐藏测试集、对抗性评价、多个独立 evaluator 和人工审查，报告“优化分数”和“真实目标”的差距。最后，可以让系统自动生成算法不变量、证明草稿和行为摘要，把高分代码转成研究者能够理解、复用和迁移的知识。</p>
+<p><strong>一句话总结：</strong> AlphaEvolve 的核心不是让 LLM 一次写出正确算法，而是让代码成为可突变的假设、评价器成为持续反馈，演化数据库成为长期记忆，从而把“生成—执行—筛选—再生成”推进到足以产生数学和工程改进的规模。</p>
+<p><strong>参考：</strong> <a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">arXiv 论文</a>、<a href="https://arxiv.org/html/2506.13131" target="_blank" rel="noopener noreferrer">HTML 全文</a>、<a href="https://colab.research.google.com/github/google-deepmind/alphaevolve_results/blob/master/mathematical_results.ipynb" target="_blank" rel="noopener noreferrer">数学结果 Colab</a>。</p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：从代码生成到可验证的算法发现</a></li><li><a href="#section-2">二、相关文献解读：从 FunSearch 到更大规模的代码演化</a></li><li><a href="#section-3">三、研究问题解读：这套系统想回答什么</a></li><li><a href="#section-4">四、方法解读：一个以评价器为中心的异步演化闭环</a></li><li><a href="#section-10">五、实验设计与结果：先看整体发现，再看组件贡献</a></li><li><a href="#section-13">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../verifiedlab/"><span>论文阅读</span><strong>VerifiedLab：从逐字段核验到可追溯的科研推理</strong><i aria-hidden="true">↗</i></a><a href="../harnessevolve/"><span>论文阅读</span><strong>HarnessEvolve：怎样用参考轨迹修订 Agent 框架</strong><i aria-hidden="true">↗</i></a><a href="../harnessdev/"><span>论文阅读</span><strong>HarnessDev：Agent 能选出更好的框架版本吗？</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

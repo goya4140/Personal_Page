@@ -944,5 +944,30 @@
       "venue": "arXiv v1 · 2026-11-23"
     },
     "cover": "assets/img/blog/globals/overview.png"
+  },
+  {
+    "slug": "alphaevolve",
+    "title_zh": "AlphaEvolve：让代码在评价器反馈中演化出新算法",
+    "title_en": "AlphaEvolve: evolving algorithms through executable feedback",
+    "summary_zh": "从可演化代码块、自动评价器和程序数据库出发，理解一个 coding agent 如何把测试时搜索推进到数学与工程发现。",
+    "summary_en": "How evolvable code blocks, automatic evaluators, and a program database turn test-time search into mathematical and engineering discoveries.",
+    "tags_zh": [
+      "AI for Science",
+      "算法发现",
+      "论文阅读"
+    ],
+    "tags_en": [
+      "AI for Science",
+      "Algorithm discovery",
+      "Paper reading"
+    ],
+    "kind": "reading",
+    "date": "2026-11-28",
+    "paper": {
+      "title": "AlphaEvolve: A coding agent for scientific and algorithmic discovery",
+      "url": "https://arxiv.org/abs/2506.13131",
+      "venue": "arXiv v1 · 2025-06-16"
+    },
+    "cover": "assets/img/blog/alphaevolve/method-detailed.png"
   }
 ]
