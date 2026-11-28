@@ -1,0 +1,30 @@
+{
+  "source": "https://arxiv.org/pdf/2609.21293v1",
+  "source_archive": "https://arxiv.org/src/2609.21293v1",
+  "source_pdf_sha256": "ea41bead03656b0f2d5c321a665d0392935c40461235fea204ff9f812571011c",
+  "source_archive_sha256": "81daccf369adefd15d4b2b511f9fc460fccf02aefe95807d85fe3859a0e559fe",
+  "license": "arXiv non-exclusive distribution license",
+  "license_url": "https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html",
+  "attribution": "Xiuhui Zhang, Yi Chen, Shusheng Xu, Fan Li, Huan Wang, Tongkai Yang, and Binhang Yuan. GameASG-Bench, arXiv v1, 2026-09-18.",
+  "figures": [
+    {
+      "file": "taxonomy.png",
+      "figure": 1,
+      "pdf_pages": "6",
+      "source_archive_members": [
+        "Figures/taxonomy_genre.pdf",
+        "Figures/taxonomy_dimension.pdf",
+        "Figures/taxonomy_technology.pdf"
+      ],
+      "source_asset_sha256": {
+        "Figures/taxonomy_genre.pdf": "e2706a4895a99dd8559e33eba0714803205827d28e2791ec7cf3c4c87a2ea70f",
+        "Figures/taxonomy_dimension.pdf": "9b0165eb42306637f7fce6743f3923b11332267ab7bacaa1724dc2d30af37e9a",
+        "Figures/taxonomy_technology.pdf": "c031f59158366756d45e43cc50a56e3d3ace8079adbb7e836ab448d868f64ec3"
+      },
+      "width": 2340,
+      "height": 4818,
+      "sha256": "c5b9d2877cce53b41187e1b22e93b09dba3d1af38e6b6854c0e8a74ed5dddcca",
+      "operation": "Original vector panels rendered at high resolution and vertically combined; plotted data and labels were not changed"
+    }
+  ]
+}

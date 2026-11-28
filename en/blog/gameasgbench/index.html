@@ -1,0 +1,244 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GameASG-Bench: did the game-generation agent deliver complete behavior? | Linhao Wang</title>
+  <meta name="description" content="Pre-declared evaluation interfaces, L1/L2 evidence layers, and P0/P1/P2 priorities explain why a 93.2% mean check rate still corresponds to only 55.3% strict task success.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="GameASG-Bench: did the game-generation agent deliver complete behavior?">
+  <meta property="og:description" content="Pre-declared evaluation interfaces, L1/L2 evidence layers, and P0/P1/P2 priorities explain why a 93.2% mean check rate still corresponds to only 55.3% strict task success.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/gameasgbench/"><link rel="canonical" href="https://goya4140.github.io/en/blog/gameasgbench/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？" data-title-en="GameASG-Bench: did the game-generation agent deliver complete behavior?" data-language-url="../../../blog/gameasgbench/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>12 min read</span><span>English translation</span><time datetime="2026-11-23">2026-11-23</time></div><div class="article-heading-layout has-art"><div><h1>GameASG-Bench: did the game-generation agent deliver complete behavior?</h1><p class="article-summary">Pre-declared evaluation interfaces, L1/L2 evidence layers, and P0/P1/P2 priorities explain why a 93.2% mean check rate still corresponds to only 55.3% strict task success.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Autonomous software generation</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/gameasgbench/taxonomy.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/gameasgbench/taxonomy.png" alt="GameASG-Bench: did the game-generation agent deliver complete behavior?" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2609.21293v1" target="_blank" rel="noopener noreferrer">GameASG-Bench: Benchmarking Autonomous Software Generation for Game Development ↗</a><small>arXiv v1 · 2026-09-18</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: how can we tell whether an agent delivered a usable application?</a></li><li><a href="#section-2">2. Related work: from code generation to verifiable applications</a></li><li><a href="#section-3">3. Research questions: does a high check pass rate mean the task is complete?</a></li><li><a href="#section-4">4. Method: declare a testable interface, then verify with browser evidence</a></li><li><a href="#section-9">5. Experiments and results: task-level success is far below average check scores</a></li><li><a href="#section-15">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="gameasgbench" lang="en"><p>Writing a game project and delivering a game that satisfies its requirements are different things. A page may start, the code may compile, and most checks may pass, while a real drag, a reset, or a longer interaction sequence still fails. GameASG-Bench is designed to expose this gap.</p>
+<p>This article reads <strong>GameASG-Bench: Benchmarking Autonomous Software Generation for Game Development</strong> by Xiuhui Zhang, Yi Chen, Shusheng Xu, and colleagues, based on <a href="https://arxiv.org/abs/2609.21293v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>, submitted on September 18, 2026. The paper does not propose a new game-generation model. Its central idea is to make behavioral testability part of generation: besides producing a game, the agent implements an interface through which the evaluator can prepare scenarios, send player-level actions, read stable state, and check invariants. The official code is <a href="https://github.com/areal-project/GameASG-Bench" target="_blank" rel="noopener noreferrer">areal-project/GameASG-Bench</a>.</p>
+<h2 id="section-1">1. Topic: how can we tell whether an agent delivered a usable application?</h2>
+<p>Autonomous software generation aims to turn human requirements directly into executable applications. An agent reads files, edits code, invokes tools, runs programs, and revises its implementation from errors. For a complete application, locally correct functions are insufficient: input handling, state transitions, rendering, resource changes, failure conditions, and restart behavior must work together.</p>
+<p>Games are a compact proxy for this problem. They are often self-contained but include controls, spatial relations, state machines, feedback, and terminal conditions. A game that “looks playable” does not establish that mouse and touch input both advance the flow, that old state does not leak after reset, or that a sequence of actions reaches the right terminal state.</p>
+<p>Reliable evaluation therefore needs three kinds of evidence: whether the artifact satisfies source-level interface requirements, whether real browser input changes the visible game, and whether snapshots agree with the screen and runtime behavior. A single playable/not-playable label is not enough to locate which requirement failed.</p>
+<h2 id="section-2">2. Related work: from code generation to verifiable applications</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main exploration</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.17637" target="_blank" rel="noopener noreferrer">WebGameBench</a></td>
+<td>Evaluates browser-native games through real browser interaction</td>
+<td>Shows how games can serve as a behavioral requirement-to-application setting</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2606.17861" target="_blank" rel="noopener noreferrer">GameCraft-Bench</a></td>
+<td>Requires end-to-end generation of playable Godot games using replay and multimodal evidence</td>
+<td>Connects complete game delivery with reproducible verification</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2605.07442" target="_blank" rel="noopener noreferrer">GameGen-Verifier</a></td>
+<td>Decomposes requirements into precondition–interaction–postcondition checks with runtime state injection</td>
+<td>Provides another route to fine-grained behavioral verification</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2602.11103" target="_blank" rel="noopener noreferrer">GameDevBench</a></td>
+<td>Evaluates agent development and modification of Godot projects</td>
+<td>Extends game evaluation from local code tasks to project-level work</td>
+</tr>
+</tbody>
+</table></div><p>GameASG-Bench takes a more specific position: <strong>the evaluation interface and executable checks are fixed before generation, so the same behavioral tests can run on games with different internal implementations.</strong> Agents do not have to use prescribed classes or object graphs, but the interface semantics, actual game state, and visible behavior must agree.</p>
+<h2 id="section-3">3. Research questions: does a high check pass rate mean the task is complete?</h2>
+<p>The following four questions are our reading synthesis; the paper organizes its experiments as RQ1–RQ4:</p>
+<ol>
+<li>When a requirement includes a complete gameplay loop, how reliably can current agent stacks satisfy every required behavior?</li>
+<li>How do tool access and nominal turn budgets affect completion?</li>
+<li>Does higher reasoning effort reliably produce more complete tasks, and is the additional token use worthwhile?</li>
+<li>For the same model, does changing the harness change which tasks succeed?</li>
+</ol>
+<p>These questions require a clear distinction between how many checks pass and how many tasks pass every required check. The latter is closer to whether an application can be delivered as a whole.</p>
+<h2 id="section-4">4. Method: declare a testable interface, then verify with browser evidence</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/gameasgbench/taxonomy.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/gameasgbench/taxonomy.png" alt="Composition of the 47 GameASG-Bench tasks by genre, dimension, and reference technology" loading="lazy" decoding="async"></a><figcaption>Figure 1 · The three panels show the 47 tasks by genre, spatial dimension, and reference implementation technology. Source: original Figure 1; source files Figures/taxonomy_genre.pdf, taxonomy_dimension.pdf, and taxonomy_technology.pdf, rendered and vertically combined without changing the plotted data. Paper version: arXiv v1.</figcaption></figure>
+<h3 id="section-5">Step one: describe both gameplay and testing for every task</h3>
+<p>Each task asks the agent to produce a self-contained browser-native game delivered as <code>index.html</code>. The task package contains three documents:</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Document</th>
+<th>File</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generation prompt</td>
+<td><code>target.md</code></td>
+<td>Workspace, delivery protocol, and concise gameplay objective; passed directly to the agent by the harness</td>
+</tr>
+<tr>
+<td>Gameplay design requirement</td>
+<td><code>game-spec.md</code></td>
+<td>Objective, controls, entities, state transitions, feedback, termination, and restart requirements</td>
+</tr>
+<tr>
+<td>Evaluation interface specification</td>
+<td><code>tdd.md</code></td>
+<td>Scenario setup, action and observation semantics, rejection behavior, and invariants</td>
+</tr>
+</tbody>
+</table></div><p>Human authors write the scenarios, actions, snapshot fields, and check code before generation. The agent reads the gameplay and TDD documents and implements both the game and the evaluation interface. The evaluator therefore does not need the internal object graph; it only needs stable interface meanings.</p>
+<h3 id="section-6">Step two: connect preparation, action, and observation with four methods</h3>
+<p>Each task exposes four kinds of capability through <code>window.__gameTest</code>:</p>
+<ol>
+<li><code>reset</code> restores the initial state and clears transient effects;</li>
+<li><code>loadScenario</code> moves the game to a legally reachable intermediate state without directly producing the outcome under test;</li>
+<li><code>input</code> accepts player-level actions such as moving a unit or selecting a target;</li>
+<li><code>getSnapshot</code> returns the relevant state in a serializable form.</li>
+</ol>
+<p>The key constraint is that interface operations and snapshots must act on the underlying state that drives visible gameplay. Otherwise an agent could write a “fake state” for self-tests: the snapshot would report success while the screen and real input remain unchanged. <code>loadScenario</code> can skip a long prerequisite sequence, but it cannot bypass the final action being tested.</p>
+<h3 id="section-7">Step three: separate L1/L2 evidence from P0/P1/P2 priorities</h3>
+<p>L1 checks source-level compliance. A shared runner reads the HTML and local scripts and applies tool checks, regular-expression assertions, and anti-pattern rules. It can detect whether an interface is declared or a required structure appears, but a match inside a comment or string does not establish that gameplay is correct.</p>
+<p>L2 serves the submission locally and runs <code>checks.js</code> in headless Chromium. Checks follow prepare–act–observe: load a legal scenario, invoke a semantic action or send real mouse/touch input, and compare snapshots, rendering, runtime errors, and invariants. Each check returns PASS, FAIL, or NOT_APPLICABLE and starts in a fresh page.</p>
+<p>Requirement priority and evidence layer are orthogonal. P0 covers startup, interface availability, and minimum runtime conditions. P1 covers core mechanics, interactions, and invariants. P2 covers extended capabilities and experience completeness. Strict task success requires valid delivery, completed evaluation, every L1 check, and every applicable L2 P0/P1 check to pass:</p>
+<div class="math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>s</mi><mi>g</mi></msub><mo>=</mo><msub><mi>d</mi><mi>g</mi></msub><msub><mi>e</mi><mi>g</mi></msub><munder><mo>∏</mo><mrow><mi>c</mi><mo>∈</mo><msub><mi mathvariant="script">L</mi><mi>g</mi></msub><mo>∪</mo><msub><mi mathvariant="script">B</mi><mi>g</mi></msub></mrow></munder><msub><mi>p</mi><mrow><mi>g</mi><mo separator="true">,</mo><mi>c</mi></mrow></msub><mo separator="true">,</mo><mspace width="2em"/><mi>S</mi><mi>R</mi><mo stretchy="false">(</mo><mi mathvariant="script">G</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mi mathvariant="normal">∣</mi><mi mathvariant="script">G</mi><mi mathvariant="normal">∣</mi></mrow></mfrac><munder><mo>∑</mo><mrow><mi>g</mi><mo>∈</mo><mi mathvariant="script">G</mi></mrow></munder><msub><mi>s</mi><mi>g</mi></msub><mi mathvariant="normal">.</mi></mrow><annotation encoding="application/x-tex">s_g=d_g e_g\prod_{c\in\mathcal{L}_g\cup\mathcal{B}_g}p_{g,c},\qquad
+SR(\mathcal{G})=\frac{1}{|\mathcal{G}|}\sum_{g\in\mathcal{G}}s_g.</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.7167em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.5417em;vertical-align:-1.4917em;"></span><span class="mord"><span class="mord mathnormal">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">c</span><span class="mrel mtight">∈</span><span class="mord mtight"><span class="mord mathcal mtight">L</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span><span class="mbin mtight">∪</span><span class="mord mtight"><span class="mord mathcal mtight" style="margin-right:0.0304em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1645em;"><span style="top:-2.357em;margin-left:-0.0304em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="katex-sizing reset-size3 size1 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2819em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∏</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4917em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mpunct mtight">,</span><span class="mord mathnormal mtight">c</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="mopen">(</span><span class="mord mathcal" style="margin-right:0.0593em;">G</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:2.7519em;vertical-align:-1.4304em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord mathcal" style="margin-right:0.0593em;">G</span><span class="mord">∣</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.05em;"><span style="top:-1.8557em;margin-left:0em;"><span class="pstrut" style="height:3.05em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span><span class="mrel mtight">∈</span><span class="mord mathcal mtight" style="margin-right:0.0593em;">G</span></span></span></span><span style="top:-3.05em;"><span class="pstrut" style="height:3.05em;"></span><span><span class="mop op-symbol large-op">∑</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.4304em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0359em;">g</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mord">.</span></span></span></span></span></div>
+<p>Here (d_g) denotes valid delivery, (e_g) completed evaluation, and (p_{g,c}) whether check (c) passes. The primary metric uses all planned tasks as its denominator, including generation or evaluation failures. Only metrics explicitly reported as conditional strict success use evaluated tasks as the denominator.</p>
+<h3 id="section-8">Step four: build a corpus with positive controls</h3>
+<p>The benchmark contains <strong>47 tasks across 12 primary genres</strong>, including 32 2D and 15 3D tasks. Reference implementations mainly use Canvas 2D or Three.js, but these technology labels do not constrain compliant generated artifacts. The suite contains 336 L1 checks and 885 L2 checks, including 534 L2 P1 core checks.</p>
+<p>Each reference implementation is independently reviewed against the gameplay and TDD documents, then run through all L1 and applicable L2 P0/P1 checks. All 47 reference implementations pass core acceptance, providing positive controls for the test suite. Tasks exclude backends, accounts, external databases, private or paid assets, and unbounded multiplayer services, concentrating on integration among input, state, rendering, and gameplay logic.</p>
+<h2 id="section-9">5. Experiments and results: task-level success is far below average check scores</h2>
+<h3 id="section-10">Main experiment: nine agent stacks end to end</h3>
+<p>Each task–configuration pair runs once from a clean workspace, with a fixed 1280 × 800 browser viewport. RQ1 compares nine stacks at maximum reasoning effort and full tool access. The primary metric is strict task success over all 47 planned tasks; the other metrics are check pass rates.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Model</th>
+<th>Harness</th>
+<th style="text-align:right">Strict success</th>
+<th style="text-align:right">L1 mean</th>
+<th style="text-align:right">L2 mean</th>
+<th style="text-align:right">L2 P0</th>
+<th style="text-align:right">L2 P1</th>
+<th style="text-align:right">L2 P2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-6-Astra</td>
+<td>Codex CLI</td>
+<td style="text-align:right"><strong>26/47 (55.3%)</strong></td>
+<td style="text-align:right">98.0</td>
+<td style="text-align:right"><strong>93.2</strong></td>
+<td style="text-align:right"><strong>99.0</strong></td>
+<td style="text-align:right"><strong>92.7</strong></td>
+<td style="text-align:right"><strong>92.4</strong></td>
+</tr>
+<tr>
+<td>Claude-Opus-5</td>
+<td>Claude Code</td>
+<td style="text-align:right">24/47 (51.1%)</td>
+<td style="text-align:right"><strong>99.6</strong></td>
+<td style="text-align:right">90.4</td>
+<td style="text-align:right">91.2</td>
+<td style="text-align:right">89.9</td>
+<td style="text-align:right">91.1</td>
+</tr>
+<tr>
+<td>GPT-5.6-Sol</td>
+<td>Codex CLI</td>
+<td style="text-align:right">21/47 (44.7%)</td>
+<td style="text-align:right">98.9</td>
+<td style="text-align:right">91.3</td>
+<td style="text-align:right">100.0</td>
+<td style="text-align:right">89.7</td>
+<td style="text-align:right">91.9</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Flash</td>
+<td>Claude Code</td>
+<td style="text-align:right">18/47 (38.3%)</td>
+<td style="text-align:right">99.4</td>
+<td style="text-align:right">89.3</td>
+<td style="text-align:right">98.0</td>
+<td style="text-align:right">86.7</td>
+<td style="text-align:right">90.2</td>
+</tr>
+<tr>
+<td>DeepSeek-V4-Pro</td>
+<td>Claude Code</td>
+<td style="text-align:right">15/47 (31.9%)</td>
+<td style="text-align:right">99.6</td>
+<td style="text-align:right">85.2</td>
+<td style="text-align:right">85.3</td>
+<td style="text-align:right">83.9</td>
+<td style="text-align:right">88.9</td>
+</tr>
+<tr>
+<td>Kimi-K3</td>
+<td>Claude Code</td>
+<td style="text-align:right">15/47 (31.9%)</td>
+<td style="text-align:right">97.7</td>
+<td style="text-align:right">88.5</td>
+<td style="text-align:right">98.0</td>
+<td style="text-align:right">86.3</td>
+<td style="text-align:right">89.7</td>
+</tr>
+<tr>
+<td>GLM-5.2</td>
+<td>Claude Code</td>
+<td style="text-align:right">11/47 (23.4%)</td>
+<td style="text-align:right">98.8</td>
+<td style="text-align:right">84.6</td>
+<td style="text-align:right">91.2</td>
+<td style="text-align:right">83.3</td>
+<td style="text-align:right">83.0</td>
+</tr>
+<tr>
+<td>Hunyuan-3</td>
+<td>Claude Code</td>
+<td style="text-align:right">10/47 (21.3%)</td>
+<td style="text-align:right">98.3</td>
+<td style="text-align:right">81.7</td>
+<td style="text-align:right">96.1</td>
+<td style="text-align:right">78.2</td>
+<td style="text-align:right">82.3</td>
+</tr>
+<tr>
+<td>MiniMax-M3</td>
+<td>Claude Code</td>
+<td style="text-align:right">7/47 (14.9%)</td>
+<td style="text-align:right">98.3</td>
+<td style="text-align:right">70.6</td>
+<td style="text-align:right">91.2</td>
+<td style="text-align:right">64.5</td>
+<td style="text-align:right">75.4</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: original Table 3, PDF page 7. L1/L2 are check pass rates; strict success requires every required check for the task to pass.</em></p>
+<p>The key result is not the highest mean L2 score of 93.2%, but the highest strict task success rate of only <strong>26/47 = 55.3%</strong>. GPT-6-Astra has a 98.0% mean L1 rate, yet only 40 artifacts pass every L1 check; one failed required check blocks strict success. GPT-5.6-Sol has a higher mean L2 rate than Claude-Opus-5 (91.3 versus 90.4) but fewer strict successes (21 versus 24). This is exactly how average check scores can hide task-level defects.</p>
+<p>Resources also have no simple “larger is better” relationship. Astra averages 55.5k output tokens and achieves 26 strict successes; each DeepSeek variant averages about 203.6k output tokens, while Flash and Pro achieve 18 and 15 successes. The paper reports average per-task API costs of USD 4.4445 for Astra, USD 11.8500 for Claude-Opus-5, and USD 0.2461 for DeepSeek-V4-Flash. These are the authors’ API-usage estimates, not the full cost of reproducing the benchmark.</p>
+<h3 id="section-11">Analysis one: tool access and nominal turn budget</h3>
+<p>Holding DeepSeek-V4-Flash, Claude Code, maximum reasoning, and a 120-turn baseline fixed, the authors first vary tool access. Full access yields <strong>18/47</strong> strict successes; no tools, file read/write only, and files plus syntax checking yield 7, 6, and 9. Full access raises L2 P1 to 86.7%, but adding syntax checks changes strict successes from 6 to 9 while P1 falls from 66.2% to 63.4%. Success counts and pooled check rates do not have to move together.</p>
+<p>With full tools fixed, nominal budgets of 30, 60, and 120 turns allow 10/47, 32/47, and 47/47 tasks to complete evaluation, with 7, 13, and 18 strict successes. Over all 47 planned tasks, the success rate rises from 14.9% to 27.7% and 38.3%. Conditional rates among evaluated tasks are 70.0%, 40.6%, and 38.3%. Increasing the budget therefore first lets more tasks complete generation, verification, and delivery; the increase over the full planned denominator cannot all be interpreted as better code quality.</p>
+<h3 id="section-12">Analysis two: reasoning effort has an efficiency turning point</h3>
+<p>With the model, harness, tools, and 120 turns fixed, low, high, and maximum reasoning produce 7/47, 19/47, and 18/47 strict successes. High effort exceeds maximum effort by one success while using 138,232 average reasoning tokens versus 189,210, a <strong>26.9%</strong> reduction. Maximum effort has the highest P0, P1, and P2 pass rates, but task-level success is not monotonic.</p>
+<p>The cautious conclusion is that more reasoning can improve local check scores without reliably crossing the final “all required checks pass” boundary. Each configuration ran each task once, so these results do not establish that high effort beats maximum effort across more generation seeds.</p>
+<h3 id="section-13">Analysis three: equal aggregate success can mean different task sets</h3>
+<p>DeepSeek-V4-Flash at maximum effort and full tools is run through Claude Code and Codex CLI. Both harnesses achieve <strong>18/47 (38.3%)</strong>, but only <strong>10 tasks</strong> succeed under both; 8 succeed only under Claude Code, 8 only under Codex CLI, and 21 under neither.</p>
+<p>Their resource profiles also differ. Codex CLI produces 69.5 KB artifacts on average versus 85.2 KB for Claude Code, an 18.4% reduction, and records 112.8k output tokens versus 203.6k, a 44.6% reduction. A harness is therefore more than a thin command wrapper: system instructions, context management, tool schemas, execution protocols, and endpoints can change the repair path. Equal aggregate counts do not establish equivalent environments.</p>
+<h3 id="section-14">Analysis four: real input and scenario preparation catch self-test gaps</h3>
+<p>The paper gives two diagnostic cases. A GPT-6-Astra Diner Dasher passes L1 and L2 P0/P2, but real mouse and touch drags do not advance service progress; the failure appears only in player-level input checks. A DeepSeek-V4-Flash Turbo Smash Beast passes self-tests that explicitly advance time, but the evaluation loads a scenario and then uses real driving input. Scenario mode suppresses natural-time progression, so acceleration and coasting fail.</p>
+<p>These cases motivate the core design: an interface self-test can show that one call path works, while real input after legal scenario preparation checks whether screen and state change together under player actions. The appendix also records execution-triggered repairs involving touch coordinates, a hidden completion screen, an unclosed syntax construct, an update loop, a negative Canvas radius, and state leakage across reset.</p>
+<h2 id="section-15">6. Our reflections</h2>
+<h3 id="section-16">Topic reflection: what is this field studying?</h3>
+<p>This direction studies the transition from “generate code” to “deliver complete behavior.” GameASG-Bench divides responsibility among three parties: human authors define controllable actions and observable semantics before generation, the agent implements the interface and game, and the evaluator executes fixed checks and records evidence. The object of evaluation becomes the correspondence among requirements, runtime state, player input, and visible outcomes rather than source code or screenshots alone.</p>
+<p>It also separates correctness into two axes. Check pass rates show how well local requirements are met; strict success shows whether a task can be delivered as a whole. Both are needed to see the last-mile failures common in application-level generation.</p>
+<h3 id="section-17">Limitations reflection: what remains unresolved?</h3>
+<p>First, L1 regular expressions and interface declarations can match comments or strings; the paper explicitly says they are not evidence of gameplay correctness. L2 is stronger, but it still executes author-written action sequences and may miss unlisted interaction combinations.</p>
+<p>Second, handling <code>NOT_APPLICABLE</code> creates a protocol risk. The paper notes that the current runner does not forbid a required P1 check from returning this outcome. If a key check is excluded, the denominator and interpretation of applicable-check rates and strict success can change.</p>
+<p>Third, 47 browser games are a bounded proxy. They focus on self-contained, finite 2D/3D games and do not cover backends, accounts, multiplayer services, long-running applications, or complex commercial software. Each task–configuration pair runs once, so generation variance is not estimated.</p>
+<p>Fourth, RQ2–RQ4 focus mainly on DeepSeek-V4-Flash and two harnesses. Tool access, turn budget, reasoning effort, and execution protocol may interact. Resource reporting is limited to available token/API measurements and cannot directly be translated into full engineering labor.</p>
+<h3 id="section-18">Solution reflection: which directions could address these issues?</h3>
+<p>For the first limitation, treat source checks primarily as diagnostic evidence and add evaluator-independent browser state, render-difference, input-listener, and terminal-state checks. Systematically combine action orders and invalid actions.</p>
+<p>For the second, forbid required P1 checks from returning NOT_APPLICABLE, or count that outcome as failure, and publish an applicability audit for every check. Critical tasks could also include hidden restart, boundary-state, and cross-page regression tests.</p>
+<p>For the third, extend the same interface protocol to backend services, persistent applications, and multiplayer sessions. Run multiple independent generations and report confidence intervals. Browser games are useful for fast regression, but should not represent all autonomous software generation by themselves.</p>
+<p>For the fourth, repeat matched tasks under the same model and harness, report paired differences, and include failed repair attempts, browser execution, evaluation, and infrastructure in the cost. Harness comparisons should expose versioned system instructions, tool schemas, and terminal protocols to approach a causal comparison.</p>
+<p><em>Reading basis: Sections 1–4 and Appendices A–B of arXiv v1; <a href="https://arxiv.org/pdf/2609.21293v1" target="_blank" rel="noopener noreferrer">original PDF</a> and <a href="https://github.com/areal-project/GameASG-Bench" target="_blank" rel="noopener noreferrer">official repository</a>. Figure 1 comes from the original paper’s three taxonomy PDFs and was rendered and combined without changing the plotted data; the paper uses arXiv’s non-exclusive distribution license, and the caption preserves the authorship and version information. We did not rerun the full benchmark. Experimental numbers are reported by the authors; denominator interpretation, limitations, and future directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: how can we tell whether an agent delivered a usable application?</a></li><li><a href="#section-2">2. Related work: from code generation to verifiable applications</a></li><li><a href="#section-3">3. Research questions: does a high check pass rate mean the task is complete?</a></li><li><a href="#section-4">4. Method: declare a testable interface, then verify with browser evidence</a></li><li><a href="#section-9">5. Experiments and results: task-level success is far below average check scores</a></li><li><a href="#section-15">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../visionweave/"><span>Paper reading</span><strong>VisionWeave: learning where visual detail is worth keeping</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>Paper reading</span><strong>VHarness: visual reasoning as callable tools for coding agents</strong><i aria-hidden="true">↗</i></a><a href="../frontier3dbench/"><span>Paper reading</span><strong>Frontier3DBench: from 3D objects to interactive worlds</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

@@ -1,0 +1,55 @@
+{
+  "source": "https://arxiv.org/pdf/2510.21652v2",
+  "source_archive": "https://arxiv.org/src/2510.21652v2",
+  "source_pdf_sha256": "5bf79b03472bfb22b7826c62206bd0dfafaa849920888210c1ae31c0eed2df33",
+  "source_archive_sha256": "65ba8942b24cb3454405c20c87b5a61d0aa8c1453c1cb68b953d8f109826b59f",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Jonathan Bragg et al. AstaBench: Rigorous Benchmarking of AI Agents with a Scientific Research Suite. ICLR 2026, arXiv v2, 2026-04-21",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": 1,
+      "pdf_page": 3,
+      "source_archive_member": "figures/AB-overview9.pdf",
+      "source_asset_sha256": "3839ff4ac14958f8e09d4e7212ba6da546a58aa3c8de5de92855bb58fde1dfc1",
+      "width": 2400,
+      "height": 426,
+      "sha256": "87e12ac943dcdcabb0d3772915e534f0841a98349f124e0c5b9bb482044d87cf",
+      "operation": "Original vector PDF rendered at 2400px width with PyMuPDF; no cropping, redrawing, or data changes"
+    },
+    {
+      "file": "artifact-scoring.jpg",
+      "figure": 10,
+      "pdf_page": 53,
+      "source_archive_member": "figures/e2e-scoring.jpg",
+      "source_asset_sha256": "1d9816c505dc6fe1338585d0256eaa5e44bd07cdc8f09fa968bbec05eed10265",
+      "width": 1257,
+      "height": 681,
+      "sha256": "1d9816c505dc6fe1338585d0256eaa5e44bd07cdc8f09fa968bbec05eed10265",
+      "operation": "Original JPG copied unchanged"
+    },
+    {
+      "file": "main-results.png",
+      "figure": 2,
+      "pdf_page": 8,
+      "source_archive_member": "figures/results-overall-grid.pdf",
+      "source_asset_sha256": "3573be1c66161081990bee09e92b5346e4bdc0f7cacf3083f48124af38fe78bb",
+      "width": 2400,
+      "height": 1488,
+      "sha256": "f238d80cb6223b1df7ad8f4bb456246f453409844bb4ae28f19e7d164b7e36d7",
+      "operation": "Original vector PDF rendered at 2400px width with PyMuPDF; no cropping, redrawing, or data changes"
+    },
+    {
+      "file": "end-to-end-results.png",
+      "figure": 8,
+      "pdf_page": 31,
+      "source_archive_member": "figures/results-endtoend.pdf",
+      "source_asset_sha256": "f09dacb349faeeabfb09b870b61765d73cad1cbc2ab9547180ba160cdf10be46",
+      "width": 2400,
+      "height": 2197,
+      "sha256": "ee61abf5d26d0a07dd753f441c5d4dc1a3a65cdabc3093316de40b0aea1b57a4",
+      "operation": "Original vector PDF rendered at 2400px width with PyMuPDF; no cropping, redrawing, or data changes"
+    }
+  ]
+}

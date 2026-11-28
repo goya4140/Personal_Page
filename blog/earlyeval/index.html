@@ -1,0 +1,260 @@
+<!doctype html><html lang="zh-CN" data-locale="zh"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？ | Linhao Wang</title>
+  <meta name="description" content="解读双分类器早停、覆盖率与准确率的分母，以及步骤节省、判分偏差和榜单保真度之间的取舍。">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？">
+  <meta property="og:description" content="解读双分类器早停、覆盖率与准确率的分母，以及步骤节省、判分偏差和榜单保真度之间的取舍。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../assets/css/personal.css">
+<link rel="stylesheet" href="../../assets/css/blog.css"><link rel="stylesheet" href="../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="en" href="../../en/blog/earlyeval/"><link rel="canonical" href="https://goya4140.github.io/blog/earlyeval/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？" data-title-en="EarlyEval: predicting outcomes before agent evaluation finishes" data-language-url="../../en/blog/earlyeval/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">跳至正文</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← 全部文章</a><header class="article-header"><div class="post-meta"><span class="post-kind">论文阅读</span><span>约 11 分钟</span><span>中文原稿</span><time datetime="2026-11-21">2026-11-21</time></div><div class="article-heading-layout has-art"><div><h1>EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？</h1><p class="article-summary">解读双分类器早停、覆盖率与准确率的分母，以及步骤节省、判分偏差和榜单保真度之间的取舍。</p><div class="post-topics"><span>人工智能</span><span>智能体评测</span><span>论文阅读</span></div></div><a class="article-heading-art" href="../../assets/img/blog/earlyeval/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../assets/img/blog/earlyeval/overview.png" alt="EarlyEval：从运行前缀预测结果，能省多少 Agent 评测成本？" width="3072" height="1536" loading="lazy" decoding="async"><span>点击查看大图 ↗</span></a></div><div class="article-paper"><span>阅读论文</span><a href="https://arxiv.org/abs/2609.02783v1" target="_blank" rel="noopener noreferrer">EarlyEval: Cheaper Agent Evaluation via Early Outcome Prediction ↗</a><small>arXiv v1 · 2026-09-02</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>本文目录</summary><ol><li><a href="#section-1">一、课题解读：怎样降低长流程 Agent 的评测成本</a></li><li><a href="#section-2">二、相关文献解读：减少题目与减少单题执行</a></li><li><a href="#section-3">三、研究问题解读：节省执行后，还能相信哪些结论</a></li><li><a href="#section-4">四、方法解读：从历史前缀训练，到逐步预测停止</a></li><li><a href="#section-9">五、实验设计与结果：节省多少，又改变多少分数</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="earlyeval" lang="zh-CN"><p>一次 Agent 评测可能需要读文件、改代码、运行测试并反复修订。即使最终只记录成功或失败，中间也可能花掉很多调用。EarlyEval 尝试从已经发生的行为预测最终结果，达到阈值就提前结束这次运行，用预测分数估计 Agent 的表现。</p>
+<p>本文解读 Yuling Shi、Zhensu Sun 等人的 <strong>EarlyEval: Cheaper Agent Evaluation via Early Outcome Prediction</strong>，依据 2026 年 9 月 2 日提交的 <a href="https://arxiv.org/abs/2609.02783v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>。读这篇文章时要始终保留一个区别，提前记为成功的运行，后续产物尚未得到完整执行的验证。</p>
+<h2 id="section-1">一、课题解读：怎样降低长流程 Agent 的评测成本</h2>
+<p>开发 Agent 时，研究者要反复比较提示、工具、框架和模型。一次修改之后，如果每道题都完整重跑，评测费用会随着迭代次数增长。长轨迹还有累积上下文成本，后面的模型调用可能携带越来越多的历史消息。</p>
+<p>完整执行有其价值，能观察最终文件、环境状态和实际测试结果。低成本估计则需要回答，哪些运行已经提供足够信号，可以较可靠地推断结果？同时要检查，少跑步骤会对成功率和系统排名产生多大误差。这个方向研究的是评测估计的成本与可信度。</p>
+<h2 id="section-2">二、相关文献解读：减少题目与减少单题执行</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>工作</th>
+<th>已有探索</th>
+<th>与本篇的连接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2402.14992" target="_blank" rel="noopener noreferrer">tinyBenchmarks</a></td>
+<td>用少量代表性样本估计大基准上的表现</td>
+<td>从任务选择这一侧降低评测费用，EarlyEval 研究保留任务后如何少执行部分步骤</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener noreferrer">SWE-bench</a></td>
+<td>通过真实仓库问题和可执行测试评价补丁</td>
+<td>提供完整运行的判定参照，Verified 子集还提供参考补丁</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2601.11868" target="_blank" rel="noopener noreferrer">Terminal-Bench</a></td>
+<td>评价终端环境中的多步骤任务</td>
+<td>检查没有参考解特征时，行为信号能否支持早停</td>
+</tr>
+</tbody>
+</table></div><p>EarlyEval 利用同一基准上其他 Agent 已完成的轨迹训练预测器。它适合有历史评测记录、需要反复比较新配置的场景。全新基准的第一次运行仍需建立完整轨迹与真实标签。</p>
+<h2 id="section-3">三、研究问题解读：节省执行后，还能相信哪些结论</h2>
+<p>论文将实验组织为四个问题。</p>
+<ol>
+<li><strong>能否预测未见 Agent 配置的最终结果，并节省步骤和 token？</strong></li>
+<li><strong>提前停止会把每个 Agent 的成功率改动多少，又是否保留排名？</strong></li>
+<li><strong>缺少参考答案或某类特征时，方法是否仍有效？</strong></li>
+<li><strong>轻量树模型相对其他分类器和 LLM 裁判处于怎样的成本与保真度位置？</strong></li>
+</ol>
+<p>这里的未见 Agent 指框架与基础模型构成的配置。实验主要考察同一基准上的新配置，测试题仍可在其他 Agent 的历史运行中出现。</p>
+<h2 id="section-4">四、方法解读：从历史前缀训练，到逐步预测停止</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/earlyeval/motivation.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/earlyeval/motivation.png" alt="完整执行与 EarlyEval 的比较" loading="lazy" decoding="async"></a><figcaption>图 1 · 普通评测观察完整轨迹后判分，EarlyEval 从部分轨迹输出预测结果并省去后续执行。省掉的部分也包含尚未观察到的行为。原论文 Figure 1，PDF 第 1 页，原始矢量图转为 PNG。</figcaption></figure>
+<h3 id="section-5">第一步：把完整轨迹拆成带最终标签的前缀</h3>
+<p>历史轨迹包含每一步动作、环境反馈和最终成功或失败标签。作者排除短于十步的轨迹，再把长为 T 的运行拆成从第 0 步到第 T 步的多个前缀。每个前缀的学习目标都是该运行的最终结果。</p>
+<p>这意味着“前面一直报错、最后成功”的早期前缀仍标为最终成功。每条前缀权重为 1/(T+1)，让长轨迹和短轨迹的总训练权重相同，避免少数长运行主导训练。<a href="https://arxiv.org/html/2609.02783v1#S3.SS3" target="_blank" rel="noopener noreferrer">第 III-C–D 节</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/earlyeval/overview.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/earlyeval/overview.png" alt="EarlyEval 的离线训练与逐步推断流程" loading="lazy" decoding="async"></a><figcaption>图 2 · 上半部分从历史轨迹前缀提取行为、文本和可选参考解特征，下半部分在每一步计算成功与失败置信度，未达到阈值时继续运行。原论文 Figure 2，PDF 第 5 页，原始矢量图转为 PNG。</figcaption></figure>
+<h3 id="section-6">第二步：提取当前已经可见的特征</h3>
+<p>行为特征包括工具调用、编辑与测试次数、事件首次出现时间、重复动作、连续只读、错误类型及测试变化。文本特征分别编码任务描述、完整和最近动作、完整和最近反馈，用 TF-IDF 和 SVD 压成低维向量。</p>
+<p>SWE-bench Verified 还可加入参考补丁属性，以及当前修改与参考文件、符号、测试名称的重合。这些特征位于评价端。TerminalBench 与 Toolathlon 的实验禁用参考解特征。方法能看到什么需要按基准区分，不能把有参考解配置直接当作开放任务中的通用完成判断。<a href="https://arxiv.org/pdf/2609.02783v1#page=4" target="_blank" rel="noopener noreferrer">Table II</a></p>
+<h3 id="section-7">第三步：训练成功与失败两个 LightGBM 分类器</h3>
+<p>两个分类器分别学习最终成功和最终失败。训练中按任务组织训练与验证划分，同一轨迹的所有前缀留在同一侧。每折保留约 15% 训练轨迹用于早停和 Platt 概率校准，超参数跨基准固定，实验随机种子为 42。</p>
+<p>Platt scaling 将树模型原始分数重新映射到概率刻度。校准之后，仍需在实际停止样本上测量可靠性。设定 0.95 的阈值并不能自动保证经验准确率恰好等于 95%。论文报告树模型在单 CPU 核上的预测小于一毫秒，这项表述针对分类器打分，完整特征处理与部署成本需要另外测量。<a href="https://arxiv.org/html/2609.02783v1#S3.SS4" target="_blank" rel="noopener noreferrer">第 III-D–E、IV-D 节</a></p>
+<h3 id="section-8">第四步：达到阈值就记录预测结果</h3>
+<p>每一步运行后计算成功与失败概率。任一概率达到对应阈值，就停止并把预测标签记为这道任务的分数；若始终没有触发，则保留完整运行的真实结果。阈值高时通常少干预，阈值低时能更早停止，也会增加误判。</p>
+<p>因此，早停后记作成功表示“预测完整运行会成功”。它没有交付后半程本应产生的全部证据。作者在讨论中将方法定位于开发期的低成本反馈，并明确建议最终正式成绩仍完整执行。<a href="https://arxiv.org/html/2609.02783v1#S8" target="_blank" rel="noopener noreferrer">第 VIII 节</a></p>
+<h2 id="section-9">五、实验设计与结果：节省多少，又改变多少分数</h2>
+<h3 id="section-10">主实验设置：留出 Agent 配置，用完整结果核对预测</h3>
+<p>作者收集三个基准共 <strong>21,678 条</strong>历史轨迹。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>基准</th>
+<th style="text-align:right">任务数</th>
+<th style="text-align:right">Agent 配置数</th>
+<th style="text-align:right">收集轨迹数</th>
+<th>参考解特征</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench Verified</td>
+<td style="text-align:right">500</td>
+<td style="text-align:right">16</td>
+<td style="text-align:right">7,805</td>
+<td>可用</td>
+</tr>
+<tr>
+<td>TerminalBench</td>
+<td style="text-align:right">89</td>
+<td style="text-align:right">37</td>
+<td style="text-align:right">6,757</td>
+<td>禁用</td>
+</tr>
+<tr>
+<td>Toolathlon</td>
+<td style="text-align:right">108</td>
+<td style="text-align:right">22</td>
+<td style="text-align:right">7,116</td>
+<td>禁用</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/html/2609.02783v1#S4.SS1" target="_blank" rel="noopener noreferrer">第 IV-A 节</a>。表列收集规模，方法另说明排除短于十步的轨迹。Agent 配置由框架与模型配对定义，各基准的轨迹和重复次数不同。</em></p>
+<p>评测采用 leave-one-agent-out，每次留一个配置测试，用其他配置训练。TerminalBench 还分别排除与测试配置相同的基础模型，或相同的框架。SWE-bench Verified 与 Toolathlon 各使用固定框架，所以它们主要检验模型配置变化。</p>
+<p>指标要分清分母。Coverage 是所有轨迹中被提前停止的比例；Accuracy 是提前停止的轨迹中预测正确的比例。单个成功或失败分类器的 Precision 只统计它自行停止并判定的轨迹。成功率绝对偏差则先计算每个 Agent 与完整评测的百分点差，再取绝对值和均值。</p>
+<h3 id="section-11">主实验结果：节省与成功率误差的折中</h3>
+<p>下表摘取 Table III 中作者推荐的阈值，均使用双分类器。为便于阅读，将原表负的资源变化写成正的“减少量”。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>基准与留出设置</th>
+<th style="text-align:right">阈值</th>
+<th style="text-align:right">步骤减少</th>
+<th style="text-align:right">输入 token 减少</th>
+<th style="text-align:right">输出 token 减少</th>
+<th style="text-align:right">成功率平均绝对偏差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench Verified</td>
+<td style="text-align:right">0.95</td>
+<td style="text-align:right">26.0%</td>
+<td style="text-align:right">32.7%</td>
+<td style="text-align:right">28.7%</td>
+<td style="text-align:right">1.1 个百分点</td>
+</tr>
+<tr>
+<td>TerminalBench，排除同模型</td>
+<td style="text-align:right">0.90</td>
+<td style="text-align:right">25.4%</td>
+<td style="text-align:right">42.7%</td>
+<td style="text-align:right">27.9%</td>
+<td style="text-align:right">2.1 个百分点</td>
+</tr>
+<tr>
+<td>TerminalBench，排除同框架</td>
+<td style="text-align:right">0.85</td>
+<td style="text-align:right">17.7%</td>
+<td style="text-align:right">29.2%</td>
+<td style="text-align:right">17.4%</td>
+<td style="text-align:right">2.0 个百分点</td>
+</tr>
+<tr>
+<td>Toolathlon</td>
+<td style="text-align:right">0.90</td>
+<td style="text-align:right">23.0%</td>
+<td style="text-align:right">44.1%</td>
+<td style="text-align:right">29.4%</td>
+<td style="text-align:right">0.9 个百分点</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/pdf/2609.02783v1#page=8" target="_blank" rel="noopener noreferrer">Table III，PDF 第 8 页</a>。不同基准阈值不同，不能将所有节省与误差视为同一统一设置。</em></p>
+<figure class="blog-figure"><a class="article-figure" href="../../assets/img/blog/earlyeval/threshold-results.png" target="_blank" rel="noopener noreferrer" title="查看原图"><img src="../../assets/img/blog/earlyeval/threshold-results.png" alt="不同阈值下的完整资源与判分结果" loading="lazy" decoding="async"></a><figcaption>图 3 · 原表同时列出只预测成功、只预测失败和双分类器配置。ΔSteps 与 token 的负值表示减少，成功率偏差一列应按百分点理解。原论文 Table III，PDF 第 8 页，仅裁出完整表格，未改写数据。</figcaption></figure>
+<p>在 SWE-bench Verified 的推荐点，<strong>34.8%</strong> 轨迹被提前停止，停止样本上的准确率为 <strong>95.0%</strong>。两个分类器各自的 precision 为成功 <strong>93.9%</strong>、失败 <strong>96.7%</strong>。这能节省约四分之一的执行步骤，但仍会误判部分轨迹，平均成功率偏差也不能用来保证每个 Agent 的误差都很小。</p>
+<p>阈值选择影响很大。同一基准将阈值从 <strong>0.95 降到 0.75</strong>，步骤减少从 <strong>26.0%</strong> 增到 <strong>63.4%</strong>，平均绝对偏差也从 <strong>1.1 增到 4.1 个百分点</strong>。论文的推荐阈值依据平均偏差约两点的折中选择；实际部署时需要用独立验证数据确定可接受的误差。</p>
+<p>这些数据从已收集的完整轨迹出发，测量在前缀处停止可以省去的步骤与 token。资源比例不能直接换成相同的美元节约，输入缓存、输出价格、工具耗时、预测器训练和运行都可能改变实际费用。论文主要报告计算代理指标，没有给出完整在线账单节约的等条件实验。</p>
+<h3 id="section-12">排名保真度：总体相关性高，具体名次仍会变</h3>
+<p>Table IV 的榜单实验调整了策略。SWE-bench 使用双分类器，另外两类基准主要依赖更可靠的失败分类器。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>设置</th>
+<th>排名策略</th>
+<th style="text-align:right">Spearman ρ（↑）</th>
+<th style="text-align:right">名次完全不变的 Agent</th>
+<th style="text-align:right">步骤减少</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SWE-bench Verified，0.95</td>
+<td>双分类器</td>
+<td style="text-align:right">0.991</td>
+<td style="text-align:right">81%</td>
+<td style="text-align:right">26.0%</td>
+</tr>
+<tr>
+<td>TerminalBench，排除同模型，0.90</td>
+<td>仅失败</td>
+<td style="text-align:right">0.959</td>
+<td style="text-align:right">59%</td>
+<td style="text-align:right">24.6%</td>
+</tr>
+<tr>
+<td>TerminalBench，排除同框架，0.85</td>
+<td>仅失败</td>
+<td style="text-align:right">0.994</td>
+<td style="text-align:right">70%</td>
+<td style="text-align:right">12.7%</td>
+</tr>
+<tr>
+<td>Toolathlon，0.90</td>
+<td>仅失败</td>
+<td style="text-align:right">0.994</td>
+<td style="text-align:right">70%</td>
+<td style="text-align:right">23.0%</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/pdf/2609.02783v1#page=8" target="_blank" rel="noopener noreferrer">Table IV 与第 V-B 节</a>。这里的部分节省比例对应单失败分类器，应与上一张双分类器表分别理解。</em></p>
+<p>ρ 接近 1 表明整体顺序接近完整榜单。名次不变比例在 59%–81%，仍有系统发生位次变化。以 TerminalBench 排除同模型设置为例，OpenHands + Claude-Opus-4.5 的成功率有 <strong>−4.6 个百分点</strong>变化，说明总体小误差不能替代逐 Agent 核对。<a href="https://arxiv.org/pdf/2609.02783v1#page=8" target="_blank" rel="noopener noreferrer">Table IV</a></p>
+<h3 id="section-13">特征与模型消融：信号主要来自行为</h3>
+<p>SWE-bench Verified 在相同留出协议下重新训练各变体。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="可横向滚动的表格"><table><thead>
+<tr>
+<th>特征设置</th>
+<th style="text-align:right">Coverage</th>
+<th style="text-align:right">停止样本准确率</th>
+<th style="text-align:right">步骤减少</th>
+<th style="text-align:right">平均成功率绝对偏差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全部特征</td>
+<td style="text-align:right">34.8%</td>
+<td style="text-align:right">95.0%</td>
+<td style="text-align:right">26.0%</td>
+<td style="text-align:right">1.1 个百分点</td>
+</tr>
+<tr>
+<td>移除行为特征</td>
+<td style="text-align:right">23.4%</td>
+<td style="text-align:right">94.7%</td>
+<td style="text-align:right">16.4%</td>
+<td style="text-align:right">0.8 个百分点</td>
+</tr>
+<tr>
+<td>移除文本特征</td>
+<td style="text-align:right">35.9%</td>
+<td style="text-align:right">94.5%</td>
+<td style="text-align:right">26.5%</td>
+<td style="text-align:right">1.2 个百分点</td>
+</tr>
+<tr>
+<td>移除参考解特征</td>
+<td style="text-align:right">32.1%</td>
+<td style="text-align:right">93.9%</td>
+<td style="text-align:right">24.7%</td>
+<td style="text-align:right">1.2 个百分点</td>
+</tr>
+</tbody>
+</table></div><p><em>来源：<a href="https://arxiv.org/pdf/2609.02783v1#page=9" target="_blank" rel="noopener noreferrer">Table V</a>。</em></p>
+<p>移除行为特征后，主要变化是停止覆盖和节省下降。移除参考解仍能保留大部分收益，支持部分信号能从行为学习。这个消融发生在 SWE-bench 的分布上，新框架上的成功预测仍明显更弱，需要结合前面的留出设置理解。</p>
+<p>模型对照保留双分类器结构，并在同样 <strong>0.95</strong> 阈值下校准。LightGBM 的覆盖率、准确率、步骤减少为 <strong>34.8%、95.0%、26.0%</strong>；MLP 为 <strong>26.9%、87.9%、20.0%</strong>；微调 Qwen-0.5B 裁判为 <strong>18.7%、90.7%、17.9%</strong>。Qwen 的成功率绝对偏差 <strong>0.8 点</strong>低于 LightGBM 的 <strong>1.1 点</strong>，但干预更少、步骤节省也较少。该实验支持树模型在当前特征和阈值下的组合表现，尚未单独隔离双分类器相对单个分类器的贡献。<a href="https://arxiv.org/pdf/2609.02783v1#page=9" target="_blank" rel="noopener noreferrer">Table VI</a></p>
+<h2 id="section-14">六、我们自己的思考</h2>
+<h3 id="section-15">课题思考：这个领域在研究什么</h3>
+<p>我们关心的是，在迭代开发时，用多少真实执行换取足够可信的比较信号。EarlyEval 将历史轨迹转成评测器，显式连接了估计误差与执行成本。应用到科研 Agent 时，类似思路可以用于估计重复实验流程的失败风险，但开放研究通常缺少稳定的二元终点，还需要重新定义标签与误判代价。</p>
+<h3 id="section-16">局限问题思考：目前还存在哪些问题</h3>
+<ol>
+<li><strong>泛化范围依赖历史分布。</strong> 留出 Agent 配置后，同一任务仍可能以其他配置的轨迹进入训练。对新题目、新框架和新基准的联合迁移尚未充分测量。</li>
+<li><strong>逐题误判可能影响开发方向。</strong> 两类错误可以在整体成功率中相互抵消，平均误差与高排名相关性不能保证某个修改收益被正确识别。</li>
+<li><strong>前缀回放节省与实际净成本还有距离。</strong> 初始轨迹收集、特征提取、训练和在线集成都需要资源，反复优化还可能逐渐适应预测器。</li>
+</ol>
+<h3 id="section-17">解决方案思考：这些问题有哪些解决方向</h3>
+<ol>
+<li><strong>联合留出任务、框架和时间。</strong> 用独立开发集校准阈值，再测新任务与后续版本，记录分布变化时精度和覆盖率怎样下降。</li>
+<li><strong>报告成对比较的误差。</strong> 在相同任务上比较修改前后配置，分别统计误判成功与误判失败，并对接近的榜单分数保留更多完整运行。</li>
+<li><strong>测量真实净节约。</strong> 部署在线监控，计入端到端延迟、缓存计费、工具费用与训练摊销；同时定期抽样完整执行，检查预测器是否产生系统性偏差。</li>
+</ol>
+<p><em>依据 <a href="https://arxiv.org/pdf/2609.02783v1" target="_blank" rel="noopener noreferrer">原论文 PDF v1</a> 与 <a href="https://github.com/inphotoo/earlyeval" target="_blank" rel="noopener noreferrer">官方项目</a>。方法与动机图由原始矢量 Figures 1–2 渲染，阈值表裁自原 PDF Table III，保留数据、坐标或列头，未改绘。署名 Yuling Shi 等，依 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> 使用。</em></p>
+</article><div class="article-note">整理自既有科研与阅读笔记。文献结果按原文设置理解，与笔记中的分析、建议及示例区分阅读。</div></div><aside class="article-toc" aria-label="本文目录"><h2>本文目录</h2><ol><li><a href="#section-1">一、课题解读：怎样降低长流程 Agent 的评测成本</a></li><li><a href="#section-2">二、相关文献解读：减少题目与减少单题执行</a></li><li><a href="#section-3">三、研究问题解读：节省执行后，还能相信哪些结论</a></li><li><a href="#section-4">四、方法解读：从历史前缀训练，到逐步预测停止</a></li><li><a href="#section-9">五、实验设计与结果：节省多少，又改变多少分数</a></li><li><a href="#section-14">六、我们自己的思考</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>继续阅读</h2><a href="../gameasgbench/"><span>论文阅读</span><strong>GameASG-Bench：游戏生成 Agent 真的交付了完整行为吗？</strong><i aria-hidden="true">↗</i></a><a href="../subjective-evals/"><span>博客阅读</span><strong>主观任务怎么评：从人工判断到科研 Agent 的可靠评测</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>论文阅读</span><strong>VisionWeave：让多模态模型学习哪里值得细看</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../assets/js/homepage.js"></script><script src="../../assets/js/article.js"></script><script src="../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

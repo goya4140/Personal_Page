@@ -1,0 +1,226 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AHE v4: evolving agent harnesses from failure traces | Linhao Wang</title>
+  <meta name="description" content="Editable components, layered traces, and testable predictions in harness evolution, with transfer results and regression risks.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AHE v4: evolving agent harnesses from failure traces">
+  <meta property="og:description" content="Editable components, layered traces, and testable predictions in harness evolution, with transfer results and regression risks.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/ahe/"><link rel="canonical" href="https://goya4140.github.io/en/blog/ahe/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AHE v4：怎样让 Agent 根据失败轨迹修改自己的框架" data-title-en="AHE v4: evolving agent harnesses from failure traces" data-language-url="../../../blog/ahe/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>10 min read</span><span>English translation</span><time datetime="2026-11-18">2026-11-18</time></div><div class="article-heading-layout has-art"><div><h1>AHE v4: evolving agent harnesses from failure traces</h1><p class="article-summary">Editable components, layered traces, and testable predictions in harness evolution, with transfer results and regression risks.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Coding-agent harnesses</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/ahe/method.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/ahe/method.png" alt="AHE v4: evolving agent harnesses from failure traces" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2604.25850v4" target="_blank" rel="noopener noreferrer">Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses ↗</a><small>arXiv v4 · 2026-05-18</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: turning failure experience into harness improvements</a></li><li><a href="#section-2">2. Related work: where experience can accumulate</a></li><li><a href="#section-3">3. Research questions: what feedback does harness evolution need?</a></li><li><a href="#section-4">4. Method: execute, diagnose, edit, and check against the next run</a></li><li><a href="#section-9">5. Experiments and results: improvement, transfer, and cost</a></li><li><a href="#section-14">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="ahe" lang="en"><p>An agent has produced the correct file, then deletes it during a final cleanup. Can an instruction to check carefully before submitting fix this reliably? AHE opens the improvement process to tool implementations, middleware, memory, and other harness components. Another agent reads execution evidence, edits these components, and runs the tasks again to test the changes.</p>
+<p>This article reads Jiahang Lin, Shichun Liu, and colleagues' <strong>Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses</strong>, using <a href="https://arxiv.org/abs/2604.25850v4" target="_blank" rel="noopener noreferrer">arXiv v4</a>, updated on May 18, 2026. All results below refer to that version.</p>
+<h2 id="section-1">1. Topic: turning failure experience into harness improvements</h2>
+<p>In a coding agent, the model chooses actions while the surrounding framework exposes tools, manages execution state, organizes context, and retains experience. With the same model, timeouts, truncated output, repeated checks, or destructive cleanup can change the final result. These model-external components collectively form the harness.</p>
+<p>A developer improving a harness reads traces, diagnoses failures, edits implementations, and reruns tasks. Automating this process requires making the editable surface, the relevant evidence, and the success criteria accessible to the optimizer. A rule that fixes one task may also consume execution budget on another.</p>
+<h2 id="section-2">2. Related work: where experience can accumulate</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main approach</th>
+<th>Connection to AHE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2510.04618" target="_blank" rel="noopener noreferrer">ACE</a></td>
+<td>Organizes execution experience into evolving context and playbooks</td>
+<td>Studies reusable experience, while AHE also permits tool implementation and middleware edits</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2510.08191" target="_blank" rel="noopener noreferrer">Training-Free GRPO</a></td>
+<td>Compares semantic advantages across trajectories and uses experience as a token prior</td>
+<td>Offers improvement with fixed model weights and serves as a same-seed comparison</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2601.11868" target="_blank" rel="noopener noreferrer">Terminal-Bench</a></td>
+<td>Evaluates extended tasks in isolated terminal environments with executable tests</td>
+<td>Supplies success and failure feedback for harness changes</td>
+</tr>
+</tbody>
+</table></div><p>AHE uses <a href="https://github.com/china-qijizhifeng/agentic-harness-engineering" target="_blank" rel="noopener noreferrer">NexAU and the official implementation</a> to expose editable components, trajectory summaries, and change predictions as inspectable files. The next agent invocation can read and check the preceding iteration's decisions.</p>
+<h2 id="section-3">3. Research questions: what feedback does harness evolution need?</h2>
+<p>The paper evaluates overall performance, transfer, and internal behavior. We organize its methodological motivation into three questions.</p>
+<ol>
+<li><strong>How should the editing surface be represented?</strong> Prompts, tool code, and middleware differ in form. The optimizer needs clear file boundaries and a way to revert changes.</li>
+<li><strong>How can long traces reveal actionable failures?</strong> A final score rarely identifies the problem, while reading every log can exhaust the available context.</li>
+<li><strong>How can an edit's benefits and costs be checked?</strong> Predict the tasks it should fix, inspect regressions on previously passing tasks, and test whether the experience transfers.</li>
+</ol>
+<h2 id="section-4">4. Method: execute, diagnose, edit, and check against the next run</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/ahe/method.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/ahe/method.png" alt="AHE observability layers and iteration" loading="lazy" decoding="async"></a><figcaption>Figure 1 · File-level harness components appear on the left. Execution traces become evidence that agents can inspect at increasing detail. The Evolve Agent edits components and records its decisions. Corresponds to v4 Figure 2, PDF page 4. Unmodified official repository image.</figcaption></figure>
+<h3 id="section-5">Step 1. Expose seven component types as files</h3>
+<p>The NexAU workspace exposes the system prompt, tool descriptions, tool implementations, middleware, skills, sub-agent configurations, and long-term memory. The NexAU₀ seed has a shell tool and begins without skills, middleware, or long-term memory. Each logical edit enters Git, retaining its diff and rollback location.</p>
+<p>The Code Agent executes tasks, the Agent Debugger analyzes traces, and the Evolve Agent edits the workspace. A one-off exploration in the first iteration also builds initial knowledge from framework code and public references. The editing boundary protects the model and evaluation configuration. The optimizer can change the harness while the evaluator and model budget stay outside its write permissions. <a href="https://arxiv.org/html/2604.25850v4#S3" target="_blank" rel="noopener noreferrer">Sections 3.1–3.3</a></p>
+<h3 id="section-6">Step 2. Read the overview, then inspect the failure evidence</h3>
+<p>Each task generates several traces. Traces for the same task share a navigable directory, and individual messages are accessible as files. The Agent Debugger compares successes and failures, writes task-level analyses, and aggregates a benchmark-level overview. The Evolve Agent can follow that overview into a task report, then inspect cleaned or raw traces.</p>
+<p>This hierarchy preserves a way to check summaries. A missing output file is an outcome. Comparing traces may reveal that the file was correct before a cleanup removed it. Such a diagnosis remains a model's proposal until tested through execution.</p>
+<h3 id="section-7">Step 3. Record a testable prediction for each edit</h3>
+<p>The change manifest records the failure evidence, proposed cause, edited location, predicted fixes, and tasks at risk of regression. The next iteration runs the new harness, compares task-level pass-rate changes, and feeds the results back to the manifest. The loop can revert rejected edits before proposing further changes.</p>
+<p>Task changes provide feedback, while simultaneous edits and few attempts per task limit attribution. The manifest makes predictions inspectable. Establishing the causal contribution of an individual file requires additional controls. <a href="https://arxiv.org/html/2604.25850v4#S3.SS3" target="_blank" rel="noopener noreferrer">Algorithm 1 and Section 3.3</a></p>
+<h3 id="section-8">Step 4. Turn lessons into mechanisms that execute</h3>
+<p>The paper's <code>path-tracing</code> case illustrates this process. The agent produced a correct image, checked it, and then removed the deliverable during cleanup. Iteration 5 added a publish-state mechanism that records output paths involved in a successful check. The shell tool intercepted later deletion of protected outputs, and the task moved from <strong>0/2</strong> to <strong>2/2</strong>.</p>
+<p>Later cases exposed the mechanism's boundary. An override token let the agent delete an already deployed web page. Iteration 8 added hard blocks for critical published state and risk reminders before the next model call. These observed examples show experience becoming executable mechanisms, while revealing gaps that persist after an initial fix. <a href="https://arxiv.org/html/2604.25850v4#A3" target="_blank" rel="noopener noreferrer">Appendix C</a></p>
+<h2 id="section-9">5. Experiments and results: improvement, transfer, and cost</h2>
+<h3 id="section-10">Main evaluation: improvement on the optimization tasks</h3>
+<p>The authors ran one ten-iteration campaign over all <strong>89 Terminal-Bench 2 tasks</strong>, comprising <strong>4 easy, 55 medium, and 30 hard tasks</strong>, in approximately 32 hours. Tasks run in isolated environments, with external tests determining binary success and a <strong>3,600-second</strong> timeout. The reference configuration uses two rollouts per task. Pass@1 averages the independent attempts, so <strong>2/2</strong> means both succeeded. This average differs from the probability of finding at least one success among several attempts.</p>
+<p>The table reports the best AHE configuration selected during the campaign. Main coding-agent evaluations use GPT-5.4 high. The main text also describes all three roles as high, whereas Appendix Table 4 lists the Evolve Agent at xhigh. Reproduction requires resolving this setting discrepancy. The paper does not report the mean and variance of multiple full campaigns or an independent held-out split within these 89 tasks. <a href="https://arxiv.org/pdf/2604.25850v4#page=6" target="_blank" rel="noopener noreferrer">Section 4.1, Table 1, and Appendix A</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Configuration</th>
+<th style="text-align:right">Overall pass@1 (↑)</th>
+<th style="text-align:right">Easy</th>
+<th style="text-align:right">Medium</th>
+<th style="text-align:right">Hard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenCode</td>
+<td style="text-align:right">47.2%</td>
+<td style="text-align:right">75.0%</td>
+<td style="text-align:right">52.7%</td>
+<td style="text-align:right">33.3%</td>
+</tr>
+<tr>
+<td>Terminus-2</td>
+<td style="text-align:right">62.9%</td>
+<td style="text-align:right">75.0%</td>
+<td style="text-align:right">74.5%</td>
+<td style="text-align:right">40.0%</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td style="text-align:right">71.9%</td>
+<td style="text-align:right">75.0%</td>
+<td style="text-align:right">80.0%</td>
+<td style="text-align:right">56.7%</td>
+</tr>
+<tr>
+<td>NexAU₀ seed</td>
+<td style="text-align:right">69.7%</td>
+<td style="text-align:right">87.5%</td>
+<td style="text-align:right">78.2%</td>
+<td style="text-align:right">51.7%</td>
+</tr>
+<tr>
+<td>ACE</td>
+<td style="text-align:right">68.9%</td>
+<td style="text-align:right">91.7%</td>
+<td style="text-align:right">78.2%</td>
+<td style="text-align:right">48.9%</td>
+</tr>
+<tr>
+<td>TF-GRPO</td>
+<td style="text-align:right">72.3%</td>
+<td style="text-align:right">100.0%</td>
+<td style="text-align:right">79.4%</td>
+<td style="text-align:right">55.6%</td>
+</tr>
+<tr>
+<td>AHE</td>
+<td style="text-align:right">77.0%</td>
+<td style="text-align:right">100.0%</td>
+<td style="text-align:right">88.2%</td>
+<td style="text-align:right">53.3%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: v4 Table 1. The overall denominator is 89 tasks. Each difficulty column uses its corresponding task subset.</em></p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/ahe/training.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/ahe/training.png" alt="AHE per-iteration and best-so-far scores" loading="lazy" decoding="async"></a><figcaption>Figure 2 · The dashed curve shows each iteration&#39;s score, and the solid curve shows the best score so far. Approximately 77.0% is reached at iteration 8, followed by regressions. Original v4 Figure 1, PDF page 2, rendered from the vector asset.</figcaption></figure>
+<p>AHE improves on the seed by <strong>7.3 percentage points</strong> and on Codex by <strong>5.1 points</strong>. Its advantage is strongest on Medium. On Hard, <strong>53.3%</strong> remains below Codex's <strong>56.7%</strong>. These results demonstrate improvement within the tested optimization campaign. The transfer experiments address performance beyond that task surface.</p>
+<h3 id="section-11">Does the frozen harness work on other tasks and models?</h3>
+<p>The authors froze the evolved harness and evaluated it on SWE-bench-verified without further evolution on that benchmark.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Configuration</th>
+<th style="text-align:right">Success rate (↑)</th>
+<th style="text-align:right">Mean tokens / trial (thousands, ↓)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ACE</td>
+<td style="text-align:right">74.6%</td>
+<td style="text-align:right">679</td>
+</tr>
+<tr>
+<td>TF-GRPO</td>
+<td style="text-align:right">74.2%</td>
+<td style="text-align:right">582</td>
+</tr>
+<tr>
+<td>NexAU₀</td>
+<td style="text-align:right">75.2%</td>
+<td style="text-align:right">526</td>
+</tr>
+<tr>
+<td>AHE</td>
+<td style="text-align:right">75.6%</td>
+<td style="text-align:right">461</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2604.25850v4#page=7" target="_blank" rel="noopener noreferrer">v4 Table 2</a>. The overall row states 500 tasks.</em></p>
+<p>Against the seed, success improves by <strong>0.4 percentage points</strong> and mean tokens fall by approximately <strong>12.4%</strong>. Tokens include input and output across model calls within a trial. Infrastructure-aborted attempts are excluded from token means but count as failures in success rates. These figures measure task execution rather than the total cost of evolution. The seven repository counts in Table 2 sum to <strong>460</strong>, compared with the overall <strong>500</strong>. Version 4 does not explain the remaining samples, so this article preserves the reported aggregate without recomputing a weighted mean.</p>
+<p>For model transfer, the frozen AHE and the seed are compared using each model on the same Terminal-Bench tasks. DeepSeek-V4-Flash moves from <strong>51.7% to 61.8%</strong>, Qwen-3.6-Plus from <strong>56.2% to 62.5%</strong>, and Gemini-3.1-Flash-Lite-Preview from <strong>36.5% to 41.6%</strong>. The harness helps three alternative model families, while the tasks remain those seen during optimization. This evaluation therefore tests model transfer on familiar tasks. The authors also identify coupling between time limits, turn budgets, and reasoning effort. <a href="https://arxiv.org/html/2604.25850v4#S4.SS3" target="_blank" rel="noopener noreferrer">Section 4.3</a></p>
+<h3 id="section-12">Components: where do gains arise, and how do they interact?</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Evolved component inserted into the seed</th>
+<th style="text-align:right">Overall pass@1</th>
+<th style="text-align:right">Hard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None, NexAU₀</td>
+<td style="text-align:right">69.7%</td>
+<td style="text-align:right">51.7%</td>
+</tr>
+<tr>
+<td>Long-term memory only</td>
+<td style="text-align:right">75.3%</td>
+<td style="text-align:right">63.3%</td>
+</tr>
+<tr>
+<td>Tools only</td>
+<td style="text-align:right">73.0%</td>
+<td style="text-align:right">46.7%</td>
+</tr>
+<tr>
+<td>Middleware only</td>
+<td style="text-align:right">71.9%</td>
+<td style="text-align:right">50.0%</td>
+</tr>
+<tr>
+<td>System prompt only</td>
+<td style="text-align:right">67.4%</td>
+<td style="text-align:right">46.7%</td>
+</tr>
+<tr>
+<td>Full AHE</td>
+<td style="text-align:right">77.0%</td>
+<td style="text-align:right">53.3%</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2604.25850v4#page=8" target="_blank" rel="noopener noreferrer">v4 Table 3</a>. Each row inserts the named component while keeping other components at their seed settings.</em></p>
+<p>Memory, tools, and middleware each improve the overall result. Swapping the prompt alone causes a regression. Full AHE is best overall but trails the memory-only variant on Hard. The authors trace this to multiple components encouraging overlapping closure checks, consuming the execution budget on long tasks. The comparison provides evidence about this component combination. Additional controls would be needed to quantify the independent contribution of each observability layer.</p>
+<h3 id="section-13">Predictions: anticipating fixes is easier than anticipating regressions</h3>
+<p>Across nine comparable rounds, mean fix precision is <strong>33.7%</strong> and recall <strong>51.4%</strong>, above the reported random baselines of <strong>6.5%</strong> and <strong>10.6%</strong>. Regression prediction reaches only <strong>11.8%</strong> precision and <strong>11.1%</strong> recall, against random baselines of <strong>5.6%</strong> and <strong>5.4%</strong>. The manifest supports targeted fixes while leaving many regressions unanticipated. <a href="https://arxiv.org/html/2604.25850v4#S4.F4" target="_blank" rel="noopener noreferrer">Figure 4</a></p>
+<h2 id="section-14">6. Our reflections</h2>
+<h3 id="section-15">Topic: what is this area studying?</h3>
+<p>We are interested in how an agent turns one failure into an improvement that executes on a later run. AHE stores experience in persistent tool implementations, middleware, and memory, and uses subsequent execution feedback to decide what to keep. For research agents, an analogous direction is turning evidential requirements into runtime steps and delivery checks. Applying this approach to research workflows would require dedicated experiments.</p>
+<h3 id="section-16">Limitations: what remains unresolved?</h3>
+<ol>
+<li><strong>Optimization performance and independent generalization remain separated.</strong> The headline result selects the best version on all optimization tasks in one campaign. The new-benchmark success gain is small, and denominators and role-level reasoning settings need clarification.</li>
+<li><strong>Task flips do not isolate individual edits.</strong> Multiple concurrent changes, few repeats, and component interactions affect the observations. Regression prediction is particularly weak.</li>
+<li><strong>Benefits depend on runtime budgets.</strong> Additional checks can help short tasks while consuming opportunities on long ones. Per-task token savings do not account for offline evolution and debugging costs.</li>
+</ol>
+<h3 id="section-17">Possible approaches: how could these questions be tested?</h3>
+<ol>
+<li><strong>Fix development and held-out splits.</strong> Evolve on development tasks, lock the harness, and test on unseen tasks. Repeat full campaigns and disclose sample counts, attempts, and role configurations.</li>
+<li><strong>Use paired tests of edits and interactions.</strong> Repeat individual edits and key component combinations from identical initial states on the same tasks. Report fix and regression distributions and assess the stability of attribution.</li>
+<li><strong>Include budgets in acceptance criteria.</strong> Compare success, latency, tokens, and evolution costs together. Measure which extra checks justify their cost, and adapt their triggers to task length or remaining budget.</li>
+</ol>
+<p><em>Based on the <a href="https://arxiv.org/pdf/2604.25850v4" target="_blank" rel="noopener noreferrer">v4 PDF</a> and the <a href="https://github.com/china-qijizhifeng/agentic-harness-engineering/tree/182ea06e578df7b1d503eca537503c1e4c5a8a58" target="_blank" rel="noopener noreferrer">official repository</a>. The method image is the repository original. The learning curve is rendered from a repository vector file identical to the v4 source. Images follow the repository's <a href="https://github.com/china-qijizhifeng/agentic-harness-engineering/blob/182ea06e578df7b1d503eca537503c1e4c5a8a58/LICENSE" target="_blank" rel="noopener noreferrer">MIT license</a>, Copyright © 2026 Jiahang Lin, with original authorship by Jiahang Lin et al. The source manifest records the manuscript distribution license and repository asset license separately.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: turning failure experience into harness improvements</a></li><li><a href="#section-2">2. Related work: where experience can accumulate</a></li><li><a href="#section-3">3. Research questions: what feedback does harness evolution need?</a></li><li><a href="#section-4">4. Method: execute, diagnose, edit, and check against the next run</a></li><li><a href="#section-9">5. Experiments and results: improvement, transfer, and cost</a></li><li><a href="#section-14">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../gameasgbench/"><span>Paper reading</span><strong>GameASG-Bench: did the game-generation agent deliver complete behavior?</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>Paper reading</span><strong>VisionWeave: learning where visual detail is worth keeping</strong><i aria-hidden="true">↗</i></a><a href="../vharness/"><span>Paper reading</span><strong>VHarness: visual reasoning as callable tools for coding agents</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

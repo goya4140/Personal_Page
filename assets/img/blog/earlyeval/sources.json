@@ -1,0 +1,48 @@
+{
+  "source": "https://arxiv.org/pdf/2609.02783v1",
+  "source_archive": "https://arxiv.org/src/2609.02783v1",
+  "source_pdf_sha256": "895d7ce514b6d9ba642dcc464fe355bc8dc7bb0ed8890420b7012832844cad78",
+  "source_archive_sha256": "4d149dff3b478fb7eb6b53b3c1d2bec0cfb46557a5955253fa6944c5b23cb932",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "Yuling Shi, Zhensu Sun, Junsen Dong, Chengcheng Wan, David Lo, and Xiaodong Gu. EarlyEval: Cheaper Agent Evaluation via Early Outcome Prediction, arXiv v1, 2026-09-02.",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": 2,
+      "pdf_page": 5,
+      "source_archive_member": "figures/overview.pdf",
+      "source_asset_sha256": "8726b238cfcb7f859ae4728754a240cedaeb9a82c41b03bc06b44bb9a0f2e1b3",
+      "width": 2400,
+      "height": 1463,
+      "sha256": "bf87f0c8c722f75b86f9fb7a4f6314196ceda7bc53a29012cc1b6646b20690cf",
+      "operation": "Original vector figure rendered as PNG without cropping or redrawing"
+    },
+    {
+      "file": "motivation.png",
+      "figure": 1,
+      "pdf_page": 1,
+      "source_archive_member": "figures/motivation.pdf",
+      "source_asset_sha256": "92719139d9cf6b31e16b4e10fb1c03af1f81b58d87414347ba9aa3b93777c3db",
+      "width": 2400,
+      "height": 1833,
+      "sha256": "a78612b8a36fe9de577aa47190b1c42be4a3a978050993286b554146330fd739",
+      "operation": "Original vector figure rendered as PNG without cropping or redrawing"
+    },
+    {
+      "file": "threshold-results.png",
+      "figure": "Table III",
+      "pdf_page": 8,
+      "crop_pdf_points": [
+        47.0,
+        49.0,
+        565.0,
+        400.0
+      ],
+      "width": 2401,
+      "height": 1627,
+      "sha256": "7481a2488fd5b090a7f780dd9b2ce07305340e0fb91b48ef5e6f6e069b817d30",
+      "operation": "Original PDF table cropped with all headers, rows and metrics intact; no redraw"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "source": "https://arxiv.org/pdf/2604.25850v4",
+  "source_archive": "https://arxiv.org/src/2604.25850v4",
+  "source_pdf_sha256": "299f2633b4c13db7bed52434b4db7c48ea621993581014d30e7bcd036d3464df",
+  "source_archive_sha256": "dfb7e74a334e2c120f110a6e821b65f2a7d9d8cc1de948f3bc4001c735dd50b8",
+  "official_repository": "https://github.com/china-qijizhifeng/agentic-harness-engineering",
+  "official_commit": "182ea06e578df7b1d503eca537503c1e4c5a8a58",
+  "license": "MIT for official repository assets. The arXiv manuscript uses the arXiv non-exclusive distribution license.",
+  "license_url": "https://github.com/china-qijizhifeng/agentic-harness-engineering/blob/182ea06e578df7b1d503eca537503c1e4c5a8a58/LICENSE",
+  "attribution": "Copyright (c) 2026 Jiahang Lin. Figures by Jiahang Lin et al., Agentic Harness Engineering, v4.",
+  "figures": [
+    {
+      "file": "method.png",
+      "figure": 2,
+      "pdf_page": 4,
+      "official_asset": "assets/figures/method.png",
+      "width": 1267,
+      "height": 809,
+      "sha256": "0adba4eb06a507d190ac124a51373abd86e7ac49b2b8bdaec44625f44af0c026",
+      "operation": "Unmodified official repository image"
+    },
+    {
+      "file": "training.png",
+      "figure": 1,
+      "pdf_page": 2,
+      "source_archive_member": "figures/training_curve.pdf",
+      "official_asset": "assets/figures/training_curve.pdf",
+      "official_asset_sha256": "0b2f9ea40a951c1888dd5895d0b3dbacac4eb2171f32b419e437fb2ef9c7e621",
+      "source_asset_sha256": "0b2f9ea40a951c1888dd5895d0b3dbacac4eb2171f32b419e437fb2ef9c7e621",
+      "width": 2400,
+      "height": 1159,
+      "sha256": "dda5583de7035c8f5e8b7f0b9f604654262377909bd8b4f6567db329d25d1187",
+      "operation": "Original vector PDF rendered without cropping or redrawing"
+    }
+  ]
+}

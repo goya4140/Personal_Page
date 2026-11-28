@@ -1,0 +1,21 @@
+{
+  "paper": "HarnessDev: Can LLMs Create and Evolve Their Own Agent Harness?",
+  "authors": "Yuhao Wu et al.",
+  "version": "arXiv:2609.01437v1",
+  "source": "https://arxiv.org/abs/2609.01437v1",
+  "source_pdf": "https://arxiv.org/pdf/2609.01437v1",
+  "source_pdf_sha256": "1231454f0ae5ccffdb3d031dc8f42eae0cbbaeb61dcd25dddb1855074697dfc0",
+  "license": "CC BY-NC-ND 4.0",
+  "retrieved_on": "2026-11-15",
+  "figures": [
+    {
+      "file": "architecture.png",
+      "figure": "5",
+      "pdf_page": 10,
+      "sha256": "814f5af3625840eb029a648ae7d5ca1154e41b406b98270d7a4deb2721422b3b",
+      "operation": "Original arXiv HTML image, unchanged",
+      "source_image": "https://arxiv.org/html/2609.01437v1/figures/rq1_rq2_architecture_coverage.png"
+    }
+  ],
+  "license_url": "https://creativecommons.org/licenses/by-nc-nd/4.0/"
+}

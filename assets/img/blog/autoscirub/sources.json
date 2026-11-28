@@ -1,0 +1,67 @@
+{
+  "source": "https://arxiv.org/pdf/2608.31076v1",
+  "source_archive": "https://arxiv.org/src/2608.31076v1",
+  "source_pdf_sha256": "5b395ea3888d07cd59f725138451ed5d7c6ee42cc9912f14bf48aa0c82629dfc",
+  "source_archive_sha256": "29922694439a8c9ceaace2dc3916cb20f432e5565eccdad4f16b580cc0a09846",
+  "license": "CC BY-NC-SA 4.0",
+  "license_url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "attribution": "Xuehai Wang et al. Learning to Evaluate Before Improving: Automatic Rubric Induction for Automatic Research Agents. arXiv v1, 2026-08-31. Work in progress.",
+  "usage": "Unchanged original figures reproduced with attribution in a noncommercial scholarly reading article. Original figures retain their original license.",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "2",
+      "pdf_page": 3,
+      "source_archive_member": "Figures/method.pdf",
+      "source_asset_sha256": "23bbc0f7197ca4e0078899e6a1950fb34b40c089b2768da0d6b36374670cba88",
+      "width": 2400,
+      "height": 816,
+      "sha256": "1b7c6cb831821705e671fd1fc99506ee1ba7f77fa9dcaa2e91039387ffd3885d",
+      "operation": "Original vector PDF rendered at 2400px width using PyMuPDF; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "astabench-results.png",
+      "figure": "3",
+      "pdf_page": 4,
+      "source_archive_member": "Figures/asta.pdf",
+      "source_asset_sha256": "05f4d7506de8507927988401083113648072135d5c34b44d0c51331b05554209",
+      "width": 2400,
+      "height": 1156,
+      "sha256": "b2c79c1f4bd078e0899230674500910ccd8a8e609efd92dba7aa76d97964fd43",
+      "operation": "Original vector PDF rendered at 2400px width using PyMuPDF; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "rubric-quality.png",
+      "figure": "4a",
+      "pdf_page": 6,
+      "source_archive_member": "Figures/rubric1.pdf",
+      "source_asset_sha256": "45b02abdfc02e667213bc0ed2ba276159e38e685c9cc3b9e3ef7b03947d26e42",
+      "width": 2400,
+      "height": 2599,
+      "sha256": "5a82104d7a98cd23e84ee11a51f66ac08ab391d5ae0465cad3bda6defa019848",
+      "operation": "Original vector PDF rendered at 2400px width using PyMuPDF; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "rubric-example.png",
+      "figure": "5",
+      "pdf_page": 6,
+      "source_archive_member": "Figures/rubric.pdf",
+      "source_asset_sha256": "29dc06e2cc3c241542786d8f29ccda856cf6ce393b1d177b78bf5d34edd98ab6",
+      "width": 2400,
+      "height": 1904,
+      "sha256": "44161f458edea52ffacf219049e43a3f0546653b21eb9add489ddd686c9fa4fc",
+      "operation": "Original vector PDF rendered at 2400px width using PyMuPDF; no cropping, redrawing, or data modification"
+    },
+    {
+      "file": "revision-dynamics.png",
+      "figure": "6a",
+      "pdf_page": 7,
+      "source_archive_member": "Figures/feedback1.pdf",
+      "source_asset_sha256": "ddb6a54b5efe6e2b489618a59d3acbf894730b962f96efca639a12307a6da09b",
+      "width": 2400,
+      "height": 1344,
+      "sha256": "d9f873150046279e4e756daa78765d6e3b585d43333ef3278245a272b8e8e0e6",
+      "operation": "Original vector PDF rendered at 2400px width using PyMuPDF; no cropping, redrawing, or data modification"
+    }
+  ]
+}

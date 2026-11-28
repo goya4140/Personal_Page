@@ -1,0 +1,29 @@
+{
+  "paper": "Evo-Harness: Context-to-Harness Skill Compilation for Self-Evolving Agents",
+  "authors": "Tianxin Wei et al.",
+  "version": "arXiv:2608.15071v2",
+  "source": "https://arxiv.org/abs/2608.15071v2",
+  "source_pdf": "https://arxiv.org/pdf/2608.15071v2",
+  "source_pdf_sha256": "41476396f4eab1517395672cc204db8915ae4f41ed363bfa0915b5f81b4824e5",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "retrieved_on": "2026-11-15",
+  "figures": [
+    {
+      "file": "overview.png",
+      "figure": "3",
+      "pdf_page": 4,
+      "sha256": "2e471679c1d871eb623e8d74de8e8e56e88055405cb6ee7ee2d10178b9f37867",
+      "operation": "Original arXiv HTML image, unchanged",
+      "source_image": "https://arxiv.org/html/2608.15071v2/main.png"
+    },
+    {
+      "file": "transfer.png",
+      "figure": "5",
+      "pdf_page": 7,
+      "sha256": "bba17ca7ea1998b14d6cbba3190ed2f480fe8011084c2924d471db35a21510b9",
+      "operation": "Original arXiv HTML image, unchanged",
+      "source_image": "https://arxiv.org/html/2608.15071v2/figures/swe_cross_skill_transfer.png"
+    }
+  ]
+}

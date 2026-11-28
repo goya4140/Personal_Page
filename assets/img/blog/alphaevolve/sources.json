@@ -1,0 +1,10 @@
+{
+  "slug": "alphaevolve",
+  "license": "Paper source distributed with arXiv submission; arXiv HTML states CC BY-NC-ND 4.0.",
+  "figures": [
+    {"file": "method-detailed.png", "source": "AlphaEvolve v1 source figures/method_detailed.pdf (paper Figure 2), rendered at 160 dpi."},
+    {"file": "math-results.png", "source": "AlphaEvolve v1 source figures/math_results.pdf (paper Figure 5), rendered at 160 dpi."},
+    {"file": "borg-heuristic.png", "source": "AlphaEvolve v1 source figures/borg_heuristic.pdf (paper Figure 6), rendered at 160 dpi."},
+    {"file": "ablation-matmul.png", "source": "AlphaEvolve v1 source figures/ablation_matmul.pdf (paper Figure 8 left panel), rendered at 160 dpi; panel kept as supplied."}
+  ]
+}

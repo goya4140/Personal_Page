@@ -1,0 +1,361 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VHarness: visual reasoning as callable tools for coding agents | Linhao Wang</title>
+  <meta name="description" content="Five visual actions, on-demand refinement, and the quality–compute trade-off across HTML, SVG, and 3D reconstruction.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="VHarness: visual reasoning as callable tools for coding agents">
+  <meta property="og:description" content="Five visual actions, on-demand refinement, and the quality–compute trade-off across HTML, SVG, and 3D reconstruction.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/vharness/"><link rel="canonical" href="https://goya4140.github.io/en/blog/vharness/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="VHarness：把视觉判断做成编程 Agent 可以调用的工具" data-title-en="VHarness: visual reasoning as callable tools for coding agents" data-language-url="../../../blog/vharness/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>12 min read</span><span>English translation</span><time datetime="2026-11-22">2026-11-22</time></div><div class="article-heading-layout has-art"><div><h1>VHarness: visual reasoning as callable tools for coding agents</h1><p class="article-summary">Five visual actions, on-demand refinement, and the quality–compute trade-off across HTML, SVG, and 3D reconstruction.</p><div class="post-topics"><span>Artificial Intelligence</span><span>Multimodal coding agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/vharness/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/vharness/overview.png" alt="VHarness: visual reasoning as callable tools for coding agents" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2611.17797v1" target="_blank" rel="noopener noreferrer">Vision-as-a-Tool: Visual Harness for Multimodal Agentic Coding ↗</a><small>arXiv v1 · 2026-11-13</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: who checks whether running code looks right?</a></li><li><a href="#section-2">2. Related work: bringing visual input and feedback into coding</a></li><li><a href="#section-3">3. Research questions: what does tool-based vision enable?</a></li><li><a href="#section-4">4. Method: turn target images into feedback and code revisions</a></li><li><a href="#section-9">5. Experiments and results: better resemblance with more computation</a></li><li><a href="#section-15">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="vharness" lang="en"><p>When an agent recreates a design in code, a difficult moment is often when it believes the result already looks right. The code runs, yet text wrapping, contours, or 3D proportions still differ visibly. If the coding model cannot identify those discrepancies, further edits lack reliable direction.</p>
+<p>This article reads <strong>Vision-as-a-Tool: Visual Harness for Multimodal Agentic Coding</strong>, based on <a href="https://arxiv.org/abs/2611.17797v1" target="_blank" rel="noopener noreferrer">arXiv v1</a>, submitted on November 13, 2026. The paper introduces the VaaT paradigm and implements VHarness, which wraps an external multimodal model in five visual actions. It improves final quality across three visual coding tasks while substantially increasing inference investment. Both aspects matter.</p>
+<h2 id="section-1">1. Topic: who checks whether running code looks right?</h2>
+<p>Visual coding translates requirements in images into executable code: HTML/CSS from webpage screenshots, SVG from raster images, or Blender scripts from multiple views. A system must generate valid code, execute it, render the result, and compare that result against the target.</p>
+<p>This creates a feedback process: observe the target, construct an artifact, render, identify discrepancies, and revise. Discrepancy judgments determine the usefulness of edits and influence stopping. Button locations, font weights, occlusion, and 3D part connectivity can all exceed a single model’s reliable perception.</p>
+<p>One design lets the coding model inspect images directly, optionally through cropping and zooming. Another delegates visual judgments to an external model and returns textual or structured feedback. This gives text-only coding models a visual interface and lets multimodal models request additional analysis. Evaluating this design requires final-artifact quality, feedback reliability, and additional cost together.</p>
+<h2 id="section-2">2. Related work: bringing visual input and feedback into coding</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work or direction</th>
+<th>Existing exploration</th>
+<th>This paper’s emphasis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://aclanthology.org/2025.naacl-long.199/" target="_blank" rel="noopener noreferrer">Design2Code</a></td>
+<td>Screenshot-to-code generation and automated front-end reconstruction evaluation</td>
+<td>Extends initial understanding into ongoing visual diagnosis</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2606.01057" target="_blank" rel="noopener noreferrer">3DCodeBench</a></td>
+<td>Evaluates procedural 3D reconstruction through agent-generated code</td>
+<td>Introduces visual-feedback tools into multi-view modeling and checks geometric improvements</td>
+</tr>
+<tr>
+<td>Cropping and zooming tools</td>
+<td>Help a model examine regions, while interpretation remains with the coding model</td>
+<td>Makes interpretation and comparison themselves callable services returning actionable information</td>
+</tr>
+</tbody>
+</table></div><p>VaaT is the organizational paradigm of treating visual reasoning as a tool. VHarness is its concrete implementation. The backend multimodal model supplies the tools’ visual capability. These should not be confused with one newly trained model. The work primarily organizes existing models through a harness, interfaces, and prompts; it does not introduce a new model-training algorithm. <a href="https://arxiv.org/html/2611.17797v1#S2" target="_blank" rel="noopener noreferrer">Section 2</a></p>
+<h2 id="section-3">3. Research questions: what does tool-based vision enable?</h2>
+<p>We group the paper’s questions into three themes to organize the method and evidence.</p>
+<ol>
+<li><strong>Can visual judgment be separated from the coding model?</strong> Can text-only models perform visual coding through external feedback, and can multimodal models still benefit?</li>
+<li><strong>How can external vision become a dependable interface?</strong> How do five defined actions compare with a single free-form multimodal query tool?</li>
+<li><strong>How much additional execution does better final quality require?</strong> What refinement process produces improvement, and does an advantage remain under equal budgets?</li>
+</ol>
+<p>Strict budget attribution in the third theme is our further scrutiny. The paper reports tokens and action statistics but does not provide a cost-matched main experiment.</p>
+<h2 id="section-4">4. Method: turn target images into feedback and code revisions</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/vharness/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/vharness/overview.png" alt="VHarness connects coding, intrinsic vision, and external visual tools" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Target inputs appear on the left; the agent selects tools, writes code, and decides its next step in the middle; previous renders appear above; five visual actions appear below. Calls interleave on demand rather than forming a fixed pipeline. Original Figure 1, PDF page 1; complete diagram cropped without redrawing. Copyright Haolin Yang and coauthors.</figcaption></figure>
+<h3 id="section-5">Step 1: provide targets, a coding environment, and a renderer</h3>
+<p>Inputs include target images and a workspace. HTML tasks also supply human-verified visual assets without layout coordinates. SVG tasks require pure-vector code. The 3D task supplies four reference views; the agent writes a Blender script while a shared renderer controls cameras, lighting, screenshots, and GLB export.</p>
+<p>The agent can read files, execute commands, write code, and edit code. Multimodal agents retain direct image inspection. Text-only agents depend on textual or structured observations returned by the tools. <a href="https://arxiv.org/html/2611.17797v1#A1.SS1" target="_blank" rel="noopener noreferrer">Appendix A.1</a></p>
+<h3 id="section-6">Step 2: obtain actionable observations through five actions</h3>
+<p>VHarness runs a persistent FastMCP server and registers five MCP actions in the Claude Code harness. The main experiments use <strong>Gemini-3.8-Flash</strong> as the visual backend.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Action</th>
+<th>Input and output</th>
+<th>Role in code revision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>transcribe</td>
+<td>Target image → global structure; a layout tree for 2D or parts, spatial relations, and materials for 3D</td>
+<td>Establishes the initial artifact’s organization</td>
+</tr>
+<tr>
+<td>grep</td>
+<td>Image and textual query → matching elements, categories, bounding boxes, and related fields</td>
+<td>Locates the elements to modify</td>
+</tr>
+<tr>
+<td>inspect</td>
+<td>Image or region → text and typography, or appearance and geometric details</td>
+<td>Supplies local details for more informed implementation</td>
+</tr>
+<tr>
+<td>align</td>
+<td>Region and proposed text/specification → Boolean match judgment</td>
+<td>Checks a local content assertion</td>
+</tr>
+<tr>
+<td>diff</td>
+<td>Target and current render → discrepancies or paired region boxes</td>
+<td>Identifies deviations for the next revision</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2611.17797v1#S2.SS2" target="_blank" rel="noopener noreferrer">Section 2.2 and Appendices A.3–A.4</a>.</em></p>
+<p>The names resemble shell utilities, but their outputs are model inferences. For example, grep requests JSON boxes normalized to 0–1000 coordinates. The text mode of inspect requests transcription plus font family, weight, width, slant, and text color. The diff action can rank discrepancies by visual prominence or return paired target/render boxes.</p>
+<p>The scope of align deserves care. Its appendix prompt checks <strong>meaning and wording while ignoring fonts</strong>. Therefore, match=true does not certify typography, placement, overall aesthetics, or all task requirements. Tool feedback supports a judgment; it is not automatically calibrated ground truth.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/vharness/actions.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/vharness/actions.png" alt="Queries and responses for the five visual actions" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Read the target and highlighted regions on the left against five query/response examples on the right: a structure tree, localization boxes, detailed inspection, a match judgment, and target/render discrepancies. Original Figure 3, PDF page 7; complete diagram cropped without redrawing. Copyright the original authors.</figcaption></figure>
+<h3 id="section-7">Step 3: select tools for the current question, edit, and render again</h3>
+<p>The agent decides when to invoke tools. It may obtain structure before locating details, or compare a render directly against its target and investigate discrepancies afterward. The paper does not force one call to every action on each iteration.</p>
+<p>As a teaching example, a workflow could locate a text passage, check wrapping and weight, edit CSS, render again, and compare discrepancies. This illustrates the idea; it is not a fixed algorithm followed by every reported trajectory.</p>
+<p>Neither group has a forced minimum iteration count or an equal token budget. Baselines judge completion through intrinsic vision. VHarness agents use external feedback to inspect remaining discrepancies and decide what to do next. This is part of the method, and it also means final-quality comparisons incorporate additional computation. <a href="https://arxiv.org/html/2611.17797v1#S2.SS3" target="_blank" rel="noopener noreferrer">Section 2.3</a></p>
+<h3 id="section-8">Step 4: preserve artifacts and separate feedback from final evaluation</h3>
+<p>Tool feedback guides revisions during execution. Final evaluation independently scores generated HTML, SVG, and meshes with image or geometric measures. The experiment does not simply use diff’s own claim that the images match as its final score.</p>
+<p>As of November 22, 2026, the <a href="https://github.com/TidalHarley/Vision-as-a-Tool/tree/7ae2705dee8c957f8e375adc6ab48e06074c11ff" target="_blank" rel="noopener noreferrer">official repository</a> linked by the project page contains only a notice that code is under review and planned for release. We checked the paper’s interfaces and prompts but could not inspect a complete implementation or independently rerun it from that repository.</p>
+<h2 id="section-9">5. Experiments and results: better resemblance with more computation</h2>
+<h3 id="section-10">Main setup: three tasks on the same underlying harness</h3>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Task</th>
+<th>Samples and inputs</th>
+<th>Final outputs</th>
+<th>Important restrictions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Image-to-HTML</td>
+<td>100 complex webpage, magazine, poster, and slide screenshots with assets</td>
+<td>Self-contained HTML/CSS</td>
+<td>Assets provide filenames and native dimensions, without positions or layout metadata</td>
+</tr>
+<tr>
+<td>Image-to-SVG</td>
+<td>100 complex raster designs</td>
+<td>Standalone pure-vector SVG</td>
+<td>Embedded images, base64, and traced bitmaps prohibited</td>
+</tr>
+<tr>
+<td>Image-to-3D</td>
+<td>100 randomly sampled 3DCodeBench cases, four reference views each</td>
+<td>Blender Python, GLB, and corresponding renders</td>
+<td>Shared cameras, lighting, and material/rendering process</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2611.17797v1#S3.SS1" target="_blank" rel="noopener noreferrer">Section 3.1 and Appendices A.1–A.2</a>. Because some original images did not match their meshes, the authors regenerate ground-truth meshes and four views from official material scripts to align inputs with ground truth.</em></p>
+<p>Four multimodal coding models run on the Claude Code harness, each with and without VHarness. Baselines can use image-processing libraries to assist intrinsic vision; the treatment additionally receives five actions. Text-only GLM-5.2 is evaluated only with tools because it cannot directly consume baseline image inputs. Budget constraints limit it to <strong>50 random cases per task</strong>. Most configurations use high reasoning and a 200K context window; the supplementary GPT-6-astra experiment uses low reasoning. <a href="https://arxiv.org/html/2611.17797v1#S3.SS2" target="_blank" rel="noopener noreferrer">Section 3.2 and Table 4</a></p>
+<p>The 2D metrics include SigLIP2 and DINOv2 similarities, LPIPS distance, SSIM, pixel error, and edge agreement. The 3D task additionally uses Uni3D similarity and normalized bidirectional squared Chamfer distance. Following the official protocol, Chamfer takes the minimum over four canonical yaw rotations. These are <strong>automated similarities of final artifacts</strong>, not human aesthetic ratings, functional pass rates, or best-of-N sampling scores. <a href="https://arxiv.org/html/2611.17797v1#A2.SS2" target="_blank" rel="noopener noreferrer">Appendix B.2</a></p>
+<h3 id="section-11">Main results: paired comparisons with the same coding model</h3>
+<p>The following excerpts three complementary 2D metrics. Arrows mean baseline → VHarness; each row aggregates the same 100 task cases for that model.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Task and model</th>
+<th style="text-align:right">SigLIP2 ↑</th>
+<th style="text-align:right">LPIPS ↓</th>
+<th style="text-align:right">Edge F1 ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTML · GPT-5.5</td>
+<td style="text-align:right">0.5773 → 0.6319</td>
+<td style="text-align:right">0.2277 → 0.1820</td>
+<td style="text-align:right">0.5389 → 0.5820</td>
+</tr>
+<tr>
+<td>HTML · GPT-5.6-sol</td>
+<td style="text-align:right">0.6527 → 0.6859</td>
+<td style="text-align:right">0.1635 → 0.1414</td>
+<td style="text-align:right">0.6517 → 0.6936</td>
+</tr>
+<tr>
+<td>HTML · Claude Opus 4.8</td>
+<td style="text-align:right">0.3908 → 0.5077</td>
+<td style="text-align:right">0.4596 → 0.2974</td>
+<td style="text-align:right">0.3257 → 0.4316</td>
+</tr>
+<tr>
+<td>HTML · GLM-5.3-Flash</td>
+<td style="text-align:right">0.6743 → 0.7553</td>
+<td style="text-align:right">0.1486 → 0.0937</td>
+<td style="text-align:right">0.7089 → 0.8059</td>
+</tr>
+<tr>
+<td>SVG · GPT-5.5</td>
+<td style="text-align:right">0.6265 → 0.6537</td>
+<td style="text-align:right">0.1537 → 0.1266</td>
+<td style="text-align:right">0.6141 → 0.6478</td>
+</tr>
+<tr>
+<td>SVG · GPT-5.6-sol</td>
+<td style="text-align:right">0.6703 → 0.6830</td>
+<td style="text-align:right">0.1087 → 0.1001</td>
+<td style="text-align:right">0.6985 → 0.7020</td>
+</tr>
+<tr>
+<td>SVG · Claude Opus 4.8</td>
+<td style="text-align:right">0.4774 → 0.5502</td>
+<td style="text-align:right">0.3759 → 0.2605</td>
+<td style="text-align:right">0.3165 → 0.4360</td>
+</tr>
+<tr>
+<td>SVG · GLM-5.3-Flash</td>
+<td style="text-align:right">0.6887 → 0.7095</td>
+<td style="text-align:right">0.0943 → 0.0778</td>
+<td style="text-align:right">0.7262 → 0.7671</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2611.17797v1#page=5" target="_blank" rel="noopener noreferrer">Table 1(a–b), PDF page 5</a>. Preferred directions appear in the headers; different metrics are not added together.</em></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>3D model</th>
+<th style="text-align:right">DINOv2 ↑</th>
+<th style="text-align:right">Uni3D ↑</th>
+<th style="text-align:right">Chamfer ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.5</td>
+<td style="text-align:right">0.6622 → 0.7496</td>
+<td style="text-align:right">0.7575 → 0.7933</td>
+<td style="text-align:right">0.0094 → 0.0058</td>
+</tr>
+<tr>
+<td>GPT-5.6-sol</td>
+<td style="text-align:right">0.7046 → 0.8122</td>
+<td style="text-align:right">0.7738 → 0.8496</td>
+<td style="text-align:right">0.0157 → 0.0035</td>
+</tr>
+<tr>
+<td>Claude Opus 4.8</td>
+<td style="text-align:right">0.5342 → 0.7017</td>
+<td style="text-align:right">0.7129 → 0.7863</td>
+<td style="text-align:right">0.0339 → 0.0086</td>
+</tr>
+<tr>
+<td>GLM-5.3-Flash</td>
+<td style="text-align:right">0.7593 → 0.8190</td>
+<td style="text-align:right">0.8154 → 0.8545</td>
+<td style="text-align:right">0.0056 → 0.0035</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/pdf/2611.17797v1#page=5" target="_blank" rel="noopener noreferrer">Table 1(c)</a>, also 100 cases per configuration.</em></p>
+<p>All reported main-table metrics improve for the four multimodal models across the three tasks. This supports better final resemblance under the tested execution settings. Gains vary: GPT-5.6-sol’s SVG Edge F1 increases only <strong>0.0035</strong>, whereas its 3D Chamfer decreases from <strong>0.0157 to 0.0035</strong>. The paper does not provide confidence intervals or multi-seed errors for these main results, nor does it test accessibility, interaction correctness, or physical usability of 3D objects.</p>
+<h3 id="section-12">Text-only coding: compare the same 50 cases</h3>
+<p>Comparing GLM-5.2’s 50 cases directly with others’ 100 cases can confound sample composition. An appendix reports the identical 50-case subsets. We excerpt one 2D distance and one geometric distance.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Configuration on the same subset</th>
+<th style="text-align:right">HTML LPIPS ↓</th>
+<th style="text-align:right">SVG LPIPS ↓</th>
+<th style="text-align:right">3D Chamfer ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPT-5.5, baseline</td>
+<td style="text-align:right">0.2129</td>
+<td style="text-align:right">0.1546</td>
+<td style="text-align:right">0.0100</td>
+</tr>
+<tr>
+<td>GPT-5.6-sol, baseline</td>
+<td style="text-align:right">0.1694</td>
+<td style="text-align:right">0.1137</td>
+<td style="text-align:right">0.0172</td>
+</tr>
+<tr>
+<td>GLM-5.2, VHarness</td>
+<td style="text-align:right">0.2028</td>
+<td style="text-align:right">0.1219</td>
+<td style="text-align:right">0.0092</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2611.17797v1#A3.SS2" target="_blank" rel="noopener noreferrer">Table 8, Appendix C.2</a>. The same 50 cases are used per task; rankings can differ across metrics.</em></p>
+<p>This supports visual coding by a text-only model through external visual services, with competitive results on some metrics. It does not give GLM-5.2 a paired no-tool improvement and does not show superiority to multimodal models on every measure. The system’s visual capability still comes from the multimodal backend it calls.</p>
+<h3 id="section-13">Interface ablation: five actions versus free-form queries</h3>
+<p>GPT-5.6-sol is compared under three settings on 100 3D cases. Freestyle uses the same Gemini-3.8-Flash backend through one general query MCP interface, with usage examples.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Metric</th>
+<th style="text-align:right">Baseline</th>
+<th style="text-align:right">Freestyle</th>
+<th style="text-align:right">Five-action VHarness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SigLIP2 ↑</td>
+<td style="text-align:right">0.6400</td>
+<td style="text-align:right">0.6677</td>
+<td style="text-align:right">0.7212</td>
+</tr>
+<tr>
+<td>DINOv2 ↑</td>
+<td style="text-align:right">0.7046</td>
+<td style="text-align:right">0.7481</td>
+<td style="text-align:right">0.8122</td>
+</tr>
+<tr>
+<td>LPIPS ↓</td>
+<td style="text-align:right">0.1211</td>
+<td style="text-align:right">0.1028</td>
+<td style="text-align:right">0.0634</td>
+</tr>
+<tr>
+<td>Uni3D ↑</td>
+<td style="text-align:right">0.7738</td>
+<td style="text-align:right">0.8255</td>
+<td style="text-align:right">0.8496</td>
+</tr>
+<tr>
+<td>Chamfer ↓</td>
+<td style="text-align:right">0.0157</td>
+<td style="text-align:right">0.0070</td>
+<td style="text-align:right">0.0035</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2611.17797v1#S3.SS4" target="_blank" rel="noopener noreferrer">Table 3, Section 3.4</a>.</em></p>
+<p>Free-form access already helps, and five actions improve further, supporting defined queries and outputs in this setting. This is not an action-by-action removal study: it neither proves every action indispensable nor isolates interface effects under equal call counts and compute.</p>
+<p>A supplementary experiment uses GPT-6-astra as both coding agent and visual backend on 100 SVG cases. SigLIP2 rises from <strong>0.7368 to 0.7529</strong>, while LPIPS falls from <strong>0.0572 to 0.0473</strong>. It supports benefits from tool-based organization and additional calls even with the same underlying model capability, but does not attribute all gains to capability separation alone. <a href="https://arxiv.org/pdf/2611.17797v1#page=7" target="_blank" rel="noopener noreferrer">Table 2</a></p>
+<h3 id="section-14">Cost and process: more feedback leads to more execution</h3>
+<p>The following reports GPT-5.6-sol’s <strong>mean cumulative recorded coding-agent output tokens per case</strong>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Task</th>
+<th style="text-align:right">Baseline</th>
+<th style="text-align:right">VHarness</th>
+<th style="text-align:right">Approximate multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTML</td>
+<td style="text-align:right">23,825</td>
+<td style="text-align:right">62,005</td>
+<td style="text-align:right">2.60×</td>
+</tr>
+<tr>
+<td>SVG</td>
+<td style="text-align:right">16,301</td>
+<td style="text-align:right">64,841</td>
+<td style="text-align:right">3.98×</td>
+</tr>
+<tr>
+<td>3D</td>
+<td style="text-align:right">17,918</td>
+<td style="text-align:right">104,543</td>
+<td style="text-align:right">5.83×</td>
+</tr>
+</tbody>
+</table></div><p><em>Source: <a href="https://arxiv.org/html/2611.17797v1#A3.SS1" target="_blank" rel="noopener noreferrer">Table 5, Appendix C.1</a>. Multipliers are calculated here from the reported values. This table does not capture all external visual-backend calls and input costs, and is not a dollar-cost estimate.</em></p>
+<p>For text-only GLM-5.2, mean SVG output reaches <strong>1,971,312 tokens per case</strong>. This accumulates across calls; it is not a single context length. Its mean visual-action calls per case are <strong>733.0, 366.4, and 443.8</strong> for HTML, SVG, and 3D. <a href="https://arxiv.org/html/2611.17797v1#A3.SS1" target="_blank" rel="noopener noreferrer">Tables 5–6</a></p>
+<p>Trajectory analysis shows higher similarity at matched early render iterations and continued refinement afterward. Dashed baseline segments after termination merely extend the last score; they do not represent further execution. Equal render counts still do not imply equal tokens, visual calls, or time. The evidence supports better final artifacts from this complete execution scheme; equal-cost superiority remains untested. <a href="https://arxiv.org/html/2611.17797v1#A3.SS3" target="_blank" rel="noopener noreferrer">Figure 4 and Appendix C.3</a></p>
+<h2 id="section-15">6. Our reflections</h2>
+<h3 id="section-16">Topic reflection: what is this field studying?</h3>
+<p>An agent’s capability depends on its model, what it can observe, how it expresses questions, and whether feedback produces effective revisions. VHarness organizes visual questions into structure, location, attributes, assertions, and differences, connecting feedback to actual artifact edits. Scientific agents could similarly expose figure checks and experimental-visualization analysis through tools with defined outputs.</p>
+<h3 id="section-17">Limitations reflection: what remains unresolved?</h3>
+<ol>
+<li><strong>Quality and computation are not fully separated.</strong> Output tokens and tool calls rise substantially, without complete comparisons under equal cost, time, and budgets.</li>
+<li><strong>Visual feedback can itself be wrong.</strong> Boxes, text, and discrepancies are inferred by models; Boolean judgments have limited scope. The paper does not systematically measure how incorrect feedback affects edits and stopping.</li>
+<li><strong>Task and reproduction coverage remain limited.</strong> Evaluation concerns static pages, graphics, and individual objects, with limited interactive-state or functional testing. The public repository cannot yet support reproduction, and per-action ablations are absent.</li>
+</ol>
+<h3 id="section-18">Solution reflection: which directions could address these problems?</h3>
+<ol>
+<li><strong>Plot quality against total investment.</strong> Compare intrinsic vision, free-form tools, and five actions under fixed cost or runtime, including the coding model, visual backend, rendering, and retries.</li>
+<li><strong>Independently verify feedback.</strong> Record judgments and corresponding edits; label false alarms, missed discrepancies, and harmful revisions. Separate text, placement, style, and functional assertions, and study stopping under uncertainty.</li>
+<li><strong>Extend reproducible evaluation to dynamic tasks.</strong> Release code, cases, and configurations; remove actions individually; add multi-state webpages, interaction replays, and temporally consistent 3D scenes, evaluating visual quality and functionality together.</li>
+</ol>
+<p><em>Based on the <a href="https://arxiv.org/pdf/2611.17797v1" target="_blank" rel="noopener noreferrer">v1 PDF</a>, <a href="https://vision-as-a-tool.github.io/" target="_blank" rel="noopener noreferrer">project page</a>, and repository snapshot above. This is an independent reading. Original Figures 1 and 3 are limited quotations for method discussion, credited to Haolin Yang and coauthors; only surrounding page content is cropped, without redrawing. The arXiv page lists a perpetual non-exclusive distribution license, which we do not mislabel as a Creative Commons license. Tables excerpt experimental data. Calculated multipliers, interpretations, and proposed directions are our analysis.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: who checks whether running code looks right?</a></li><li><a href="#section-2">2. Related work: bringing visual input and feedback into coding</a></li><li><a href="#section-3">3. Research questions: what does tool-based vision enable?</a></li><li><a href="#section-4">4. Method: turn target images into feedback and code revisions</a></li><li><a href="#section-9">5. Experiments and results: better resemblance with more computation</a></li><li><a href="#section-15">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../gameasgbench/"><span>Paper reading</span><strong>GameASG-Bench: did the game-generation agent deliver complete behavior?</strong><i aria-hidden="true">↗</i></a><a href="../visionweave/"><span>Paper reading</span><strong>VisionWeave: learning where visual detail is worth keeping</strong><i aria-hidden="true">↗</i></a><a href="../frontier3dbench/"><span>Paper reading</span><strong>Frontier3DBench: from 3D objects to interactive worlds</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

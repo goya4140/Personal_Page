@@ -1,0 +1,159 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gan Jiang: turning X-ray diffraction analysis into testable skills | Linhao Wang</title>
+  <meta name="description" content="Candidate retrieval, evidence checks, refinement, and skill revision, with results from DeltaXRDbench and held-out evaluation of frozen workflows.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="Gan Jiang: turning X-ray diffraction analysis into testable skills">
+  <meta property="og:description" content="Candidate retrieval, evidence checks, refinement, and skill revision, with results from DeltaXRDbench and held-out evaluation of frozen workflows.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/gan-jiang-xrd/"><link rel="canonical" href="https://goya4140.github.io/en/blog/gan-jiang-xrd/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="干将 Gan Jiang：让 X 射线衍射分析的经验成为可验证的技能" data-title-en="Gan Jiang: turning X-ray diffraction analysis into testable skills" data-language-url="../../../blog/gan-jiang-xrd/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>7 min read</span><span>English translation</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>Gan Jiang: turning X-ray diffraction analysis into testable skills</h1><p class="article-summary">Candidate retrieval, evidence checks, refinement, and skill revision, with results from DeltaXRDbench and held-out evaluation of frozen workflows.</p><div class="post-topics"><span>AI for Science</span><span>Materials characterization agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/gan-jiang-xrd/workflow.svg" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/gan-jiang-xrd/workflow.svg" alt="Gan Jiang: turning X-ray diffraction analysis into testable skills" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2610.07862v1" target="_blank" rel="noopener noreferrer">A self-learning scientific agent for X-ray diffraction ↗</a><small>arXiv · 2026 / v1 · 2026-10-06</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the Topic: What Can a Diffraction Pattern Tell Us?</a></li><li><a href="#section-2">2. Related Work: From Diffraction Tools to Revisable Procedures</a></li><li><a href="#section-3">3. Research Questions: Which Capabilities Require Separate Tests?</a></li><li><a href="#section-4">4. Understanding the Method: From Measured Profiles to Auditable Conclusions</a></li><li><a href="#section-5">5. Experimental Design and Results: Identification and Skill Transfer</a></li><li><a href="#section-8">6. Our Reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="gan-jiang-xrd" lang="en"><p>Given a powder X-ray diffraction pattern, how can a research agent decide whether a crystal structure explains the measurement? Gan Jiang integrates specialist tools that propose candidates with explicit checks against measured patterns and physical constraints. When analysis exposes a recurring failure, the system can revise the procedure and test the new version on separate samples. <a href="https://arxiv.org/abs/2610.07862v1" target="_blank" rel="noopener noreferrer">Paper v1, Bin Cao et al., October 6, 2026</a></p>
+<h2 id="section-1">1. Understanding the Topic: What Can a Diffraction Pattern Tell Us?</h2>
+<p>A powder diffractometer records X-ray intensity at different scattering angles. Peak positions constrain lattice-plane spacings, relative intensities inform atomic arrangements, and peak widths also reflect crystallite size, strain, and instrumentation. When several phases coexist, peaks can overlap. The same strong reflection can support several candidates, while small but reproducible extra reflections may change the conclusion.</p>
+<p><strong>Phase identification</strong> proposes which phases are present. <strong>Structural refinement</strong> starts from a proposed model and varies eligible parameters to explain the measured profile. Even when the total residual decreases, analysts still need to inspect its location, check parameter plausibility, and ask whether another structure could account for the same data. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F2" target="_blank" rel="noopener noreferrer">Paper Figure 2</a></p>
+<h2 id="section-2">2. Related Work: From Diffraction Tools to Revisable Procedures</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Problem addressed</th>
+<th>Role in this reading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2607.17162" target="_blank" rel="noopener noreferrer">XMatcher</a></td>
+<td>Simulates a peak library from known structures and searches by positions, intensities, and chemical constraints</td>
+<td>Provides inspectable peak matches. AutoMix evaluates combinations of candidates</td>
+</tr>
+<tr>
+<td><a href="https://doi.org/10.1107/S0021889813003531" target="_blank" rel="noopener noreferrer">GSAS-II</a></td>
+<td>Performs crystallographic calculations and powder diffraction refinement</td>
+<td>One of the numerical backends Gan Jiang can route to</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2603.18743" target="_blank" rel="noopener noreferrer">Memento-Skills</a></td>
+<td>Revises external skills by reflecting on task trajectories</td>
+<td>Gan Jiang applies the idea to diffraction, using traces, residuals, and structural plausibility to guide revisions</td>
+</tr>
+</tbody>
+</table></div><h2 id="section-3">3. Research Questions: Which Capabilities Require Separate Tests?</h2>
+<p>We organize the paper around three questions:</p>
+<ol>
+<li><strong>Identification.</strong> Given a diffraction pattern, can the system rank the correct structure first or recover all phases in a mixture? How does composition information change the outcome?</li>
+<li><strong>Refinement.</strong> Given a supplied or evidence-checked structure, can the tools produce parameters and a calculated profile that explain the measurements?</li>
+<li><strong>Skill transfer.</strong> Can procedures revised on development data and then frozen improve refinement on held-out samples?</li>
+</ol>
+<h2 id="section-4">4. Understanding the Method: From Measured Profiles to Auditable Conclusions</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/gan-jiang-xrd/workflow.svg" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/gan-jiang-xrd/workflow.svg" alt="From measurement to a conclusion, and from the analysis record to a revised skill" loading="lazy" decoding="async"></a><figcaption>Figure 1 · Our schematic based on Figures 3–4 of the paper. The upper row follows analysis of the current sample. The lower row shows skill revision, validation, and freezing.</figcaption></figure>
+<p><strong>Step 1. Preserve the measurement and retrieve candidates.</strong> Peak analysis and refinement retain the original angular range and intensity scale. XQueryer-LW receives a separate resampled and normalized input. XMatcher searches observed peaks for single-phase candidates, and supplied elements can enable a complementary XQueryer-LW search. Candidate structures are represented by crystallographic information files (CIFs) with source and ranking information. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">Paper Figure 3a–b</a></p>
+<p><strong>Step 2. Inspect candidates and decide whether to analyze a mixture.</strong> XRDinspector compares calculated profiles with the measurement. Acceptance also requires applicable composition checks and mandatory peak evidence. In automatic mode, rejection of available single-phase hypotheses can trigger XMatcher-AutoMix or XDecomposer. Tool errors and insufficient single-phase evidence are separate states. AutoMix estimates contributions to retained peak evidence. Mass fractions require subsequent quantitative refinement. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">Paper Figure 3b–c and Methods</a></p>
+<p><strong>Step 3. Refine the model and retain an audit record.</strong> An accepted phase set or a user-supplied CIF can enter FullProf, GSAS-II, or PyWPEM. The system compares aligned observed and calculated profiles and retains peak coverage, fit diagnostics, parameters, and execution history. Eligible convergence or iteration-budget failures allow at most one automatic retry. Unexplained peaks prompt reconsideration of the structural hypothesis. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">Paper Figure 3d</a></p>
+<p><strong>Step 4. Change the procedure for future samples.</strong> Adjusting a lattice parameter for one sample is refinement. Revising when parameters should be released or how saved results should be checked changes the procedure for subsequent samples. Gan Jiang stores those changes in versioned skills with instructions and supporting code, and may adjust eligible refinement settings. The underlying language-model parameters and physical models stay fixed. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F4" target="_blank" rel="noopener noreferrer">Paper Figure 4</a></p>
+<h2 id="section-5">5. Experimental Design and Results: Identification and Skill Transfer</h2>
+<h3 id="section-6">Main Evaluation: Single- and Multiphase Identification on DeltaXRDbench</h3>
+<p>The benchmark contains <strong>62,044</strong> patterns: <strong>12,044</strong> single-phase patterns and <strong>50,000</strong> two- or three-phase mixtures constructed from source profiles. MP500 is simulated, while RRUFF and opXRD come from experimental measurements. Evaluation matches submitted structures to references, retaining empty predictions in the denominator. Single-phase Top-1 checks the first candidate. Multiphase exact recovery requires a one-to-one match of the complete sets, while macro-F1 gives credit for partial recovery. <a href="https://github.com/DeltaGanjiang/deltaxrdbench" target="_blank" rel="noopener noreferrer">Paper Methods and benchmark repository</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Source</th>
+<th style="text-align:right">Single-phase samples</th>
+<th style="text-align:right">AutoXRD Top-1, XRD only</th>
+<th style="text-align:right">Gan Jiang Top-1, XRD only</th>
+<th style="text-align:right">Gan Jiang Top-1, reference composition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MP500</td>
+<td style="text-align:right">10,000</td>
+<td style="text-align:right">58.00%</td>
+<td style="text-align:right">96.30%</td>
+<td style="text-align:right">99.90%</td>
+</tr>
+<tr>
+<td>RRUFF</td>
+<td style="text-align:right">1,164</td>
+<td style="text-align:right">58.47%</td>
+<td style="text-align:right">81.78%</td>
+<td style="text-align:right">92.16%</td>
+</tr>
+<tr>
+<td>opXRD</td>
+<td style="text-align:right">880</td>
+<td style="text-align:right">26.45%</td>
+<td style="text-align:right">40.83%</td>
+<td style="text-align:right">48.93%</td>
+</tr>
+</tbody>
+</table></div><p>Single-phase baselines include Uni3DAR, PXRDGen-Flow, XtalNet-HMOF100, and AutoXRD. PXRDGen-Flow uses eligible subsets of some experimental data under its atom-count limit. The table shows AutoXRD, the strongest comparator, whose candidate library follows the same construction procedure as Gan Jiang's. Gan Jiang leads on all three sources without composition, with less than half correct on opXRD. Providing reference composition is a separate input condition whose practical availability depends on independent chemical measurements or sample information. <a href="https://arxiv.org/html/2610.07862v1#Sx2.T1" target="_blank" rel="noopener noreferrer">Paper Table 1</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Multiphase source</th>
+<th style="text-align:right">AutoXRD exact recovery, XRD only</th>
+<th style="text-align:right">Gan Jiang exact recovery, XRD only</th>
+<th style="text-align:right">Gan Jiang macro-F1, XRD only</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MP500</td>
+<td style="text-align:right">15.80%</td>
+<td style="text-align:right">22.80%</td>
+<td style="text-align:right">66.98%</td>
+</tr>
+<tr>
+<td>RRUFF</td>
+<td style="text-align:right">13.80%</td>
+<td style="text-align:right">15.90%</td>
+<td style="text-align:right">56.23%</td>
+</tr>
+<tr>
+<td>opXRD</td>
+<td style="text-align:right">1.30%</td>
+<td style="text-align:right">3.10%</td>
+<td style="text-align:right">27.04%</td>
+</tr>
+</tbody>
+</table></div><p>Multiphase comparisons also include AutoAnalyzer and S-CNN. The evaluation samples <strong>1,000</strong> mixtures per source with each of three fixed seeds and averages the three runs. The <strong>27.04% F1</strong> and <strong>3.10% exact recovery</strong> on opXRD illustrate the gap between identifying some phases and recovering the entire set. Mixtures constructed from experimental profiles retain the complexity of measured peaks. Physical mixtures still require separate validation. <a href="https://arxiv.org/html/2610.07862v1#Sx2.T2" target="_blank" rel="noopener noreferrer">Paper Table 2</a></p>
+<h3 id="section-7">Supporting Evaluation: Do Frozen Skills Improve Refinement?</h3>
+<p>The authors start from expert-optimized procedures, propose revisions from execution traces, run paired comparisons on development data, and freeze the selected procedures. The frozen workflows are compared with the original workflows on held-out samples. The outcome is a composite profile agreement score, with higher values preferred and failures or timeouts scored as zero. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F4" target="_blank" rel="noopener noreferrer">Paper Figure 4</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Backend</th>
+<th style="text-align:right">Initial workflow</th>
+<th style="text-align:right">Frozen revised workflow</th>
+<th style="text-align:right">Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FullProf</td>
+<td style="text-align:right">46.90</td>
+<td style="text-align:right">72.38</td>
+<td style="text-align:right">+25.48</td>
+</tr>
+<tr>
+<td>GSAS-II</td>
+<td style="text-align:right">39.01</td>
+<td style="text-align:right">60.02</td>
+<td style="text-align:right">+21.01</td>
+</tr>
+<tr>
+<td>PyWPEM</td>
+<td style="text-align:right">31.74</td>
+<td style="text-align:right">38.33</td>
+<td style="text-align:right">+6.59</td>
+</tr>
+</tbody>
+</table></div><p>FullProf revisions include bounded searches over peak width and angular offset. GSAS-II revisions check parameter passing and saved results. Revision scope differs across the three backends, so the table shows changes within each branch. Applications include overlapping lead sulfate reflections, a five-phase ancient Egyptian cosmetic, an operating battery, and competing oxide configurations. The case studies show the structural outputs the workflow can produce. The held-out comparison directly tests whether revised procedures transfer. <a href="https://arxiv.org/html/2610.07862v1#Sx2.F1" target="_blank" rel="noopener noreferrer">Paper Figures 1 and 4</a></p>
+<h2 id="section-8">6. Our Reflections</h2>
+<h3 id="section-9">Topic Reflection: What Is This Field Studying?</h3>
+<p>Gan Jiang records evidence for each decision: where a candidate came from, which peaks support it, why the workflow switched branches, and what changed. These records help researchers audit an existing conclusion and revise the procedure in response to specific failures.</p>
+<h3 id="section-10">Limitation Reflection: What Remains Unresolved?</h3>
+<p><strong>Library coverage and evidence discrimination interact.</strong> A good fit cannot supply missing evidence when the correct phase is absent from the library or when the distinguishing angular range was never measured. <strong>The sources of workflow gains remain unclear.</strong> Frozen evaluations support transfer of the final procedures, and different revision scopes complicate attribution to individual rules. The paper describes regression testing and rollback for deployment, while its evaluation centers on controlled revisions and frozen comparisons. <a href="https://arxiv.org/html/2610.07862v1#Sx3" target="_blank" rel="noopener noreferrer">Paper Discussion</a></p>
+<h3 id="section-11">Solution Reflection: What Directions Could Address These Issues?</h3>
+<p>On the same spectra, vary candidate-library coverage and mask the angular regions that distinguish candidates. Then report correct identifications, abstentions, and false confirmations separately. For skill learning, hold the backend and budget fixed, vary instructions, support code, and refinement settings separately, and compare held-out results across instruments while retaining failed runs. This would help determine whether accumulated experience improves candidate search, workflow execution, or judgment about physical evidence.</p>
+<p><em>The workflow schematic was drawn for this reading. See the authors’ <a href="https://arxiv.org/html/2610.07862v1#Sx2.F3" target="_blank" rel="noopener noreferrer">execution architecture</a> and <a href="https://arxiv.org/html/2610.07862v1#Sx2.F4" target="_blank" rel="noopener noreferrer">skill-learning diagram</a>.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the Topic: What Can a Diffraction Pattern Tell Us?</a></li><li><a href="#section-2">2. Related Work: From Diffraction Tools to Revisable Procedures</a></li><li><a href="#section-3">3. Research Questions: Which Capabilities Require Separate Tests?</a></li><li><a href="#section-4">4. Understanding the Method: From Measured Profiles to Auditable Conclusions</a></li><li><a href="#section-5">5. Experimental Design and Results: Identification and Skill Transfer</a></li><li><a href="#section-8">6. Our Reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../verifiedlab/"><span>Paper reading</span><strong>VerifiedLab: from field-level verification to traceable research</strong><i aria-hidden="true">↗</i></a><a href="../harnessevolve/"><span>Paper reading</span><strong>HarnessEvolve: revising agent harnesses with reference trajectories</strong><i aria-hidden="true">↗</i></a><a href="../harnessdev/"><span>Paper reading</span><strong>HarnessDev: can agents select better harness versions?</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

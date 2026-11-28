@@ -1,0 +1,133 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlphaEvolve: evolving algorithms through executable feedback | Linhao Wang</title>
+  <meta name="description" content="How evolvable code blocks, automatic evaluators, and a program database turn test-time search into mathematical and engineering discoveries.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="AlphaEvolve: evolving algorithms through executable feedback">
+  <meta property="og:description" content="How evolvable code blocks, automatic evaluators, and a program database turn test-time search into mathematical and engineering discoveries.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/alphaevolve/"><link rel="canonical" href="https://goya4140.github.io/en/blog/alphaevolve/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="AlphaEvolve：让代码在评价器反馈中演化出新算法" data-title-en="AlphaEvolve: evolving algorithms through executable feedback" data-language-url="../../../blog/alphaevolve/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>9 min read</span><span>English translation</span><time datetime="2026-11-28">2026-11-28</time></div><div class="article-heading-layout has-art"><div><h1>AlphaEvolve: evolving algorithms through executable feedback</h1><p class="article-summary">How evolvable code blocks, automatic evaluators, and a program database turn test-time search into mathematical and engineering discoveries.</p><div class="post-topics"><span>AI for Science</span><span>Algorithm discovery</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/alphaevolve/method-detailed.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/alphaevolve/method-detailed.png" alt="AlphaEvolve: evolving algorithms through executable feedback" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">AlphaEvolve: A coding agent for scientific and algorithmic discovery ↗</a><small>arXiv v1 · 2025-06-16</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Topic: from code generation to verifiable algorithm discovery</a></li><li><a href="#section-2">2. Related work: from FunSearch to larger-scale code evolution</a></li><li><a href="#section-3">3. Research questions: what does the system test?</a></li><li><a href="#section-4">4. Method: an asynchronous evolutionary loop centered on evaluation</a></li><li><a href="#section-10">5. Experiments and results: overall discoveries before component diagnosis</a></li><li><a href="#section-13">6. Our reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="alphaevolve" lang="en"><p>If a model can only suggest an algorithm that “looks promising,” it has not yet built a scientific discovery system. The harder loop is to turn the idea into runnable code, submit it to an evaluator, and let later search use both scores and failures to change the program. AlphaEvolve makes this loop an evolutionary coding agent.</p>
+<p>This post reads <a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">AlphaEvolve: A coding agent for scientific and algorithmic discovery</a> by Alexander Novikov, Ngân Vũ, Marvin Eisenberger, and colleagues (arXiv v1, 16 Jun 2025). The white paper presents a general evolutionary coding agent from Google DeepMind: LLM-generated diffs, automated evaluation, and a program database iteratively improve algorithms. Applications span matrix multiplication, mathematical constructions, and Google's computing infrastructure.</p>
+<h2 id="section-1">1. Topic: from code generation to verifiable algorithm discovery</h2>
+<p>A conventional coding agent receives a requirement and writes runnable code. Scientific and algorithmic discovery requires more: candidates must satisfy hard constraints, performance must be measurable in a real or simulated environment, improvements must generalize to unseen inputs, and an accidental high score must not be mistaken for new knowledge.</p>
+<p>The field studies <strong>how to connect search, execution, verification, and explanation into a long-running loop</strong>. In automatically scorable problems, a program can be the candidate solution, the search policy, and the final deliverable. The evaluator turns “correct,” “faster,” or “more resource-efficient” into numerical feedback that guides new code structures.</p>
+<h2 id="section-2">2. Related work: from FunSearch to larger-scale code evolution</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main idea</th>
+<th>What AlphaEvolve extends</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Genetic programming</td>
+<td>Hand-designed mutation and crossover operators evolve a program population</td>
+<td>LLMs propose cross-function and cross-component changes from context</td>
+</tr>
+<tr>
+<td>FunSearch</td>
+<td>Evolves one Python function for mathematical constructions or heuristics</td>
+<td>Evolves entire files, multiple languages, multiple objectives, and longer evaluations</td>
+</tr>
+<tr>
+<td>AlphaTensor and specialized systems</td>
+<td>Search is designed for a narrow problem such as matrix multiplication</td>
+<td>Representation and evaluation become task-level configuration choices</td>
+</tr>
+<tr>
+<td>AI research agents</td>
+<td>Generate, rank, and discuss hypotheses in natural language</td>
+<td>Executable programs serve as the intermediate representation, grounded by machine feedback</td>
+</tr>
+</tbody>
+</table></div><p>AlphaEvolve does not replace natural-language research agents. It targets the implementation and algorithm-search stage, where a high-level idea can be expressed as code and tested repeatedly. It is best suited to mathematics, computer science, and systems optimization problems with reliable automatic evaluators.</p>
+<h2 id="section-3">3. Research questions: what does the system test?</h2>
+<p>Our reading organizes the questions as follows:</p>
+<ol>
+<li>Can an LLM modify a substantial codebase rather than being restricted to one short function or one language?</li>
+<li>Do an evolutionary database, rich context, meta-prompts, multi-objective scores, and a mixture of models each contribute?</li>
+<li>Can one loop handle mathematical constructions, algorithm discovery, and industrial compute-stack optimization?</li>
+<li>What evaluator and verification protocol can turn a high-scoring program into a trustworthy discovery?</li>
+</ol>
+<h2 id="section-4">4. Method: an asynchronous evolutionary loop centered on evaluation</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/alphaevolve/method-detailed.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/alphaevolve/method-detailed.png" alt="Detailed AlphaEvolve discovery pipeline" loading="lazy" decoding="async"></a><figcaption>Figure 1 · The user provides an initial program, evolvable code blocks, and an evaluate interface. A prompt sampler builds context, an LLM emits a diff, evaluators return scores, and promising programs re-enter the database. Source: original Figure 2, PDF page 5; rendered from the source figure.</figcaption></figure>
+<h3 id="section-5">Step 1: express the problem as a scorable code task</h3>
+<p>The user supplies an initial program, marks blocks that may evolve, and exposes an <code>evaluate</code> function. It receives the generated program and returns a dictionary of scalar metrics, conventionally maximized. The remaining code forms a fixed skeleton that invokes the evolving components and runs evaluation.</p>
+<p>The representation is flexible. AlphaEvolve can evolve a candidate object directly, a function that constructs it, a search algorithm under a fixed compute budget, or both an intermediate solution and a searcher specialized for that solution. Different abstractions create different biases; constructive functions, for example, may favor symmetric solutions.</p>
+<h3 id="section-6">Step 2: sample rich prompts from a program database</h3>
+<p>The database stores programs, scores, and execution outputs. The prompt sampler selects several existing solutions and adds explicit context such as instructions, equations, code snippets, papers, or logs. It also supports stochastic templates, rendered evaluation results, and meta-prompts evolved in a separate database.</p>
+<p>Instead of showing only the previous answer, this gives the model high-scoring programs, structural diversity, and failure feedback—a broader neighborhood for search.</p>
+<h3 id="section-7">Step 3: ask an ensemble of models for code diffs</h3>
+<p>AlphaEvolve asks the LLM to modify the current program using SEARCH/REPLACE diff blocks rather than returning an unalignable full file. The reported implementation mixes Gemini 2.0 Flash and Gemini 2.0 Pro: Flash increases candidate throughput, while Pro occasionally supplies higher-quality suggestions that can jump beyond a local optimum.</p>
+<p>It can evolve hundreds of lines across multiple functions and languages. “Can modify” is not “will pass”: every diff must enter execution-based evaluation.</p>
+<h3 id="section-8">Step 4: cascade, parallelize, and combine evaluation metrics</h3>
+<p>New programs first run small, cheap tests; only promising candidates proceed to harder evaluation stages. This evaluation cascade prunes faulty programs early. Evaluators may return multiple scores—speed, quality, resource use, and stability—or call another LLM to grade properties such as simplicity that are difficult to formalize.</p>
+<p>When one evaluation can consume about 100 compute-hours, independent random initializations or test shards are dispatched asynchronously to a cluster. Search speed is therefore jointly determined by candidate generation and evaluation throughput, not only by how many lines the LLM can write per second.</p>
+<h3 id="section-9">Step 5: return promising programs to evolutionary memory</h3>
+<p>Programs with scores and execution results enter the evolutionary database. It resurfaces promising ideas while preserving enough diversity that the search can continue rather than copying a single incumbent forever. The implementation is an asynchronous <code>asyncio</code> pipeline in which generation, evaluation, and database updates overlap.</p>
+<h2 id="section-10">5. Experiments and results: overall discoveries before component diagnosis</h2>
+<h3 id="section-11">Main evaluation: mathematics, algorithms, and Google's compute stack</h3>
+<p>This white paper is not one benchmark but a set of real applications. AlphaEvolve is driven by automatic evaluators; discovered algorithms or heuristics are compared with prior best results, while selected engineering tasks add unseen data, real hardware, or human review.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Setting</th>
+<th>Task and evaluation</th>
+<th>Main result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Matrix multiplication</td>
+<td>Optimize tensor-decomposition rank, the number of scalar multiplications, while preserving exactness</td>
+<td>Improves 14 matrix-multiplication targets; over characteristic 0, finds rank 48 for (4\times4) complex matrices, below recursive Strassen's 49</td>
+</tr>
+<tr>
+<td>Mathematical constructions</td>
+<td>More than 50 open problems scored by formal properties of a construction</td>
+<td>Matches the best known construction on about 75%; beats SOTA with provably better constructions on about 20%</td>
+</tr>
+<tr>
+<td>Borg scheduling</td>
+<td>Historical workload simulator for CPU/memory bin-packing heuristics, then recent unseen workloads</td>
+<td>Deployment recovers about 0.7% of Google's fleet-wide compute resources that would otherwise be stranded</td>
+</tr>
+<tr>
+<td>Gemini kernels</td>
+<td>Minimize matrix-multiplication kernel runtime on real TPU shapes</td>
+<td>23% average kernel speedup and 1% lower total Gemini training time; optimization shrinks from months to days</td>
+</tr>
+<tr>
+<td>TPU circuit</td>
+<td>Optimize Verilog RTL with functional verification and designer review</td>
+<td>Finds a simple redundant-bit removal and integrates it into a next-generation TPU design flow</td>
+</tr>
+<tr>
+<td>Compiler-generated IR</td>
+<td>Optimize XLA IR around FlashAttention, with randomized numerical checks</td>
+<td>32% faster kernel and 15% faster input/output preprocessing</td>
+</tr>
+</tbody>
+</table></div><p>The matrix-multiplication result is the easiest algorithmic claim to audit: the search makes 15 cross-component mutations and eventually finds a rank-48 procedure for (4\times4) complex matrix multiplication. The mathematical summary indicates breadth, but “about 20% beats SOTA” is an aggregate across problems, not a success rate for independent natural-science experiments.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/alphaevolve/math-results.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/alphaevolve/math-results.png" alt="Examples of mathematical constructions discovered by AlphaEvolve" loading="lazy" decoding="async"></a><figcaption>Figure 2 · Examples of mathematical constructions and SOTA comparisons; this is an illustrative selection, not the full distribution over 50-plus problems. Source: original Figure 5, PDF page 13; rendered from the source figure.</figcaption></figure>
+<p>The engineering cases provide a more deployment-oriented evidence chain. The Borg heuristic is tested first in a simulator, then on recent unseen workloads, and finally rolled out fleet-wide, where the measured 0.7% resource recovery agrees with simulation. For Gemini kernels, half of the automatically collected real input shapes are used for evolution and half for evaluation, reducing the risk of scoring only on seen shapes. TPU and XLA tasks impose numerical or functional correctness as hard gates, so “how much faster” is reported together with “still correct.”</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/alphaevolve/borg-heuristic.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/alphaevolve/borg-heuristic.png" alt="Borg scheduling heuristic" loading="lazy" decoding="async"></a><figcaption>Figure 3 · The discovered CPU/memory residual heuristic ranks machines already judged runnable by Borg, preserving correctness at that layer. Source: original Figure 6, PDF page 14; rendered from the source figure.</figcaption></figure>
+<h3 id="section-12">Supplementary analysis: which components make search effective?</h3>
+<p>On tensor decomposition and kissing-number lower bounds, the authors ablate the evolutionary database, explicit prompt context, meta-prompt evolution, full-file evolution versus loss-only evolution, and the mixture of powerful models versus a single small base model. Figure 8 plots average target performance as compute budget grows; shading is the across-target standard deviation averaged over three runs with different seeds.</p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/alphaevolve/ablation-matmul.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/alphaevolve/ablation-matmul.png" alt="AlphaEvolve ablation on matrix decomposition" loading="lazy" decoding="async"></a><figcaption>Figure 4 · Left panel: ablation on low-rank tensor decomposition. Curves show mean target performance as compute budget increases; shading summarizes three independent runs. Source: original Figure 8 left panel, PDF page 18; source panel retained.</figcaption></figure>
+<p>The paper's overall conclusion is that every component contributes materially: evolutionary memory exposes and improves historical programs; explicit context supplies task structure and feedback; meta-prompts improve the prompts themselves; full-file evolution enables coordinated cross-function changes; and stronger models improve candidate quality. These ablations concern two representative tasks, not a causal decomposition of every engineering result.</p>
+<h2 id="section-13">6. Our reflections</h2>
+<h3 id="section-14">Topic reflection: what is this field studying?</h3>
+<p>AlphaEvolve shows a clear division of labor for research agents: LLMs propose structured changes, execution accepts or rejects them, the database stores search memory, and evaluators turn “good” into a signal for the next round. It expands test-time compute from “generate more text” to “run more programs with feedback.”</p>
+<p>The deeper contribution is the organization of candidate representation, automatic evaluation, and search budget into a sustainable discovery environment. For computable science, a reliable evaluator may set the ceiling before a more elaborate conversational planner does.</p>
+<h3 id="section-15">Limitation reflection: what remains unresolved?</h3>
+<p>First, the system depends on an automatable evaluator; many natural-science experiments still lack a cheap, repeatable simulator. Second, the applications come from Google's internal infrastructure and carefully selected mathematical tasks, so resources, engineering context, and expert validation are difficult to reproduce. Third, score-driven evolution can optimize a proxy, especially when objectives conflict or the evaluator is incomplete. Fourth, AlphaEvolve finds algorithms or heuristics, but the paper does not systematically explain how to distill code behavior into transferable scientific mechanisms.</p>
+<h3 id="section-16">Solution reflection: where could evaluation go next?</h3>
+<p>For the first issue, a high-level LLM could propose natural-language hypotheses and compile only the simulatable parts into evaluators, while explicitly recording the evidence missing from automated tests. For reproducibility, publish task specifications, initial programs, evaluators, search budgets, and complete candidate traces so method gains can be separated from infrastructure advantages. For proxy optimization, use hidden tests, adversarial evaluators, independent metrics, and human review, reporting the gap between optimized and real objectives. Finally, the system could generate invariants, proof sketches, and behavioral summaries that turn high-scoring code into knowledge researchers can understand, reuse, and transfer.</p>
+<p><strong>One-sentence takeaway:</strong> AlphaEvolve does not ask an LLM to write the right algorithm once; it makes code a mutable hypothesis, the evaluator a persistent feedback channel, and the evolutionary database long-term memory, scaling “generate–execute–select–generate” to mathematical and engineering improvements.</p>
+<p><strong>References:</strong> <a href="https://arxiv.org/abs/2506.13131" target="_blank" rel="noopener noreferrer">arXiv paper</a>, <a href="https://arxiv.org/html/2506.13131" target="_blank" rel="noopener noreferrer">HTML full text</a>, <a href="https://colab.research.google.com/github/google-deepmind/alphaevolve_results/blob/master/mathematical_results.ipynb" target="_blank" rel="noopener noreferrer">mathematical-results Colab</a>.</p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Topic: from code generation to verifiable algorithm discovery</a></li><li><a href="#section-2">2. Related work: from FunSearch to larger-scale code evolution</a></li><li><a href="#section-3">3. Research questions: what does the system test?</a></li><li><a href="#section-4">4. Method: an asynchronous evolutionary loop centered on evaluation</a></li><li><a href="#section-10">5. Experiments and results: overall discoveries before component diagnosis</a></li><li><a href="#section-13">6. Our reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../verifiedlab/"><span>Paper reading</span><strong>VerifiedLab: from field-level verification to traceable research</strong><i aria-hidden="true">↗</i></a><a href="../harnessevolve/"><span>Paper reading</span><strong>HarnessEvolve: revising agent harnesses with reference trajectories</strong><i aria-hidden="true">↗</i></a><a href="../harnessdev/"><span>Paper reading</span><strong>HarnessDev: can agents select better harness versions?</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>

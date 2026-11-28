@@ -1,0 +1,102 @@
+{
+  "attempt_id": "02",
+  "claims": [
+    {
+      "id": "problem",
+      "source_ids": [
+        "ev-005",
+        "ev-277"
+      ],
+      "text": "Given a scientific problem, ScientistTwo identifies baseline limitations, proposes new ideas, runs experiments, and produces a manuscript with executable code."
+    },
+    {
+      "id": "method_readout",
+      "source_ids": [
+        "ev-251",
+        "ev-277"
+      ],
+      "text": "Figure 3 · ScientistTwo connects idea generation, subset-to-full evaluation, ablation analysis, writing, peer review and meta-review in a closed loop."
+    },
+    {
+      "id": "method_table",
+      "source_ids": [
+        "ev-277"
+      ],
+      "text": "Stage Decision and feedback Evaluation Screen on a subset; scale promising ideas to the full benchmark. Ablation Isolate component contributions; refine the method and re-test. Rebuttal Run supplementary experiments to address reviewer critiques."
+    },
+    {
+      "id": "metric_success",
+      "source_ids": [
+        "ev-037"
+      ],
+      "text": "80.4% ScientistTwo improved 86 of 107 target problems."
+    },
+    {
+      "id": "metric_gain",
+      "source_ids": [
+        "ev-037",
+        "ev-538"
+      ],
+      "text": "25.2% Mean relative gain over human baselines across successful cases."
+    },
+    {
+      "id": "result_readout",
+      "source_ids": [
+        "ev-520"
+      ],
+      "text": "Table 3 · AI reviewers score human reference papers and ScientistTwo outputs. Ratings use a 1–10 scale; acceptance columns report simulated acceptance rates (%). † marks AI-generated papers."
+    },
+    {
+      "id": "review",
+      "source_ids": [
+        "ev-349",
+        "ev-520",
+        "ev-532"
+      ],
+      "text": "Among the 86 successfully generated papers, ScientistTwo reaches 91.9% simulated acceptance under ScholarPeer and 72.1% under Stanford Agentic Reviewer. ScholarPeer guides refinement; Stanford is held out during development. These are AI-review outcomes, not conference decisions."
+    },
+    {
+      "id": "gain_note",
+      "source_ids": [
+        "ev-538",
+        "ev-549",
+        "ev-550"
+      ],
+      "text": "Table 4 reports a median gain of 7.7 and mean gain of 25.2 (both in %) for successful ScientistTwo cases. The mean should not be read as a typical gain for every task."
+    },
+    {
+      "id": "ablation_readout",
+      "source_ids": [
+        "ev-559",
+        "ev-573",
+        "ev-555"
+      ],
+      "text": "Figure 9 · On ICML-derived tasks, ScientistTwo gains most during early refinement. Evolved ideas dominate later selections, using both successful and failed execution traces as feedback."
+    },
+    {
+      "id": "human",
+      "source_ids": [
+        "ev-652",
+        "ev-647",
+        "ev-651"
+      ],
+      "text": "Nine experienced reviewers assessed 33 NeurIPS-derived papers. ScientistTwo reached overall parity with human papers: 3.0 on a relative-preference scale where 3.0 means parity. Methodological rigor remained slightly behind."
+    },
+    {
+      "id": "takeaway",
+      "source_ids": [
+        "ev-686",
+        "ev-630",
+        "ev-652"
+      ],
+      "text": "ScientistTwo demonstrates autonomous empirical research, but does not yet consistently deliver spotlight-level conceptual breakthroughs. On the 33 NeurIPS-derived tasks used for cost analysis, the reported mean run takes about 2.5 days and costs $3,765, including tokens and virtual machines."
+    }
+  ],
+  "format_version": 1,
+  "grounding": {
+    "errors": [],
+    "format_version": 1,
+    "valid": true
+  },
+  "source_manifest_sha256": "291619935b57f25f3e984f8892ce3e5c78a996cb1126b985200b326ba5494ab0"
+}

@@ -1,0 +1,112 @@
+<!doctype html><html lang="en" data-locale="en"><head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SciToolAgent-Evo: how research agents acquire and reuse scientific tools | Linhao Wang</title>
+  <meta name="description" content="Learning from contrasting runs, choosing where to search with LinUCB, and adding successful tools to a graph, with benchmark, ablation, and cost results.">
+  <meta name="theme-color" content="#f7fbff">
+  <meta property="og:title" content="SciToolAgent-Evo: how research agents acquire and reuse scientific tools">
+  <meta property="og:description" content="Learning from contrasting runs, choosing where to search with LinUCB, and adding successful tools to a graph, with benchmark, ablation, and cost results.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="../../../assets/img/favicon.svg" type="image/svg+xml">
+  <script src="../../../assets/js/preferences.js"></script>
+  <link rel="stylesheet" href="../../../assets/css/theme-luka.css">
+  <link rel="stylesheet" href="../../../assets/css/personal.css">
+<link rel="stylesheet" href="../../../assets/css/blog.css"><link rel="stylesheet" href="../../../assets/vendor/katex/katex.min.css"><link rel="alternate" hreflang="zh-CN" href="../../../blog/scitoolagent-evo/"><link rel="canonical" href="https://goya4140.github.io/en/blog/scitoolagent-evo/"></head><body class="theme-luka blog-page article-page" data-page="article" data-title-zh="SciToolAgent-Evo：科研 Agent 怎样发现并复用新工具" data-title-en="SciToolAgent-Evo: how research agents acquire and reuse scientific tools" data-language-url="../../../blog/scitoolagent-evo/"><div class="reading-progress" aria-hidden="true"></div><a class="skip-link" href="#article-content">Skip to content</a><nav class="top-nav" aria-label="Main navigation"><div class="nav-container"><a class="wordmark" href="../../">LW<span class="wordmark-dot">.</span><span class="nav-caption"><span class="lang-zh">个人主页</span><span class="lang-en" lang="en">PERSONAL HOMEPAGE</span></span></a><div class="nav-right"><nav class="page-nav" aria-label="Pages"><a href="../../" class="page-link"><span class="lang-zh">主页</span><span class="lang-en" lang="en">Home</span></a><a href="../" class="page-link" aria-current="page">Blog</a></nav><a class="nav-contact" href="mailto:wanglinhao4140@gmail.com"><span class="lang-zh">联系我</span><span class="lang-en" lang="en">Get in touch</span> <span aria-hidden="true">↗</span></a><button id="languageToggle" class="language-toggle" aria-label="Switch to English">EN</button><button id="themeToggle" class="theme-toggle" aria-label="切换深色模式" aria-pressed="false"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button></div></div></nav><main class="article-main"><a class="article-back" href="../">← All writing</a><header class="article-header"><div class="post-meta"><span class="post-kind">Paper reading</span><span>7 min read</span><span>English translation</span><time datetime="2026-11-15">2026-11-15</time></div><div class="article-heading-layout has-art"><div><h1>SciToolAgent-Evo: how research agents acquire and reuse scientific tools</h1><p class="article-summary">Learning from contrasting runs, choosing where to search with LinUCB, and adding successful tools to a graph, with benchmark, ablation, and cost results.</p><div class="post-topics"><span>AI for Science</span><span>Research agents</span><span>Paper reading</span></div></div><a class="article-heading-art" href="../../../assets/img/blog/scitoolagent-evo/overview.png" target="_blank" rel="noopener"><img class="article-heading-image" src="../../../assets/img/blog/scitoolagent-evo/overview.png" alt="SciToolAgent-Evo: how research agents acquire and reuse scientific tools" width="3072" height="1536" loading="lazy" decoding="async"><span>View full size ↗</span></a></div><div class="article-paper"><span>Paper</span><a href="https://arxiv.org/abs/2607.28692v1" target="_blank" rel="noopener noreferrer">SciToolAgent-Evo: An Ontology-Aware Self-Evolving Agent for Open-World Scientific Tool Acquisition ↗</a><small>arXiv · 2026 / v1 · 2026-07-30</small></div></header><div class="article-layout"><div class="article-column"><details class="mobile-toc"><summary>On this page</summary><ol><li><a href="#section-1">1. Understanding the Topic: Can the Tools Work Together?</a></li><li><a href="#section-2">2. Related Work: Tool Graphs, Experience, and Exploration</a></li><li><a href="#section-3">3. Research Questions: What Does the System Learn?</a></li><li><a href="#section-4">4. Understanding the Method: Turning Contrasting Runs into Future Tool Choices</a></li><li><a href="#section-5">5. Experimental Design and Results: Accuracy, Contributions, and Cost</a></li><li><a href="#section-8">6. Our Reflections</a></li></ol></details><article class="article-prose" id="article-content" data-article-id="scitoolagent-evo" lang="en"><p>A research agent may already have the right tool for a task, or it may find superficially similar tools with incompatible inputs. SciToolAgent-Evo studies how to identify a gap, acquire a tool from a candidate pool, and retain what worked. On OpenSciToolBench, it raises final-answer accuracy with GPT-5.4-mini from <strong>52.17%</strong> for the strongest baseline to <strong>64.28%</strong>. Accuracy on the hardest level remains <strong>32.89%</strong>. <a href="https://arxiv.org/html/2607.28692v1#S5.SS4" target="_blank" rel="noopener noreferrer">Paper Table 1</a></p>
+<p>This reading follows the <a href="https://arxiv.org/abs/2607.28692v1" target="_blank" rel="noopener noreferrer">arXiv v1 paper</a> by Yuqi Tang and colleagues, submitted July 30, 2026.</p>
+<h2 id="section-1">1. Understanding the Topic: Can the Tools Work Together?</h2>
+<p>Suppose we want to compare two materials measurements. One tool reads spectra, and another compares curves, provided their coordinates and units agree. Matching the phrase “curve comparison” retrieves a plausible tool. Before running it, the agent still needs to determine whether a coordinate conversion is needed, which values to retain, and whether the conversion produces the next tool's required input.</p>
+<p>A scientific tool chain therefore requires two judgments: <strong>whether each tool performs the needed operation and whether the tools can be composed under the same constraints</strong>. When descriptions are incomplete, the agent also has to decide whether to reuse a familiar path or spend resources searching for alternatives.</p>
+<h2 id="section-2">2. Related Work: Tool Graphs, Experience, and Exploration</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Work</th>
+<th>Main idea</th>
+<th>Connection to this paper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://arxiv.org/abs/2507.20280" target="_blank" rel="noopener noreferrer">SciToolAgent</a></td>
+<td>Retrieves and organizes tools through a scientific knowledge graph</td>
+<td>Evo inherits the graph and enriches it with initially unknown tools after successful use</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/2603.08127v2" target="_blank" rel="noopener noreferrer">EvoScientist</a></td>
+<td>Stores persistent experience from ideation and experiments</td>
+<td>Both reuse experience. Evo's memories directly guide tool selection and composition</td>
+</tr>
+<tr>
+<td><a href="https://arxiv.org/abs/1003.0146" target="_blank" rel="noopener noreferrer">LinUCB</a></td>
+<td>Estimates rewards from context and gives uncertain actions an exploration bonus</td>
+<td>Evo uses it to choose between known-tool exploitation and unknown-tool exploration</td>
+</tr>
+</tbody>
+</table></div><h2 id="section-3">3. Research Questions: What Does the System Learn?</h2>
+<p>We organize the experiments around three questions:</p>
+<ol>
+<li>With complete descriptions initially available for only half of the tools, can the agent assemble an appropriate chain and answer correctly?</li>
+<li>How much do reusable chains, fine-grained experience, and tool migration each contribute? Does migration during accumulation serve the same role as migration during inference?</li>
+<li>How do difficulty, a sparser known-tool graph, and inference overhead affect the results? <a href="https://arxiv.org/html/2607.28692v1#S3" target="_blank" rel="noopener noreferrer">Sections 3–5</a></li>
+</ol>
+<h2 id="section-4">4. Understanding the Method: Turning Contrasting Runs into Future Tool Choices</h2>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scitoolagent-evo/overview.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scitoolagent-evo/overview.png" alt="Training accumulates experience, while inference retrieves, explores, and updates the tool graph" loading="lazy" decoding="async"></a><figcaption>Figure 1 · The left contrasts trajectories and distills knowledge. The center stores skills, experience, and the tool graph. The right routes tasks through execution and writes back results. Source: v1 Figure 2, PDF page 4, reproduced unchanged.</figcaption></figure>
+<p><strong>Step 1. Represent three kinds of memory.</strong> A skill stores a reusable tool chain for a task family. Experience captures finer-grained selection guidance, either general or domain-specific. The tool graph stores functionality, input and output types, applicable objects and scenarios, and relationships among tools. In this paper an ontology is a structured description of what a tool does, what it accepts, and when it applies. <a href="https://arxiv.org/html/2607.28692v1#S4.SS1" target="_blank" rel="noopener noreferrer">Section 4.1</a></p>
+<p><strong>Step 2. Compare a success and a failure on the same task.</strong> A training task starts with a rollout at temperature <strong>0</strong>. A success yields a skill. A failure leads to three attempts at <strong>0.2, 0.5, and 0.8</strong>. If any exploration succeeds, the agent compares one success with the original failure, identifies the decision where their paths diverge, and extracts general and domain-specific guidance. Entries that closely duplicate existing experience are discarded. The backbone weights stay fixed. <a href="https://arxiv.org/html/2607.28692v1#S4.SS2" target="_blank" rel="noopener noreferrer">Section 4.2 and Appendix G</a></p>
+<p><strong>Step 3. State the requirement and choose where to search.</strong> A matched skill supplies its tool chain. Other tasks are routed to lightweight planning or active acquisition according to estimated difficulty. Active acquisition splits the objective into requests such as producing curves on a common coordinate grid. Semantic retrieval, graph relationships, and reranking identify candidates. For each request, LinUCB uses the best candidate's feasibility, the margin between the top two, ontology alignment, and a prior for exploration success. It scores the two actions by combining estimated reward with an uncertainty bonus. <a href="https://arxiv.org/html/2607.28692v1#S4.SS3" target="_blank" rel="noopener noreferrer">Section 4.3</a></p>
+<p><strong>Step 4. Execute and update memory.</strong> The executor runs the planned chain in sequence and the summarizer produces an answer. A successful run with an unknown tool lets the agent complete its description, add it to the known graph, and retain a reusable skill. Execution feedback also updates the gate's reward estimate. An <strong>unknown tool</strong> is initially outside the known graph and available in a predefined pool with minimal basic attributes. <a href="https://arxiv.org/html/2607.28692v1#S4" target="_blank" rel="noopener noreferrer">Sections 4.1 and 4.3</a></p>
+<h2 id="section-5">5. Experimental Design and Results: Accuracy, Contributions, and Cost</h2>
+<h3 id="section-6">Main Evaluation: Tool-Chain Alignment and Final Answers</h3>
+<p>OpenSciToolBench builds questions from an existing tool graph, using model checks of tasks and chains followed by human validation. Appendix Table A5 reports <strong>900</strong> total questions, with <strong>539</strong> for training and <strong>361</strong> for testing. The four test levels contain <strong>105, 95, 85, and 76</strong> questions and reach paths of up to <strong>10</strong> tools. The other benchmark, SciToolEval, contains <strong>531</strong> questions. The main comparisons start with a <strong>50% known, 50% unknown</strong> tool split and share downstream execution, summarization, and evaluation. Tool Accuracy measures alignment with a reference chain. GPT-5-mini evaluates final answers. <a href="https://arxiv.org/html/2607.28692v1#S5" target="_blank" rel="noopener noreferrer">Sections 5.1–5.3 and Appendix G</a></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Horizontally scrollable table"><table><thead>
+<tr>
+<th>Benchmark</th>
+<th>Backbone</th>
+<th style="text-align:right">Tool accuracy</th>
+<th style="text-align:right">Answer accuracy</th>
+<th style="text-align:right">Strongest baseline answer accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenSciToolBench</td>
+<td>GPT-5.4-mini</td>
+<td style="text-align:right">66.76 ± 0.74</td>
+<td style="text-align:right">64.28 ± 0.85</td>
+<td style="text-align:right">CoT 52.17 ± 0.89</td>
+</tr>
+<tr>
+<td>OpenSciToolBench</td>
+<td>Gemini-3-flash</td>
+<td style="text-align:right">69.53 ± 2.77</td>
+<td style="text-align:right">67.26 ± 0.96</td>
+<td style="text-align:right">Reflexion 57.71 ± 1.21</td>
+</tr>
+<tr>
+<td>SciToolEval</td>
+<td>GPT-5.4-mini</td>
+<td style="text-align:right">83.91 ± 1.75</td>
+<td style="text-align:right">82.84 ± 1.87</td>
+<td style="text-align:right">CoT 76.73 ± 1.73</td>
+</tr>
+<tr>
+<td>SciToolEval</td>
+<td>Gemini-3-flash</td>
+<td style="text-align:right">78.79 ± 1.40</td>
+<td style="text-align:right">77.97 ± 1.75</td>
+<td style="text-align:right">ReAct 75.08 ± 0.76</td>
+</tr>
+</tbody>
+</table></div><p><em>Values are percentages, reported as mean ± standard deviation across three independent runs. Source: Tables 1–2.</em></p>
+<p>Overall answer accuracy leads for both backbones on both benchmarks. GPT-5.4-mini gains <strong>12.11 percentage points</strong> over its strongest OpenSciToolBench baseline, while its answer accuracy falls from <strong>83.49%</strong> at Level 1 to <strong>32.89%</strong> at Level 4. On the SciToolEval single-tool subset with Gemini-3-flash, Reflexion scores <strong>88.16%</strong> against Evo's <strong>86.84%</strong>. The overall gain varies across subsets. <a href="https://arxiv.org/html/2607.28692v1#S5.SS4" target="_blank" rel="noopener noreferrer">Tables 1–2</a></p>
+<h3 id="section-7">Supporting Evaluation: Accumulation and Online Updates</h3>
+<p>The full configuration scores <strong>67.22</strong> in Table 3. Removing all migration yields <strong>51.53</strong>, a drop of <strong>15.69</strong> points. Removing inference-only migration yields <strong>63.71</strong>, a drop of <strong>3.51</strong> points. Removing knowledge accumulation costs <strong>14.87</strong> points. Enabling migration in both phases produces the highest result in this comparison, and disabling it only during inference has a smaller effect. Read these as within-Table-3 comparisons, alongside the separate three-run main results from Table 1. <a href="https://arxiv.org/html/2607.28692v1#S5.SS5" target="_blank" rel="noopener noreferrer">Table 3</a></p>
+<figure class="blog-figure"><a class="article-figure" href="../../../assets/img/blog/scitoolagent-evo/accumulation.png" target="_blank" rel="noopener noreferrer" title="View full-size figure"><img src="../../../assets/img/blog/scitoolagent-evo/accumulation.png" alt="Planning accuracy and initially unknown-tool hit rate across accumulation progress" loading="lazy" decoding="async"></a><figcaption>Figure 2 · The horizontal axis is accumulation progress. The lines show planning accuracy and initially unknown-tool hit rate. Source: v1 Figure 4, PDF page 7, cropped to the plots.</figcaption></figure>
+<p>In Figure 4, the initially unknown-tool hit rate for GPT-5.4-mini rises from <strong>55.30% to 88.24%</strong>, with most of the gain occurring in the first quarter of accumulation. This metric tracks tool hits. Appendix Table A4 reports that, compared with SciToolAgent, the full method increases mean time per task from <strong>17.2 to 26.4 seconds</strong> and estimated API cost from <strong>$0.007 to $0.018</strong>. <a href="https://arxiv.org/html/2607.28692v1#S5.SS6" target="_blank" rel="noopener noreferrer">Figure 4 and Table A4</a></p>
+<h2 id="section-8">6. Our Reflections</h2>
+<h3 id="section-9">Topic Reflection: What Is This Field Studying?</h3>
+<p>A larger tool library makes it important to preserve the right evidence for future tasks. One successful run can yield a complete chain, an explanation of why one choice worked, or a more precise description of a tool's requirements. Those records have different scopes. Storing them separately lets later tasks combine them as needed.</p>
+<h3 id="section-10">Limitation Reflection: What Remains Unresolved?</h3>
+<p><strong>Unknown tools come from a predefined pool.</strong> The benchmark starts from an existing graph and restricts which attributes are initially visible. Real services also change interfaces, permissions, and runtime requirements. <strong>Reference chains provide one evaluation target.</strong> Different paths can produce equivalent outputs, and a correct answer still calls for checking the execution trail. <strong>Online updates depend on feedback.</strong> The paper defines an execution signal for updating the gate and graph. Deployed research tasks often lack an immediately available reference answer, making the reliability of migration depend on feedback quality. <a href="https://arxiv.org/html/2607.28692v1#A1" target="_blank" rel="noopener noreferrer">Sections 3–4 and Appendix A</a></p>
+<h3 id="section-11">Solution Reflection: What Directions Could Address These Issues?</h3>
+<p>Split tests by tool version, provider, and time to reserve genuinely unseen interfaces, and record acquisition failures and operating costs. For tasks with several valid paths, assess equivalent paths using output contracts and independently checkable intermediate artifacts. Before adding a new tool to the graph, use a minimal runnable case to check its inputs, outputs, and failure behavior, then freeze the graph and measure reuse and erroneous migration on subsequent tasks.</p>
+<p><em>Figures are from SciToolAgent-Evo v1 by Tang et al., reproduced under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.</em></p>
+</article><div class="article-note">From research and reading notes. Interpret reported findings within the original settings, separately from our analyses, proposals, and illustrative examples.</div></div><aside class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ol><li><a href="#section-1">1. Understanding the Topic: Can the Tools Work Together?</a></li><li><a href="#section-2">2. Related Work: Tool Graphs, Experience, and Exploration</a></li><li><a href="#section-3">3. Research Questions: What Does the System Learn?</a></li><li><a href="#section-4">4. Understanding the Method: Turning Contrasting Runs into Future Tool Choices</a></li><li><a href="#section-5">5. Experimental Design and Results: Accuracy, Contributions, and Cost</a></li><li><a href="#section-8">6. Our Reflections</a></li></ol><a href="../">← Blog</a></aside></div><section class="related-writing"><h2>Keep reading</h2><a href="../verifiedlab/"><span>Paper reading</span><strong>VerifiedLab: from field-level verification to traceable research</strong><i aria-hidden="true">↗</i></a><a href="../autoscientists/"><span>Paper reading</span><strong>AutoScientists: how research agents form teams and choose the next experiment</strong><i aria-hidden="true">↗</i></a><a href="../autoscirub/"><span>Paper reading</span><strong>AutoSciRub: specify evidence before improving research</strong><i aria-hidden="true">↗</i></a></section></main><footer class="site-footer"><p>© 2026 Linhao Wang <span class="footer-divider">/</span> <span class="lang-zh">更新于 2026 年 11 月</span><span class="lang-en" lang="en">Updated November 2026</span><br><span class="template-credit"><a class="" href="https://github.com/wzsyyh/luka-homepage-template" target="_blank" rel="noopener noreferrer">Luka Homepage Template<span aria-hidden="true"> ↗</span></a> by Yuheng Yang</span></p></footer><script src="../../../assets/js/homepage.js"></script><script src="../../../assets/js/article.js"></script><script src="../../../assets/js/reading-comments.js" defer></script><script src="https://hypothes.is/embed.js" async></script></body></html>
